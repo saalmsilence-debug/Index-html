@@ -1,160 +1,674 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Book 7 - Working MVP</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { font-family: Arial; background:#f1f1f1; margin:0; padding:10px; }
-.screen { display:none; }
-.screen.active { display:block; }
-button { padding:10px; margin:8px 0; width:100%; background:#222; color:#fff; border:none; border-radius:5px; }
-input, select { padding:10px; width:100%; margin:5px 0; }
-.box { background:#fff; padding:12px; border-radius:10px; margin:10px 0; box-shadow:0 2px 6px rgba(0,0,0,.1); }
-li { margin:5px 0; font-size:14px; }
-/* Styles for visual distinction on the list */
-.income { color: darkgreen; }
-.expense { color: darkred; }
-</style>
+  <meta charset="UTF-8">
+  <title>Book 7 - Business OS MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      color: #222;
+      padding-bottom: 60px;
+    }
+    header {
+      background: #222;
+      color: #fff;
+      padding: 10px 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .container {
+      padding: 10px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .top-bar {
+      background: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .top-bar input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      min-width: 140px;
+    }
+    .top-bar button {
+      padding: 8px 10px;
+      border: none;
+      border-radius: 4px;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin: 10px 0;
+    }
+    .nav button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #444;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .nav button.active {
+      background: #0d8b3e;
+    }
+    .screen {
+      display: none;
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin-bottom: 12px;
+    }
+    .screen.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+    h3 {
+      margin-bottom: 6px;
+      margin-top: 14px;
+      font-size: 16px;
+    }
+    label {
+      font-size: 13px;
+      display: block;
+      margin-top: 6px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 7px;
+      margin-top: 3px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 60px;
+    }
+    .btn {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn.secondary {
+      background: #888;
+    }
+    .summary-box {
+      background: #f8f8f8;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .list {
+      margin-top: 8px;
+      font-size: 14px;
+      max-height: 220px;
+      overflow-y: auto;
+      border-top: 1px solid #eee;
+      padding-top: 5px;
+    }
+    .list-item {
+      border-bottom: 1px solid #eee;
+      padding: 4px 0;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 4px;
+      color: #fff;
+    }
+    .tag.income { background: #0d8b3e; }
+    .tag.expense { background: #c0392b; }
+    .tag.owed { background: #c0392b; }
+    .tag.owing { background: #0d8b3e; }
+    .tag.open { background: #e67e22; }
+    .tag.paid { background: #16a085; }
+    .ai-tip {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      background: #e8f7ff;
+      font-size: 13px;
+      border-left: 3px solid #2980b9;
+    }
+    .small {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
 </head>
-
 <body>
+<header>Book 7 – Business OS MVP</header>
 
-<div id="login" class="screen active">
-  <h2>Book 7 Login</h2>
-  <input id="user" placeholder="Business Name">
-  <button onclick="login()">Enter Dashboard</button>
-</div>
+<div class="container">
+  <div class="top-bar">
+    <input id="businessNameInput" placeholder="Business name (e.g. 7th Manly Shop)">
+    <button id="saveBusinessBtn" type="button">Save Business</button>
+    <span id="businessLabel" class="small"></span>
+  </div>
 
-<div id="dashboard" class="screen">
-  <h2 id="welcome"></h2>
+  <div class="nav">
+    <button data-screen="ledger" class="active">Ledger</button>
+    <button data-screen="pl">Profit & Loss</button>
+    <button data-screen="calendar">Calendar</button>
+    <button data-screen="debts">Debts</button>
+    <button data-screen="inventory">Inventory</button>
+  </div>
 
-  <div class="box">
-    <h3>Add Record</h3>
-    <input id="desc" placeholder="Description">
-    <input id="amount" type="number" placeholder="Amount">
-    <select id="type">
+  <!-- LEDGER SCREEN -->
+  <div id="screen-ledger" class="screen active">
+    <h2>Ledger</h2>
+    <p class="small">Track all income and expenses. This powers Profit & Loss and AI tips.</p>
+
+    <label>Date</label>
+    <input id="ledgerDate" type="date">
+
+    <label>Description</label>
+    <input id="ledgerDesc" type="text" placeholder="e.g. Cash sale, Rent, Stock purchase">
+
+    <label>Amount (Ksh)</label>
+    <input id="ledgerAmount" type="number" step="0.01" placeholder="e.g. 1500">
+
+    <label>Type</label>
+    <select id="ledgerType">
       <option value="income">Income</option>
       <option value="expense">Expense</option>
     </select>
-    
-    <p id="feedbackMessage" style="height: 1.2em; margin: 5px 0; font-size: 14px;"></p> 
-    
-    <button onclick="addRecord()">Save Record</button>
+
+    <label>Category (optional)</label>
+    <input id="ledgerCategory" type="text" placeholder="e.g. Sales, Rent, Supplies">
+
+    <button id="addLedgerBtn" class="btn" type="button">Add Ledger Entry</button>
+
+    <div class="summary-box" id="ledgerSummary">No records yet.</div>
+    <div class="list" id="ledgerList"></div>
+
+    <div class="ai-tip" id="ledgerAiTip">
+      AI Ledger Insight will appear here after you add some entries.
+    </div>
   </div>
 
-  <div class="box">
-    <h3>Current Balance</h3>
-    <p id="balance">Ksh 0</p>
+  <!-- PROFIT & LOSS SCREEN -->
+  <div id="screen-pl" class="screen">
+    <h2>Profit & Loss</h2>
+    <p class="small">Automatically calculated from your ledger.</p>
+    <div class="summary-box" id="plSummary"></div>
+    <div class="ai-tip" id="plAiTip"></div>
   </div>
 
-  <div class="box">
-    <h3>Transaction Records</h3>
-    <ul id="list"></ul>
+  <!-- CALENDAR SCREEN -->
+  <div id="screen-calendar" class="screen">
+    <h2>Calendar View</h2>
+    <p class="small">See all business activity for a specific day.</p>
+
+    <label>Select date</label>
+    <input id="calendarDate" type="date">
+
+    <button id="calendarShowBtn" class="btn secondary" type="button">Show Day Activity</button>
+
+    <div class="list" id="calendarList"></div>
+
+    <div class="ai-tip" id="calendarAiTip">
+      AI Calendar Insight will appear here after you view a day with activity.
+    </div>
   </div>
 
-  <button onclick="clearData()">Clear All Records</button>
-  <button onclick="logout()">Logout</button>
+  <!-- DEBTS SCREEN -->
+  <div id="screen-debts" class="screen">
+    <h2>Debts – Owed & Owing</h2>
+    <p class="small">Track who owes you and who you owe.</p>
+
+    <label>Date</label>
+    <input id="debtDate" type="date">
+
+    <label>Name / Party</label>
+    <input id="debtName" type="text" placeholder="e.g. Supplier X, Customer Y">
+
+    <label>Amount (Ksh)</label>
+    <input id="debtAmount" type="number" step="0.01" placeholder="e.g. 5000">
+
+    <label>Direction</label>
+    <select id="debtDirection">
+      <option value="owed">I OWE them (liability)</option>
+      <option value="owing">They OWE me (asset)</option>
+    </select>
+
+    <label>Status</label>
+    <select id="debtStatus">
+      <option value="open">Open / Unpaid</option>
+      <option value="paid">Paid / Settled</option>
+    </select>
+
+    <button id="addDebtBtn" class="btn" type="button">Add Debt</button>
+
+    <div class="summary-box" id="debtSummary"></div>
+    <div class="list" id="debtList"></div>
+
+    <div class="ai-tip" id="debtAiTip">
+      AI Debt Insight will appear here after you add debts.
+    </div>
+  </div>
+
+  <!-- INVENTORY SCREEN -->
+  <div id="screen-inventory" class="screen">
+    <h2>Inventory</h2>
+    <p class="small">Track stock levels and total inventory value.</p>
+
+    <label>Date</label>
+    <input id="invDate" type="date">
+
+    <label>Item name</label>
+    <input id="invItem" type="text" placeholder="e.g. Jersey, Boots, Drinks">
+
+    <label>Quantity</label>
+    <input id="invQty" type="number" step="1" placeholder="e.g. 10">
+
+    <label>Unit cost (Ksh)</label>
+    <input id="invUnitCost" type="number" step="0.01" placeholder="e.g. 300">
+
+    <button id="addInvBtn" class="btn" type="button">Add / Update Inventory</button>
+
+    <div class="summary-box" id="invSummary"></div>
+    <div class="list" id="invList"></div>
+
+    <div class="ai-tip" id="invAiTip">
+      AI Inventory Insight will appear here after you add inventory.
+    </div>
+  </div>
 </div>
 
 <script>
-// Load data from Local Storage on startup
-let records = JSON.parse(localStorage.getItem("book7data")) || [];
-let businessName = localStorage.getItem("book7user") || "";
+  // ==== DATA MODEL & STORAGE ====
+  var state = {
+    ledger: [],      // {id, date, desc, amount, type, category}
+    debts: [],       // {id, date, name, amount, direction, status}
+    inventory: []    // {id, date, item, qty, unitCost}
+  };
+  var businessName = "";
 
-window.onload = function(){
-  if(businessName){
-    showDashboard();
-  }
-}
-
-function login(){
-  let user = document.getElementById("user").value.trim();
-  if(!user){ alert("Enter business name"); return; }
-  localStorage.setItem("book7user", user);
-  businessName = user;
-  showDashboard();
-}
-
-function showDashboard(){
-  document.getElementById("login").classList.remove("active");
-  document.getElementById("dashboard").classList.add("active");
-  document.getElementById("welcome").innerText = "Welcome to Book 7, " + businessName;
-  render();
-}
-
-function addRecord(){
-  let desc = document.getElementById("desc").value.trim();
-  let amount = parseFloat(document.getElementById("amount").value);
-  let type = document.getElementById("type").value;
-  let feedback = document.getElementById("feedbackMessage"); 
-
-  // --- INPUT VALIDATION: Check for Description, Number, and Positive Amount ---
-  if (!desc) {
-    feedback.innerText = "❌ Please enter a description.";
-    feedback.style.color = 'red';
-    return;
-  }
-  if (isNaN(amount) || amount <= 0) {
-    feedback.innerText = "❌ Please enter a valid amount greater than 0.";
-    feedback.style.color = 'red';
-    return;
+  function loadState() {
+    try {
+      var saved = localStorage.getItem("book7_state");
+      if (saved) {
+        state = JSON.parse(saved) || state;
+      }
+      var savedBiz = localStorage.getItem("book7_business");
+      if (savedBiz) {
+        businessName = savedBiz;
+      }
+    } catch (e) {
+      console.log("Error loading state:", e);
+    }
   }
 
-  // Clear previous feedback on success path
-  feedback.innerText = "";
-  
-  // Save record object
-  records.push({desc, amount, type, date:new Date().toLocaleString()});
-  localStorage.setItem("book7data", JSON.stringify(records));
-  
-  // Clear inputs
-  document.getElementById("desc").value = "";
-  document.getElementById("amount").value = "";
-  
-  // Render updates and show success feedback
-  render();
-
-  feedback.innerText = `✅ Success! Ksh ${amount} (${type.toUpperCase()}) recorded.`;
-  feedback.style.color = 'green';
-  
-  // Clear the success message after 3 seconds
-  setTimeout(() => { feedback.innerText = ""; }, 3000);
-}
-
-function render(){
-  let list = document.getElementById("list");
-  list.innerHTML = "";
-  let balance = 0;
-
-  records.forEach(r=>{
-    let li = document.createElement("li");
-    li.textContent = `${r.date} | ${r.desc} - ${r.type.toUpperCase()} : Ksh ${r.amount}`;
-    
-    // Add CSS class (income or expense) for visual distinction
-    li.classList.add(r.type); 
-    
-    list.appendChild(li);
-    // Calculate balance
-    balance += (r.type === "income" ? r.amount : -r.amount);
-  });
-
-  document.getElementById("balance").innerText = "Ksh " + balance;
-}
-
-function logout(){
-  localStorage.removeItem("book7user");
-  location.reload();
-}
-
-function clearData(){
-  if(confirm("Delete all records?")){
-    records = [];
-    localStorage.removeItem("book7data");
-    render();
+  function saveState() {
+    try {
+      localStorage.setItem("book7_state", JSON.stringify(state));
+    } catch (e) {
+      console.log("Error saving state:", e);
+    }
   }
-}
-</script>
 
-</body>
-</html>
+  function saveBusiness() {
+    var input = document.getElementById("businessNameInput");
+    var name = input.value ? input.value.trim() : "";
+    if (!name) {
+      alert("Enter a business name.");
+      return;
+    }
+    businessName = name;
+    try {
+      localStorage.setItem("book7_business", businessName);
+    } catch (e) {
+      console.log("Error saving business:", e);
+    }
+    updateBusinessLabel();
+  }
+
+  function updateBusinessLabel() {
+    var label = document.getElementById("businessLabel");
+    if (businessName) {
+      label.textContent = "Business: " + businessName;
+    } else {
+      label.textContent = "";
+    }
+  }
+
+  // ==== NAVIGATION ====
+  function showScreen(name) {
+    var screens = document.querySelectorAll(".screen");
+    for (var i = 0; i < screens.length; i++) {
+      screens[i].classList.remove("active");
+    }
+    var target = document.getElementById("screen-" + name);
+    if (target) {
+      target.classList.add("active");
+    }
+
+    var navButtons = document.querySelectorAll(".nav button");
+    for (var j = 0; j < navButtons.length; j++) {
+      navButtons[j].classList.remove("active");
+      if (navButtons[j].getAttribute("data-screen") === name) {
+        navButtons[j].classList.add("active");
+      }
+    }
+
+    // Refresh summaries/tips when switching
+    renderAll();
+  }
+
+  // ==== LEDGER LOGIC ====
+  function addLedger() {
+    var dateEl = document.getElementById("ledgerDate");
+    var descEl = document.getElementById("ledgerDesc");
+    var amountEl = document.getElementById("ledgerAmount");
+    var typeEl = document.getElementById("ledgerType");
+    var catEl = document.getElementById("ledgerCategory");
+
+    var date = dateEl.value;
+    var desc = descEl.value ? descEl.value.trim() : "";
+    var amount = parseFloat(amountEl.value);
+    var type = typeEl.value;
+    var category = catEl.value ? catEl.value.trim() : "";
+
+    if (!date || !desc || isNaN(amount)) {
+      alert("Fill date, description and amount correctly.");
+      return;
+    }
+
+    var entry = {
+      id: "L" + Date.now(),
+      date: date,
+      desc: desc,
+      amount: amount,
+      type: type,
+      category: category
+    };
+    state.ledger.push(entry);
+    saveState();
+
+    // Clear inputs
+    descEl.value = "";
+    amountEl.value = "";
+    catEl.value = "";
+
+    renderLedger();
+    renderPL();
+    renderCalendar();
+  }
+
+  function renderLedger() {
+    var listEl = document.getElementById("ledgerList");
+    var summaryEl = document.getElementById("ledgerSummary");
+    listEl.innerHTML = "";
+
+    if (!state.ledger.length) {
+      summaryEl.textContent = "No records yet.";
+      document.getElementById("ledgerAiTip").textContent =
+        "Add income and expense records to see AI insights about your cash flow.";
+      return;
+    }
+
+    var income = 0;
+    var expense = 0;
+
+    // Sort by date (latest first)
+    var ledgerSorted = state.ledger.slice().sort(function(a, b) {
+      if (a.date === b.date) {
+        return 0;
+      }
+      return a.date < b.date ? 1 : -1;
+    });
+
+    for (var i = 0; i < ledgerSorted.length; i++) {
+      var r = ledgerSorted[i];
+      if (r.type === "income") income += r.amount;
+      else expense += r.amount;
+
+      var div = document.createElement("div");
+      div.className = "list-item";
+      var tagClass = r.type === "income" ? "tag income" : "tag expense";
+      var tagText = r.type === "income" ? "IN" : "OUT";
+
+      div.innerHTML =
+        "<strong>" + r.date + "</strong> – " +
+        r.desc + " (" + (r.category || "General") + ")" +
+        " – Ksh " + r.amount.toFixed(2) +
+        " <span class='" + tagClass + "'>" + tagText + "</span>";
+      listEl.appendChild(div);
+    }
+
+    var balance = income - expense;
+    summaryEl.innerHTML =
+      "Income: <strong>Ksh " + income.toFixed(2) +
+      "</strong> | Expense: <strong>Ksh " + expense.toFixed(2) +
+      "</strong> | Balance: <strong>Ksh " + balance.toFixed(2) + "</strong>";
+
+    document.getElementById("ledgerAiTip").textContent = getLedgerTip(income, expense, balance);
+  }
+
+  function getLedgerTip(income, expense, balance) {
+    // Simple built-in "AI" rules
+    if (income === 0 && expense === 0) {
+      return "No activity yet. Start logging income and expenses to understand your business cash flow.";
+    }
+    if (income > 0 && expense === 0) {
+      return "You have only income recorded and no expenses. Double check that you’re capturing rent, stock, and other costs.";
+    }
+    if (expense > income) {
+      return "Expenses are higher than income. Consider cutting recurring costs or increasing prices on high-demand items.";
+    }
+    if (balance > 0 && (income - expense) / income < 0.2) {
+      return "You’re profitable but margins are thin. Look for expenses that don’t directly produce income and reduce them.";
+    }
+    if (balance > 0 && (income - expense) / income >= 0.2) {
+      return "Good job! Your business is generating healthy profit. Reinforce what’s working: focus on your best-selling items and services.";
+    }
+    if (balance < 0) {
+      return "The business is running at a loss. Use this signal early: review your largest expenses and test small price increases.";
+    }
+    return "Keep logging every transaction daily. The more complete the ledger, the smarter your Profit & Loss and decisions become.";
+  }
+
+  // ==== PROFIT & LOSS ====
+  function renderPL() {
+    var summaryEl = document.getElementById("plSummary");
+    var aiEl = document.getElementById("plAiTip");
+
+    if (!state.ledger.length) {
+      summaryEl.textContent = "No ledger data yet. Add records in the Ledger screen.";
+      aiEl.textContent = "Once you have at least a week of data, this will show your basic profit and spending pattern.";
+      return;
+    }
+
+    var income = 0;
+    var expense = 0;
+    for (var i = 0; i < state.ledger.length; i++) {
+      var r = state.ledger[i];
+      if (r.type === "income") income += r.amount;
+      else expense += r.amount;
+    }
+    var net = income - expense;
+    var margin = income > 0 ? (net / income) * 100 : 0;
+
+    summaryEl.innerHTML =
+      "<strong>Total Income:</strong> Ksh " + income.toFixed(2) + "<br>" +
+      "<strong>Total Expenses:</strong> Ksh " + expense.toFixed(2) + "<br>" +
+      "<strong>Net Profit / Loss:</strong> Ksh " + net.toFixed(2) + "<br>" +
+      "<strong>Profit Margin:</strong> " + margin.toFixed(1) + "%";
+
+    // Simple "AI" P&L tip
+    if (income === 0) {
+      aiEl.textContent = "You have no recorded income. Are you missing sales entries or are you in setup phase?";
+    } else if (net < 0) {
+      aiEl.textContent =
+        "The business is currently at a loss. Focus on increasing income from your strongest products and reducing 1–2 big expenses.";
+    } else if (margin < 10) {
+      aiEl.textContent =
+        "You are profitable but margins are low. Try small price increases or negotiate better supplier terms.";
+    } else if (margin >= 10 && margin < 30) {
+      aiEl.textContent =
+        "Your margins look healthy. Consider reinvesting a fixed % of profit back into marketing or inventory.";
+    } else {
+      aiEl.textContent =
+        "Strong profitability. Protect this by tracking your biggest costs weekly and avoiding unnecessary new expenses.";
+    }
+  }
+
+  // ==== CALENDAR ====
+  function showCalendarDay() {
+    var date = document.getElementById("calendarDate").value;
+    var listEl = document.getElementById("calendarList");
+    var aiEl = document.getElementById("calendarAiTip");
+    listEl.innerHTML = "";
+
+    if (!date) {
+      alert("Select a date to view activity.");
+      return;
+    }
+
+    var hasActivity = false;
+
+    function addLine(text) {
+      var div = document.createElement("div");
+      div.className = "list-item";
+      div.textContent = text;
+      listEl.appendChild(div);
+      hasActivity = true;
+    }
+
+    // Ledger
+    for (var i = 0; i < state.ledger.length; i++) {
+      var r = state.ledger[i];
+      if (r.date === date) {
+        addLine("[Ledger] " + r.type.toUpperCase() + " – " + r.desc + " – Ksh " + r.amount.toFixed(2));
+      }
+    }
+    // Debts
+    for (var j = 0; j < state.debts.length; j++) {
+      var d = state.debts[j];
+      if (d.date === date) {
+        addLine("[Debt] " + d.name + " – " + d.direction.toUpperCase() + " – Ksh " + d.amount.toFixed(2) + " (" + d.status + ")");
+      }
+    }
+    // Inventory
+    for (var k = 0; k < state.inventory.length; k++) {
+      var inv = state.inventory[k];
+      if (inv.date === date) {
+        addLine("[Inventory] " + inv.item + " – Qty " + inv.qty + " @ Ksh " + inv.unitCost.toFixed(2));
+      }
+    }
+
+    if (!hasActivity) {
+      listEl.innerHTML = "<div class='small'>No activity recorded for this day.</div>";
+      aiEl.textContent = "Quiet day. Consider if anything happened that should be recorded (stock arrival, expenses, sales).";
+    } else {
+      aiEl.textContent =
+        "Use active days to spot patterns. Are your sales concentrated on certain days of the week? Plan stock and staff around that.";
+    }
+  }
+
+  function renderCalendar() {
+    // just refresh if current date selected
+    var date = document.getElementById("calendarDate").value;
+    if (date) {
+      showCalendarDay();
+    }
+  }
+
+  // ==== DEBTS ====
+  function addDebt() {
+    var dateEl = document.getElementById("debtDate");
+    var nameEl = document.getElementById("debtName");
+    var amountEl = document.getElementById("debtAmount");
+    var dirEl = document.getElementById("debtDirection");
+    var statusEl = document.getElementById("debtStatus");
+
+    var date = dateEl.value;
+    var name = nameEl.value ? nameEl.value.trim() : "";
+    var amount = parseFloat(amountEl.value);
+    var direction = dirEl.value;
+    var status = statusEl.value;
+
+    if (!date || !name || isNaN(amount)) {
+      alert("Fill date, name and amount correctly.");
+      return;
+    }
+
+    var entry = {
+      id: "D" + Date.now(),
+      date: date,
+      name: name,
+      amount: amount,
+      direction: direction,
+      status: status
+    };
+    state.debts.push(entry);
+    saveState();
+
+    nameEl.value = "";
+    amountEl.value = "";
+
+    renderDebts();
+    renderCalendar();
+  }
+
+  function renderDebts() {
+    var listEl = document.getElementById("debtList");
+    var summaryEl = document.getElementById("debtSummary");
+    var aiEl = document.getElementById("debtAiTip");
+
+    listEl.innerHTML = "";
+
+    if (!state.debts.length) {
+      summaryEl.textContent = "No debts recorded yet.";
+      aiEl.textContent = "Record every person you owe and who owes you. Debts are silent killers of cash flow if not tracked.";
+      return;
+    }
+
+    var owedOpen = 0;
+    var owingOpen = 0;
+
+    for (var i = 0; i < state.debts.length; i++) {
+      var d = state.debts[i];
+
+      if (d.direction === "owed" && d.status === "open") owedOpen += d.amount;
+      if (d.direction === "owing" && d.status === "open") owingOpen += d.amount;
+
+      var div = document.createElement("div");
+      div.className = "list-item";
+
+      var dirClass = d.direction === "owed" ? "tag owed" : "tag owing";
+      var dirText = d.direction === "owed" ? "I OWE" : "THEY OWE";
+
+      var statusClass = d.status === "o
