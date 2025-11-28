@@ -4,198 +4,255 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Book 7 Global OS</title>
-    <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
-    <link rel="manifest" href="manifest.json">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     <style>
+        /* Custom styles for MVP.css look and feel */
         :root {
-            --color-link: #1e3a8a;
-            --color-background: #0f172a;
-            --color-secondary: #1e3a8a;
-            --color-secondary-hover: #172554;
-            --color-accent: #3b82f6;
-            --color-lite: #60a5fa;
-            --color-t: #f1f5f9;
+            --color-primary: #1e3a8a; /* Deep Blue */
+            --color-secondary: #0f172a; /* Slate */
+            --color-accent: #3b82f6; /* Blue */
+            --color-success: #10b981; /* Green */
+            --color-error: #ef4444; /* Red */
         }
-        main { max-width: 600px; margin: 0 auto; padding: 20px; }
-        header, footer { text-align: center; }
-        button, a.button { width: 100%; margin: 10px 0; }
-        .tab-content { display: none; padding-top: 20px; }
-        .tab-content.active { display: block; }
-        
-        .tab-nav { display: flex; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 2px solid var(--color-secondary); }
-        .tab-nav button { background: var(--color-background); color: var(--color-t); border: none; padding: 10px 5px; cursor: pointer; opacity: 0.7; transition: opacity 0.3s; flex-grow: 1; border-radius: 0; margin: 0; font-size: 0.8em; }
-        .tab-nav button.active { opacity: 1; background: var(--color-secondary); border-radius: 4px 4px 0 0; }
-
-        .card-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
-        .card { flex: 1; padding: 15px; border-radius: 8px; text-align: center; color: var(--color-background); }
-        .card h4 { margin: 0 0 5px 0; font-size: 0.8em; color: var(--color-background); opacity: 0.8; }
-        .card p { margin: 0; font-size: 1.5em; font-weight: bold; }
-        #incomeCard { background: #34d399; }
-        #expenseCard { background: #f87171; }
-        #netCard { background: #60a5fa; }
-        #alertBanner { padding: 10px; background: #dc2626; color: white; text-align: center; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: bold; }
-        .voice-entry-group { display: flex; gap: 10px; }
-        .voice-entry-group input { flex-grow: 1; }
-        .voice-entry-group button { flex-grow: 0; width: auto; padding: 10px 15px; }
-
-        .debt-item { border: 1px solid var(--color-secondary); padding: 10px; margin-bottom: 10px; border-radius: 4px; }
-        .debt-item.to-me { border-left: 5px solid #34d399; }
-        .debt-item.i-owe { border-left: 5px solid #f87171; }
+        /* Overriding default Tailwind/MVP.css spacing for better mobile readability */
+        body { background-color: var(--color-secondary); color: white; font-family: 'Inter', sans-serif; }
+        /* Ensuring full screen height for PWA experience */
+        html, body, main { height: 100%; }
+        /* Customizing scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background-color: #1e293b; }
+        /* Style for interactive details in AI tab */
+        details summary { cursor: pointer; padding: 10px 0; border-bottom: 1px solid #334155; }
     </style>
 </head>
-<body>
-    <main>
-        <header>
-            <h1>Book 7 Global OS</h1>
-            <p id="currentUserDisplay" style="font-weight: bold;"></p>
-            <hr>
+<body class="min-h-screen flex flex-col">
+    <main class="flex-grow p-4 md:p-8 max-w-xl mx-auto w-full">
+        <!-- HEADER -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-white mb-1">BOOK 7 OS</h1>
+            <p id="currentUserDisplay" class="text-sm font-semibold text-gray-400"></p>
+            <hr class="mt-2 border-gray-700">
         </header>
 
-        <section id="loginScreen">
-            <h2>Business Login</h2>
+        <!-- LOGIN SCREEN -->
+        <section id="loginScreen" class="bg-gray-800 p-6 rounded-xl shadow-2xl">
+            <h2 class="text-2xl font-semibold mb-4 text-center text-white">Business Login</h2>
             <form id="loginForm">
-                <label for="businessName">Business Name:</label>
-                <input type="text" id="businessName" placeholder="e.g., Jane's Bakery" required>
+                <div class="mb-4">
+                    <label for="businessName" class="block text-sm font-medium text-gray-300 mb-1">Business Name:</label>
+                    <input type="text" id="businessName" placeholder="e.g., Global Trader Corp" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
                 
-                <label for="pin">4-Digit PIN:</label>
-                <input type="password" id="pin" pattern="\d{4}" maxlength="4" placeholder="••••" required>
+                <div class="mb-6">
+                    <label for="pin" class="block text-sm font-medium text-gray-300 mb-1">4-Digit PIN:</label>
+                    <input type="password" id="pin" pattern="\d{4}" maxlength="4" placeholder="••••" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
                 
-                <button type="submit">Login / Register</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
+                    Login / Register
+                </button>
             </form>
         </section>
 
-        <section id="appScreen" style="display: none;">
-            <div class="card-container">
-                <div class="card" id="incomeCard"><h4>Total Income</h4><p id="totalIncome">$0.00</p></div>
-                <div class="card" id="expenseCard"><h4>Total Expenses</h4><p id="totalExpenses">$0.00</p></div>
-                <div class="card" id="netCard"><h4>Net</h4><p id="netProfit">$0.00</p></div>
-            </div>
-
-            <div id="alertBanner">Net Loss detected! Review your expenses immediately.</div>
-            
-            <nav class="tab-nav">
-                <button class="active" onclick="showTab('dashboard')">Dashboard</button>
-                <button onclick="showTab('ledger')">Ledger</button>
-                <button onclick="showTab('ai-advisor')">AI Advisor</button>
-                <button onclick="showTab('planner')">Planner</button>
-                <button onclick="showTab('expenses')">Expenses</button>
-                <button onclick="showTab('debt')">Debt</button>
-            </nav>
-
-            <div id="dashboard" class="tab-content active">
-                <h2>Profit & Cash Flow</h2>
-                <canvas id="financialChart"></canvas>
-            </div>
-
-            <div id="ledger" class="tab-content">
-                <form id="transactionForm">
-                    <label for="type">Type:</label>
-                    <select id="type" required>
-                        <option value="income">Income (+)</option>
-                        <option value="expense">Expense (-)</option>
-                    </select>
-
-                    <label for="amount">Amount ($):</label>
-                    <input type="number" id="amount" step="0.01" min="0.01" required>
-
-                    <label for="description">Description (optional):</label>
-                    <div class="voice-entry-group">
-                        <input type="text" id="description" placeholder="e.g., Sales, Rent, Materials">
-                        <button type="button" id="voiceButton">🎙️ Speak Description</button>
-                    </div>
-
-                    <button type="submit">Add Entry</button>
-                </form>
-
-                <hr>
-                
-                <h2>Ledger History</h2>
-                <table id="ledgerTable">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="ai-advisor" class="tab-content">
-                <h2>AI Business Insight</h2>
-                <details>
-                    <summary>Strong Profit Strategy</summary>
-                    <p id="strongStrategy"></p>
-                </details>
-                <details>
-                    <summary>Small Profit Optimisation</summary>
-                    <p id="smallOptimization"></p>
-                </details>
-                <details>
-                    <summary>Loss Emergency Advice</summary>
-                    <p id="lossAdvice"></p>
-                </details>
-            </div>
-
-            <div id="planner" class="tab-content">
-                <h2>Growth Planner (MVP)</h2>
-                <p>This tab will feature Monthly Trend Comparison and Forecasting.</p>
-                <details>
-                    <summary>Monthly Trend Comparison (Coming Soon)</summary>
-                    <p>Current MVP focuses on live data. Full trend analysis is the next phase.</p>
-                </details>
-                <details>
-                    <summary>Simple Forecasting (Coming Soon)</summary>
-                    <p>Future projection based on historical data.</p>
-                </details>
-            </div>
-
-
-            <div id="expenses" class="tab-content">
-                <h2>Expense Guard</h2>
-                <p style="font-style: italic;">List of all recorded expenses:</p>
-                <ul id="expenseList"></ul>
-                <hr>
-                <h3>Top Expense Analysis (MVP)</h3>
-                <p>The **most common expense** category is currently: <strong id="topExpenseCategory">N/A</strong></p>
-                <p>Future features will include category limits and overspending alerts.</p>
-            </div>
-
-            <div id="debt" class="tab-content">
-                <h2>Debt Manager: Log a Debt</h2>
-                <form id="debtForm">
-                    <label for="debtType">Transaction Type:</label>
-                    <select id="debtType" required>
-                        <option value="iOwe">Debts I Owe (-)</option>
-                        <option value="toMe">Debts Owed to Me (+)</option>
-                    </select>
-                    
-                    <label for="debtAmount">Amount ($):</label>
-                    <input type="number" id="debtAmount" step="0.01" min="0.01" required>
-
-                    <label for="debtParty">Party (Who):</label>
-                    <input type="text" id="debtParty" placeholder="e.g., Supplier X, John Doe" required>
-
-                    <label for="debtDue">Due Date (Optional):</label>
-                    <input type="date" id="debtDue">
-
-                    <button type="submit">Log Debt</button>
-                </form>
-
-                <hr>
-
-                <h2>Current Debt Status</h2>
-                <div id="debtList">
-                    <p>No debts recorded yet.</p>
+        <!-- APP SCREEN -->
+        <section id="appScreen" style="display: none;" class="flex flex-col min-h-[85vh]">
+            <!-- Dashboard Cards -->
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div id="incomeCard" class="card bg-green-500 p-3 rounded-xl shadow-lg text-gray-900 text-center">
+                    <h4 class="text-xs font-medium opacity-80">Income</h4>
+                    <p id="totalIncome" class="text-lg font-bold">$0.00</p>
+                </div>
+                <div id="expenseCard" class="card bg-red-500 p-3 rounded-xl shadow-lg text-gray-900 text-center">
+                    <h4 class="text-xs font-medium opacity-80">Expenses</h4>
+                    <p id="totalExpenses" class="text-lg font-bold">$0.00</p>
+                </div>
+                <div id="netCard" class="card bg-blue-500 p-3 rounded-xl shadow-lg text-gray-900 text-center">
+                    <h4 class="text-xs font-medium opacity-80">Net</h4>
+                    <p id="netProfit" class="text-lg font-bold">$0.00</p>
                 </div>
             </div>
 
-            <footer>
-                <hr>
-                <button id="logoutButton">Log Out</button>
+            <!-- Net Loss Alert -->
+            <div id="alertBanner" class="p-3 bg-red-700 text-white text-center rounded-lg mb-4 hidden font-semibold shadow-md transition-all">
+                ⚠️ Net Loss detected! Review your expenses immediately.
+            </div>
+            
+            <!-- Tab Navigation -->
+            <nav class="tab-nav flex border-b border-gray-700 mb-4 overflow-x-auto whitespace-nowrap">
+                <button class="tab-btn active p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('dashboard')">Dashboard</button>
+                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('ledger')">Ledger</button>
+                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('ai-advisor')">AI Advisor</button>
+                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('planner')">Planner</button>
+                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('expenses')">Expenses</button>
+                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('debt')">Debt</button>
+            </nav>
+
+            <!-- TAB CONTENT CONTAINER -->
+            <div class="flex-grow overflow-y-auto pb-10">
+
+                <!-- TAB 1: DASHBOARD (Pillars 2, 4) -->
+                <div id="dashboard" class="tab-content active">
+                    <h2 class="text-xl font-semibold mb-3">Profit & Cash Flow</h2>
+                    <div class="bg-gray-800 p-4 rounded-xl shadow-inner">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- TAB 2: LEDGER (Pillar 1) -->
+                <div id="ledger" class="tab-content">
+                    <h2 class="text-xl font-semibold mb-3">New Entry</h2>
+                    <form id="transactionForm" class="bg-gray-800 p-4 rounded-xl shadow-lg">
+                        <div class="mb-4">
+                            <label for="type" class="block text-sm font-medium text-gray-300 mb-1">Type:</label>
+                            <select id="type" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                                <option value="income">Income (+)</option>
+                                <option value="expense">Expense (-)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="amount" class="block text-sm font-medium text-gray-300 mb-1">Amount ($):</label>
+                            <input type="number" id="amount" step="0.01" min="0.01" required placeholder="0.00" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="description" class="block text-sm font-medium text-gray-300 mb-1">Description:</label>
+                            <div class="voice-entry-group flex space-x-2">
+                                <input type="text" id="description" placeholder="e.g., Sales, Rent, Materials" class="flex-grow p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                                <button type="button" id="voiceButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md">
+                                    🎙️
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
+                            Add Transaction
+                        </button>
+                    </form>
+
+                    <h2 class="text-xl font-semibold mt-6 mb-3">Ledger History</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-700 bg-gray-800 rounded-xl shadow-lg">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Amount</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledgerTableBody" class="divide-y divide-gray-700 text-sm">
+                                <!-- Ledger rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: AI ADVISOR (Pillar 6) -->
+                <div id="ai-advisor" class="tab-content">
+                    <h2 class="text-xl font-semibold mb-3">AI Business Insight</h2>
+                    <div class="bg-gray-800 p-4 rounded-xl shadow-lg space-y-4 text-gray-200">
+                        <details class="mb-4">
+                            <summary class="text-blue-400 font-semibold text-lg">Strong Profit Strategy</summary>
+                            <p id="strongStrategy" class="mt-2 text-base leading-relaxed"></p>
+                        </details>
+                        <details class="mb-4">
+                            <summary class="text-green-400 font-semibold text-lg">Small Profit Optimisation</summary>
+                            <p id="smallOptimization" class="mt-2 text-base leading-relaxed"></p>
+                        </details>
+                        <details>
+                            <summary class="text-red-400 font-semibold text-lg">Loss Emergency Advice</summary>
+                            <p id="lossAdvice" class="mt-2 text-base leading-relaxed"></p>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- TAB 4: PLANNER (Pillar 7 - MVP Stub) -->
+                <div id="planner" class="tab-content">
+                    <h2 class="text-xl font-semibold mb-3">Growth Planner (Phase 2)</h2>
+                    <div class="bg-gray-800 p-4 rounded-xl shadow-lg space-y-4">
+                        <p class="text-gray-400 italic">This tab will feature predictive tools essential for the "Know tomorrow before it comes" solution.</p>
+                        <div class="p-3 bg-gray-700 rounded-lg">
+                            <h3 class="font-semibold text-white">Monthly Trend Comparison</h3>
+                            <p class="text-sm text-gray-400">Side-by-side analysis of Income/Expense vs. last month.</p>
+                        </div>
+                        <div class="p-3 bg-gray-700 rounded-lg">
+                            <h3 class="font-semibold text-white">Simple Forecasting</h3>
+                            <p class="text-sm text-gray-400">30-day Net Position projection.</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- TAB 5: EXPENSES (Pillar 5 - Expense Guard) -->
+                <div id="expenses" class="tab-content">
+                    <h2 class="text-xl font-semibold mb-3">Expense Guard</h2>
+                    <div class="bg-gray-800 p-4 rounded-xl shadow-lg">
+                        <p class="text-sm text-gray-400 mb-4">Control money before money controls you.</p>
+                        
+                        <div class="p-3 mb-4 bg-gray-700 rounded-lg border-l-4 border-yellow-500">
+                            <h3 class="font-semibold text-lg text-white">Top Expense Analysis (MVP)</h3>
+                            <p class="text-sm text-gray-300">Your current most frequent expense category is: <strong id="topExpenseCategory" class="text-yellow-300">N/A</strong></p>
+                            <p class="text-xs text-gray-400 mt-1">Future versions will allow setting category limits and flagging unusual activity.</p>
+                        </div>
+
+                        <h3 class="font-semibold text-white mb-2">All Recorded Expenses</h3>
+                        <ul id="expenseList" class="divide-y divide-gray-700">
+                            <!-- Expenses list will be inserted here -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- TAB 6: DEBT (Pillar 3 - Debt Manager) -->
+                <div id="debt" class="tab-content">
+                    <h2 class="text-xl font-semibold mb-3">Debt Manager: Log Debt</h2>
+                    <form id="debtForm" class="bg-gray-800 p-4 rounded-xl shadow-lg mb-6">
+                        <div class="mb-4">
+                            <label for="debtType" class="block text-sm font-medium text-gray-300 mb-1">Transaction Type:</label>
+                            <select id="debtType" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                                <option value="iOwe">Debts I Owe (-)</option>
+                                <option value="toMe">Debts Owed to Me (+)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="debtAmount" class="block text-sm font-medium text-gray-300 mb-1">Amount ($):</label>
+                            <input type="number" id="debtAmount" step="0.01" min="0.01" required placeholder="0.00" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="debtParty" class="block text-sm font-medium text-gray-300 mb-1">Party (Who):</label>
+                            <input type="text" id="debtParty" placeholder="e.g., Supplier X, John Doe" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="debtDue" class="block text-sm font-medium text-gray-300 mb-1">Due Date (Optional):</label>
+                            <input type="date" id="debtDue" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                        </div>
+
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
+                            Log Debt / Credit
+                        </button>
+                    </form>
+
+                    <h2 class="text-xl font-semibold mb-3">Current Debt Status</h2>
+                    <div id="debtList" class="space-y-3">
+                        <p class="text-gray-400">No debts recorded yet. "No more forgotten debts."</p>
+                    </div>
+                </div>
+            </div>
+            <!-- END TAB CONTENT CONTAINER -->
+
+            <!-- FOOTER/LOGOUT -->
+            <footer class="mt-4 p-4 border-t border-gray-700">
+                <button id="logoutButton" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
+                    Log Out
+                </button>
             </footer>
         </section>
     </main>
@@ -204,14 +261,18 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('SW registered.');
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
             });
         }
 
         // --- Core Application Logic Setup ---
         let currentLedgerKey = null;
         let ledgerData = [];
-        let debtData = []; // New array for Debt Manager
+        let debtData = [];
         let chartInstance = null;
         
         const loginScreen = document.getElementById('loginScreen');
@@ -219,7 +280,7 @@
         const loginForm = document.getElementById('loginForm');
         const transactionForm = document.getElementById('transactionForm');
         const debtForm = document.getElementById('debtForm');
-        const ledgerTableBody = document.querySelector('#ledgerTable tbody');
+        const ledgerTableBody = document.getElementById('ledgerTableBody');
         const netCard = document.getElementById('netCard');
         const alertBanner = document.getElementById('alertBanner');
         const currentUserDisplay = document.getElementById('currentUserDisplay');
@@ -232,6 +293,7 @@
             const ledgerKey = `ledger_${key}`;
             const debtKey = `debt_${key}`;
 
+            // Load data, defaulting to empty arrays
             ledgerData = JSON.parse(localStorage.getItem(ledgerKey) || '[]');
             debtData = JSON.parse(localStorage.getItem(debtKey) || '[]');
             
@@ -250,23 +312,26 @@
             updateDashboard();
             updateChart();
             updateAIInsights();
-            renderDebtList(); // New rendering function
-            renderExpenseList(); // New rendering function
+            renderDebtList();
+            renderExpenseList();
         }
 
         // --- Tab Switching ---
         window.showTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-blue-500', 'text-white');
+                btn.classList.add('text-gray-400');
+            });
             
             document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-nav button[onclick*="${tabId}"]`).classList.add('active');
-            
+            const activeBtn = document.querySelector(`.tab-nav button[onclick*="${tabId}"]`);
+            activeBtn.classList.add('active', 'border-blue-500', 'text-white');
+            activeBtn.classList.remove('text-gray-400');
+
+            // Ensure chart renders if moving to dashboard
             if (tabId === 'dashboard') {
                 updateChart(); 
-            }
-            if (tabId === 'expenses') {
-                renderExpenseList();
             }
         }
 
@@ -281,176 +346,4 @@
                 loadLedger(key);
                 currentUserDisplay.textContent = `Logged in as: ${businessName}`;
                 loginScreen.style.display = 'none';
-                appScreen.style.display = 'block';
-                showTab('dashboard'); // Start on dashboard
-            } else {
-                alert('Please enter a business name and a 4-digit PIN.');
-            }
-        });
-
-        // --- Transaction Handler (Pillar 1) ---
-        transactionForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const type = document.getElementById('type').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const description = document.getElementById('description').value || 'N/A';
-            
-            if (amount > 0) {
-                const newEntry = { type, amount, description, timestamp: new Date().toISOString() };
-                ledgerData.unshift(newEntry);
-                saveLedger();
-                renderAllData();
-                transactionForm.reset();
-            } else {
-                alert('Amount must be a positive number.');
-            }
-        });
-
-        // --- Debt Manager Handler (Pillar 3) ---
-        debtForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const type = document.getElementById('debtType').value;
-            const amount = parseFloat(document.getElementById('debtAmount').value);
-            const party = document.getElementById('debtParty').value.trim();
-            const due = document.getElementById('debtDue').value;
-
-            if (amount > 0 && party) {
-                const newDebt = { type, amount, party, due, status: 'Pending', timestamp: new Date().toISOString() };
-                debtData.unshift(newDebt);
-                saveLedger();
-                renderDebtList();
-                debtForm.reset();
-            } else {
-                alert('Please enter a positive amount and the party\'s name.');
-            }
-        });
-
-        function renderDebtList() {
-            if (debtData.length === 0) {
-                debtListDiv.innerHTML = '<p>No debts recorded yet.</p>';
-                return;
-            }
-
-            debtListDiv.innerHTML = '';
-            debtData.forEach((debt, index) => {
-                const statusColor = debt.status === 'Pending' ? '#f59e0b' : (debt.status === 'Paid' ? '#34d399' : '#dc2626');
-                const html = `
-                    <div class="debt-item ${debt.type === 'toMe' ? 'to-me' : 'i-owe'}">
-                        <strong>${debt.type === 'toMe' ? 'Owed TO ME' : 'I OWE'}</strong>: $${debt.amount.toFixed(2)}<br>
-                        Party: ${debt.party}<br>
-                        Due: ${debt.due || 'N/A'} | Status: <span style="color:${statusColor};">${debt.status}</span>
-                    </div>
-                `;
-                debtListDiv.innerHTML += html;
-            });
-        }
-
-        // --- Expense Guard (Pillar 5 - MVP) ---
-        function renderExpenseList() {
-            expenseListUl.innerHTML = '';
-            const expenses = ledgerData.filter(e => e.type === 'expense');
-            const categoryCounts = {};
-
-            if (expenses.length === 0) {
-                expenseListUl.innerHTML = '<li>No expenses recorded.</li>';
-                document.getElementById('topExpenseCategory').textContent = 'N/A';
-                return;
-            }
-
-            expenses.forEach(e => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `$${e.amount.toFixed(2)} - ${e.description}`;
-                listItem.style.color = '#f87171';
-                expenseListUl.appendChild(listItem);
-
-                // Simple Category Logic (using first word of description for MVP)
-                const category = e.description.split(' ')[0].toLowerCase();
-                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-            });
-
-            // Find Top Expense Category
-            let maxCount = 0;
-            let topCategory = 'N/A';
-            for (const category in categoryCounts) {
-                if (categoryCounts[category] > maxCount) {
-                    maxCount = categoryCounts[category];
-                    topCategory = category.charAt(0).toUpperCase() + category.slice(1);
-                }
-            }
-            document.getElementById('topExpenseCategory').textContent = topCategory;
-        }
-
-
-        // --- Dashboard & AI Functions (Pillars 2, 4, 6) ---
-
-        function renderLedger() { /* ... unchanged ... */
-            ledgerTableBody.innerHTML = '';
-            ledgerData.forEach(entry => {
-                const row = ledgerTableBody.insertRow();
-                row.insertCell().textContent = entry.type === 'income' ? 'Income' : 'Expense';
-                row.insertCell().textContent = `$${entry.amount.toFixed(2)}`;
-                row.insertCell().textContent = entry.description;
-                row.style.color = entry.type === 'income' ? '#34d399' : '#f87171';
-            });
-        }
-
-        function calculateTotals() { /* ... unchanged ... */
-            let totalIncome = 0;
-            let totalExpenses = 0;
-            ledgerData.forEach(entry => {
-                if (entry.type === 'income') {
-                    totalIncome += entry.amount;
-                } else {
-                    totalExpenses += entry.amount;
-                }
-            });
-            const net = totalIncome - totalExpenses;
-            return { totalIncome, totalExpenses, net };
-        }
-
-        function updateDashboard() { /* ... unchanged ... */
-            const { totalIncome, totalExpenses, net } = calculateTotals();
-            document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
-            document.getElementById('totalExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
-            document.getElementById('netProfit').textContent = `$${net.toFixed(2)}`;
-            
-            if (net < 0) {
-                netCard.style.backgroundColor = '#dc2626';
-                alertBanner.style.display = 'block';
-            } else {
-                netCard.style.backgroundColor = '#60a5fa';
-                alertBanner.style.display = 'none';
-            }
-        }
-        
-        function updateChart() { /* ... unchanged ... */
-            const { totalIncome, totalExpenses } = calculateTotals();
-            const ctx = document.getElementById('financialChart').getContext('2d');
-            
-            if (chartInstance) {
-                chartInstance.data.datasets[0].data = [totalIncome, totalExpenses];
-                chartInstance.update();
-                return;
-            }
-
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Total Income', 'Total Expenses'],
-                    datasets: [{
-                        label: 'Amount ($)',
-                        data: [totalIncome, totalExpenses],
-                        backgroundColor: ['#34d399', '#f87171'],
-                        borderColor: ['#10b981', '#ef4444'],
-                        borderWidth: 1
-                    }]
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
-            });
-        }
-
-        function updateAIInsights() { /* ... unchanged ... */
-            const { net } = calculateTotals();
-            
-            const strategyText = net >= 1000 ? 
-                "**Strong Profit Strategy:** Yo
+                appScreen.style.display = 'flex
