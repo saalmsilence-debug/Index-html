@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Book 7 Lite</title>
+  <title>Book 7 Lite MVP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -13,6 +13,7 @@
     }
     h1 {
       text-align: center;
+      color: #333;
     }
     .card {
       background: white;
@@ -26,17 +27,22 @@
       padding: 10px;
       margin-top: 8px;
       font-size: 16px;
+      box-sizing: border-box; /* Crucial for width: 100% to work with padding */
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
-    button {
+    button.save {
       background: #0a7cff;
       color: white;
       border: none;
-      border-radius: 5px;
+      margin-bottom: 0;
     }
     .balance {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
       text-align: center;
+      padding: 10px 0;
+      color: #0a7cff;
     }
     ul {
       list-style: none;
@@ -46,6 +52,12 @@
       padding: 12px;
       border-bottom: 1px solid #ddd;
       line-height: 1.4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li:last-child {
+        border-bottom: none;
     }
     li strong {
       font-size: 17px;
@@ -53,34 +65,50 @@
     }
     small {
       color: #666;
+      display: block;
+      margin-top: 4px;
+    }
+    .delete-btn {
+        background: none;
+        color: #ff4d4d;
+        border: 1px solid #ff4d4d;
+        padding: 5px 10px;
+        font-size: 14px;
+        width: auto;
+        margin: 0;
+        cursor: pointer;
+    }
+    .transaction-details {
+        flex-grow: 1;
     }
   </style>
 </head>
 <body>
 
-<h1>📘 Book 7 Lite</h1>
+<h1>📘 Book 7 Lite MVP</h1>
 
 <div class="card">
-  <div class="balance">Balance: Ksh <span id="balance">0</span></div>
+  <div class="balance">Balance: Ksh <span id="balance">0.00</span></div>
 </div>
 
 <div class="card">
-  <h3>Add Transaction</h3>
-  <input type="text" id="desc" placeholder="Description" />
-  <input type="number" id="amount" placeholder="Amount" />
+  <h3>➕ Add Transaction</h3>
+  <input type="text" id="desc" placeholder="Description (e.g., Salary, Rent)" />
+  <input type="number" id="amount" placeholder="Amount (e.g., 5000)" />
   <select id="type">
     <option value="income">Income</option>
     <option value="expense">Expense</option>
   </select>
-  <button onclick="addTransaction()">Save</button>
+  <button onclick="addTransaction()" class="save">Save Transaction</button>
 </div>
 
 <div class="card">
-  <h3>Ledger</h3>
+  <h3>🧾 Ledger</h3>
   <ul id="list"></ul>
 </div>
 
 <script>
+  // Ensure the application starts with a unique ID for each transaction for reliable deletion
   let transactions = JSON.parse(localStorage.getItem("book7data")) || [];
 
   function saveData() {
@@ -93,13 +121,25 @@
       if (t.type === "income") balance += t.amount;
       else balance -= t.amount;
     });
+    // Format to 2 decimal places
     document.getElementById("balance").innerText = balance.toFixed(2);
+  }
+
+  function deleteTransaction(id) {
+    // Filter out the transaction with the matching ID
+    transactions = transactions.filter(t => t.id !== id);
+
+    // Update everything
+    saveData();
+    renderList();
+    calculateBalance();
   }
 
   function renderList() {
     const list = document.getElementById("list");
     list.innerHTML = "";
 
+    // Sort by date descending (newest first)
     const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     sorted.forEach((t) => {
@@ -108,13 +148,21 @@
       const prettyDate = new Date(t.date).toLocaleString();
 
       li.innerHTML = `
-        <strong>${prettyType}</strong> - ${t.desc}<br>
-        Amount: Ksh ${t.amount}<br>
-        <small>${prettyDate}</small>
+        <div class="transaction-details">
+            <strong>${prettyType}</strong> - ${t.desc}<br>
+            Amount: Ksh ${t.amount.toFixed(2)}<br>
+            <small>${prettyDate}</small>
+        </div>
+        <button class="delete-btn" onclick="deleteTransaction(${t.id})">Delete</button>
       `;
 
       list.appendChild(li);
     });
+    
+    // Add a message if the ledger is empty
+    if (transactions.length === 0) {
+        list.innerHTML = '<li><center>No transactions recorded yet.</center></li>';
+    }
   }
 
   function addTransaction() {
@@ -122,12 +170,16 @@
     const amount = parseFloat(document.getElementById("amount").value);
     const type = document.getElementById("type").value;
 
-    if (!desc || isNaN(amount)) {
-      alert("Fill all fields correctly");
+    if (!desc || isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid description and a positive amount.");
       return;
     }
+    
+    // Generate a simple unique ID (timestamp is often good enough for simple apps)
+    const newId = Date.now();
 
     transactions.push({
+      id: newId, // Added unique ID
       desc,
       amount,
       type,
@@ -138,10 +190,12 @@
     renderList();
     calculateBalance();
 
+    // Clear inputs
     document.getElementById("desc").value = "";
     document.getElementById("amount").value = "";
   }
 
+  // Initial load
   renderList();
   calculateBalance();
 </script>
