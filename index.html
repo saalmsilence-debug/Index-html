@@ -54,6 +54,9 @@
                     <input type="password" id="pin" pattern="\d{4}" maxlength="4" placeholder="••••" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 
+                <!-- NEW: Error message display -->
+                <p id="loginError" class="text-red-400 text-sm mb-4 text-center hidden"></p>
+
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
                     Login / Register
                 </button>
@@ -261,6 +264,7 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
+                // Registering the SW (sw.js content is in the other file)
                 navigator.serviceWorker.register('sw.js').then(registration => {
                     console.log('SW registered.');
                 }).catch(registrationError => {
@@ -286,6 +290,9 @@
         const currentUserDisplay = document.getElementById('currentUserDisplay');
         const debtListDiv = document.getElementById('debtList');
         const expenseListUl = document.getElementById('expenseList');
+        
+        // NEW: Get the error display element
+        const loginErrorDisplay = document.getElementById('loginError');
 
         // --- Data Helpers ---
         function loadLedger(key) {
@@ -335,15 +342,8 @@
             }
         }
 
-        // --- Login / Register Handler ---
+        // --- Login / Register Handler (FIXED) ---
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const businessName = document.getElementById('businessName').value.trim();
-            const pin = document.getElementById('pin').value.trim();
-            
-            if (businessName && pin.length === 4) {
-                const key = `${businessName}_${pin}`;
-                loadLedger(key);
-                currentUserDisplay.textContent = `Logged in as: ${businessName}`;
-                loginScreen.style.display = 'none';
-                appScreen.style.display = 'flex
+            const pin = document.getElementBy
