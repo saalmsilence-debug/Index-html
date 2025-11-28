@@ -281,6 +281,10 @@
         }
 
         // --- Core Application Logic Setup ---
+        // SET THIS TO TRUE TO BYPASS LOGIN SCREEN FOR DEBUGGING
+        const DEBUG_MODE_FORCE_DASHBOARD = true; 
+        const DEBUG_USER_KEY = 'DEBUG_USER_Nnn_1111';
+
         let currentLedgerKey = null;
         let ledgerData = [];
         let debtData = [];
@@ -342,7 +346,4 @@
                 btn.classList.add('text-gray-400');
             });
             
-            // Activate the selected tab
-            const activeTab = document.getElementById(tabId);
-            activeTab.classList.add('active');
-            activeTab.s
+   
