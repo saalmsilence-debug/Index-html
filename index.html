@@ -95,6 +95,17 @@
     .tooltip-content {
         max-width: 250px;
     }
+    /* Notification styling */
+    .notification {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: none;
+    }
+    .notification.success { background-color: #d1fae5; color: #065f46; }
+    .notification.error { background-color: #fee2e2; color: #991b1b; }
+    .notification.warning { background-color: #fef3c7; color: #92400e; }
   </style>
   <script>
     tailwind.config = {
@@ -122,6 +133,9 @@
     <div id="balance" class="text-3xl font-extrabold text-center mt-1 text-secondary">Ksh 0.00</div>
   </div>
   
+  <!-- Notification Area -->
+  <div id="notification-area" class="mt-4"></div>
+  
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     
     <!-- Column 1: Transaction and Journal Forms -->
@@ -148,9 +162,14 @@
             </select>
           </div>
         </div>
-        <button id="ledger-submit-btn" onclick="addTransaction()" class="w-full py-2 rounded-md bg-secondary hover:bg-blue-600 text-white font-semibold">
-          Save to Ledger
-        </button>
+        <div class="grid grid-cols-3 gap-3">
+            <button id="ledger-submit-btn" onclick="addTransaction()" class="col-span-2 py-2 rounded-md bg-secondary hover:bg-blue-600 text-white font-semibold">
+              Save to Ledger
+            </button>
+            <button id="ledger-cancel-btn" onclick="resetLedgerForm()" class="col-span-1 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold" style="display:none;">
+              Cancel
+            </button>
+        </div>
       </div>
 
       <!-- Quick Journal/Notes -->
@@ -293,7 +312,8 @@
     return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
   }
   function generateId(prefix) {
-    return prefix + Date.now() + Math.floor(Math.random() * 9999);
+    // Generate a slightly more unique ID by combining timestamp and random number
+    return prefix + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
   }
   function saveAll() {
     localStorage.setItem('book7data', JSON.stringify(transactions));
@@ -307,6 +327,35 @@
       d.setHours(0, 0, 0, 0);
       return d.toISOString().split('T')[0];
   }
+  
+  // --- NOTIFICATION SYSTEM ---
+  let notificationTimeout;
+  function showNotification(message, type = 'success', duration = 3000) {
+      const area = document.getElementById('notification-area');
+      
+      // Clear previous timeout and existing message
+      clearTimeout(notificationTimeout);
+      area.innerHTML = '';
+
+      const div = document.createElement('div');
+      div.className = `notification ${type} opacity-0 transition-opacity duration-300`;
+      div.innerText = message;
+      area.appendChild(div);
+      
+      // Fade in
+      setTimeout(() => {
+          div.style.opacity = 1;
+      }, 10);
+
+      // Fade out and remove
+      notificationTimeout = setTimeout(() => {
+          div.style.opacity = 0;
+          setTimeout(() => {
+              area.innerHTML = '';
+          }, 300);
+      }, duration);
+  }
+
 
   // --- MODAL ---
   function openModal(title, content) {
@@ -334,21 +383,24 @@
     const desc = document.getElementById('desc').value.trim();
     const amount = toNumber(document.getElementById('amount').value);
     const type = document.getElementById('type').value;
+    const isUpdate = !!id;
 
     if (!desc || !amount || amount <= 0) {
-      alert('Enter description and a positive amount.');
+      showNotification('Validation Error: Enter description and a positive amount.', 'error');
       return;
     }
 
-    if (id) {
+    if (isUpdate) {
       // Update logic
       const index = transactions.findIndex(t => t.id === id);
       if (index !== -1) {
         transactions[index] = { ...transactions[index], desc, amount, type };
+        showNotification('Transaction updated successfully.', 'success');
       }
     } else {
       // Add logic
       transactions.push({ id: generateId('t-'), desc, amount, type, date: new Date().toISOString() });
+      showNotification('Transaction saved successfully.', 'success');
     }
 
     saveAll();
@@ -363,6 +415,7 @@
       saveAll();
       renderList();
       calculateBalance();
+      showNotification('Ledger entry deleted.', 'warning');
     }
   }
 
@@ -375,8 +428,10 @@
     document.getElementById('type').value = t.type;
     
     document.getElementById('ledger-submit-btn').innerText = 'Update Transaction';
-    document.getElementById('ledger-submit-btn').className = 'w-full py-2 rounded-md bg-warning hover:bg-yellow-600 text-white font-semibold';
+    document.getElementById('ledger-submit-btn').className = 'col-span-2 py-2 rounded-md bg-warning hover:bg-yellow-600 text-white font-semibold';
+    document.getElementById('ledger-cancel-btn').style.display = 'block';
     document.getElementById('desc').focus();
+    showNotification('Editing ledger entry.', 'warning');
   }
 
   function resetLedgerForm() {
@@ -385,7 +440,8 @@
     document.getElementById('amount').value = '';
     document.getElementById('type').value = 'income';
     document.getElementById('ledger-submit-btn').innerText = 'Save to Ledger';
-    document.getElementById('ledger-submit-btn').className = 'w-full py-2 rounded-md bg-secondary hover:bg-blue-600 text-white font-semibold';
+    document.getElementById('ledger-submit-btn').className = 'col-span-2 py-2 rounded-md bg-secondary hover:bg-blue-600 text-white font-semibold';
+    document.getElementById('ledger-cancel-btn').style.display = 'none';
   }
 
   function renderList() {
@@ -431,6 +487,9 @@
         document.getElementById('journal-text').value = '';
         saveAll();
         renderJournal();
+        showNotification('Journal note saved.', 'success');
+    } else {
+        showNotification('Journal is empty, nothing to save.', 'warning');
     }
   }
 
@@ -473,69 +532,4 @@
     return { status: 'pending', color: 'bg-secondary' };
   }
 
-  function updateDebtTotals() {
-    let totalOwed = 0, totalOwe = 0;
-    debts.forEach(d => {
-      const status = computeDebtStatus(d).status;
-      if (status !== 'paid') {
-        if (d.type === 'owed') totalOwed += toNumber(d.remaining);
-        else totalOwe += toNumber(d.remaining);
-      }
-    });
-
-    const netPos = totalOwed - totalOwe;
-    document.getElementById('total-owed').innerText = `Ksh ${totalOwed.toFixed(2)}`;
-    document.getElementById('total-owe').innerText = `Ksh ${totalOwe.toFixed(2)}`;
-    document.getElementById('net-pos').innerText = `Ksh ${netPos.toFixed(2)}`;
-    document.getElementById('net-pos').className = `text-lg font-bold ${netPos >= 0 ? 'text-accent' : 'text-danger'}`;
-  }
-
-  function addDebt() {
-    const id = document.getElementById('debt-edit-id').value;
-    const name = document.getElementById('debt-name').value.trim();
-    const amount = toNumber(document.getElementById('debt-amount').value);
-    const type = document.getElementById('debt-type').value;
-    const due = document.getElementById('debt-due').value || null;
-    const reason = document.getElementById('debt-reason').value.trim();
-
-    if (!name || !amount || amount <= 0) {
-      alert('Enter a name and a positive amount.');
-      return;
-    }
-
-    if (id) {
-      // Update logic (basic fields only if no payments made)
-      const index = debts.findIndex(d => d.id === id);
-      if (index !== -1) {
-        const d = debts[index];
-        if (d.history.length > 0 && (d.amount !== amount || d.type !== type)) {
-             alert('Cannot change original amount or type after payments have been recorded.');
-             return;
-        }
-        
-        d.name = name;
-        d.amount = amount;
-        d.type = type;
-        d.due = due;
-        d.reason = reason;
-        if (d.history.length === 0) d.remaining = amount; // Reset remaining if editing original amount/type before payment
-        d.status = computeDebtStatus(d).status;
-      }
-    } else {
-      // Add logic
-      const obj = {
-        id: generateId('d-'), type, name, amount, remaining: amount, reason, due, history: [], created: new Date().toISOString()
-      };
-      debts.push(obj);
-    }
-    
-    saveAll();
-    renderDebts();
-    updateDebtTotals();
-    renderCalendar();
-    resetDebtForm();
-  }
-  
-  function resetDebtForm() {
-      document.getElementById('debt-edit-id').value = '';
-      doc
+  function 
