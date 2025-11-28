@@ -1,610 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Book 7 – Business Brain MVP</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-
-    <style>
-        :root {
-            --bg: #050816;
-            --bg-alt: #0b1020;
-            --accent: #16a34a;
-            --accent-soft: rgba(22, 163, 74, 0.2);
-            --accent-strong: #22c55e;
-            --danger: #dc2626;
-            --text: #e5e7eb;
-            --muted: #9ca3af;
-            --border: #1f2933;
-            --card: #0f172a;
-            --radius: 14px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(to right, #020617, #0b1120);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        header .title {
-            font-weight: 700;
-            font-size: 1rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        header .title span.logo {
-            width: 26px;
-            height: 26px;
-            border-radius: 999px;
-            background: radial-gradient(circle at 30% 20%, #22c55e 0, #166534 50%, #111827 100%);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 800;
-        }
-
-        header .subtitle {
-            font-size: 0.72rem;
-            color: var(--muted);
-        }
-
-        .shell {
-            display: grid;
-            grid-template-columns: 1.2fr 0.9fr;
-            gap: 12px;
-            padding: 12px;
-            flex: 1;
-        }
-
-        @media (max-width: 900px) {
-            .shell {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        nav {
-            display: flex;
-            gap: 6px;
-            padding: 8px 0 4px;
-            overflow-x: auto;
-        }
-
-        nav button {
-            flex: 0 0 auto;
-            border: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.9);
-            color: var(--muted);
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 0.74rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        nav button.active {
-            background: var(--accent-soft);
-            border-color: var(--accent);
-            color: var(--accent-strong);
-        }
-
-        nav button span.dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 999px;
-            background: var(--accent);
-        }
-
-        main {
-            background: rgba(15, 23, 42, 0.95);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-height: 0;
-        }
-
-        section.view {
-            display: none;
-            flex: 1;
-            overflow: auto;
-        }
-
-        section.view.active {
-            display: block;
-        }
-
-        h2 {
-            font-size: 0.92rem;
-            margin: 0 0 4px;
-        }
-
-        h3 {
-            font-size: 0.82rem;
-            margin: 10px 0 6px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .pill {
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            color: var(--muted);
-        }
-
-        .grid {
-            display: grid;
-            gap: 8px;
-        }
-
-        @media (min-width: 900px) {
-            .grid-2 {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            padding: 8px;
-        }
-
-        label {
-            font-size: 0.72rem;
-            color: var(--muted);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 2px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            background: #020617;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 6px 8px;
-            font-size: 0.8rem;
-            color: var(--text);
-        }
-
-        textarea {
-            border-radius: 10px;
-            min-height: 60px;
-            resize: vertical;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: 1px solid var(--accent);
-            border-color: var(--accent);
-        }
-
-        .row {
-            display: flex;
-            gap: 6px;
-        }
-
-        .row > * {
-            flex: 1;
-        }
-
-        .btn {
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            padding: 6px 10px;
-            font-size: 0.78rem;
-            background: #020617;
-            color: var(--text);
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: radial-gradient(circle at 30% 0, var(--accent-strong), var(--accent));
-            border-color: #16a34a;
-        }
-
-        .btn-danger {
-            border-color: var(--danger);
-            color: #fecaca;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            border-style: dashed;
-        }
-
-        .btn-icon {
-            width: 29px;
-            min-width: 29px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.78rem;
-        }
-
-        th, td {
-            padding: 4px 6px;
-            border-bottom: 1px solid rgba(31, 41, 55, 0.7);
-            text-align: left;
-        }
-
-        th {
-            font-size: 0.72rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        tr:hover td {
-            background: rgba(15, 23, 42, 0.7);
-        }
-
-        .tag-income {
-            color: #4ade80;
-        }
-
-        .tag-expense {
-            color: #fb7185;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            margin: 2px 0;
-        }
-
-        .stat-row strong {
-            font-weight: 600;
-        }
-
-        .stat-positive {
-            color: #4ade80;
-        }
-        .stat-negative {
-            color: #fb7185;
-        }
-
-        /* AI side panel */
-        aside#ai-panel {
-            background: radial-gradient(circle at 0 0, #0f172a 0, #020617 45%, #000 100%);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-height: 0;
-        }
-
-        #ai-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-        }
-
-        #ai-header h2 {
-            font-size: 0.86rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        #ai-header span.brain {
-            width: 20px;
-            height: 20px;
-            border-radius: 999px;
-            background: radial-gradient(circle at 30% 0, #22c55e 0, #22c55e 30%, #16a34a 60%, #064e3b 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.65rem;
-            font-weight: 800;
-        }
-
-        #ai-context {
-            font-size: 0.72rem;
-            color: var(--muted);
-        }
-
-        #ai-output {
-            font-size: 0.8rem;
-            line-height: 1.35;
-            background: rgba(15, 23, 42, 0.85);
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            padding: 8px;
-            white-space: pre-line;
-        }
-
-        #ai-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .small {
-            font-size: 0.72rem;
-            color: var(--muted);
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 999px;
-            border: 1px dashed var(--border);
-        }
-
-        .danger-text {
-            color: #fca5a5;
-        }
-
-        .success-text {
-            color: #a7f3d0;
-        }
-
-        .scroll-y {
-            max-height: 220px;
-            overflow-y: auto;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Book 7 Lite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+    button {
+      background: #0a7cff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    .balance {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
 </head>
 <body>
-<header>
-    <div>
-        <div class="title">
-            <span class="logo">7</span>
-            <span>Book 7 – Global Business Brain</span>
-        </div>
-        <div class="subtitle">Ledger • P&L • Debts • Inventory • Calendar • AI Coach</div>
-    </div>
-    <div class="pill">Local device MVP • v0.1</div>
-</header>
 
-<div class="shell">
-    <!-- MAIN APP -->
-    <div>
-        <nav>
-            <button type="button" data-view="dashboard" class="active">
-                <span class="dot"></span> Dashboard
-            </button>
-            <button type="button" data-view="ledger">Ledger</button>
-            <button type="button" data-view="pnl">Profit &amp; Loss</button>
-            <button type="button" data-view="inventory">Inventory</button>
-            <button type="button" data-view="debts">Debts</button>
-            <button type="button" data-view="calendar">Calendar</button>
-            <button type="button" data-view="settings">Settings</button>
-        </nav>
+<h1>📘 Book 7 Lite</h1>
 
-        <main>
-            <!-- DASHBOARD -->
-            <section id="dashboard" class="view active">
-                <div class="grid grid-2">
-                    <div class="card">
-                        <h2>Today’s Business Snapshot</h2>
-                        <div id="dash-date" class="small"></div>
-                        <hr style="border: none; border-top: 1px solid rgba(31,41,55,0.7); margin: 6px 0;" />
-                        <div id="dash-pnl"></div>
-                        <h3>Ledger Activity</h3>
-                        <div id="dash-ledger" class="scroll-y small"></div>
-                    </div>
-                    <div class="card">
-                        <h3>Upcoming Items</h3>
-                        <div id="dash-calendar" class="small scroll-y"></div>
+<div class="card">
+  <div class="balance">Balance: Ksh <span id="balance">0</span></div>
+</div>
 
-                        <h3>Debts Focus</h3>
-                        <div id="dash-debts" class="small scroll-y"></div>
-                    </div>
-                </div>
-            </section>
+<div class="card">
+  <h3>Add Transaction</h3>
+  <input type="text" id="desc" placeholder="Description" />
+  <input type="number" id="amount" placeholder="Amount" />
+  <select id="type">
+    <option value="income">Income</option>
+    <option value="expense">Expense</option>
+  </select>
+  <button onclick="addTransaction()">Save</button>
+</div>
 
-            <!-- LEDGER -->
-            <section id="ledger" class="view">
-                <div class="card">
-                    <h2>Ledger – Income &amp; Expenses</h2>
-                    <form id="ledger-form">
-                        <div class="grid grid-2">
-                            <div>
-                                <label>
-                                    <span>Date</span>
-                                </label>
-                                <input type="date" id="ledger-date" required />
-                            </div>
-                            <div>
-                                <label>
-                                    <span>Description</span>
-                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('ledger-description')" title="Voice input">
-                                        🎤
-                                    </button>
-                                </label>
-                                <input type="text" id="ledger-description" placeholder="What happened?" required />
-                            </div>
-                            <div>
-                                <label>
-                                    <span>Category</span>
-                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('ledger-category')" title="Voice input">
-                                        🎤
-                                    </button>
-                                </label>
-                                <input type="text" id="ledger-category" placeholder="Sales, Rent, Salaries..." />
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <label><span>Type</span></label>
-                                    <select id="ledger-type">
-                                        <option value="income">Income</option>
-                                        <option value="expense">Expense</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label><span>Amount</span></label>
-                                    <input type="number" id="ledger-amount" step="0.01" min="0" placeholder="0.00" required />
-                                </div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="submit" class="btn btn-primary">Save Entry</button>
-                            <button type="button" class="btn btn-ghost" onclick="clearLedger()">Clear All Ledger</button>
-                        </div>
-                    </form>
-                </div>
+<div class="card">
+  <h3>Transactions</h3>
+  <ul id="list"></ul>
+</div>
 
-                <div class="card" style="margin-top: 8px;">
-                    <h3>Entries</h3>
-                    <div class="scroll-y" style="max-height: 220px;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Desc</th>
-                                    <th>Cat</th>
-                                    <th>Type</th>
-                                    <th>Amount</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="ledger-table-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+<script>
+  let transactions = JSON.parse(localStorage.getItem("book7data")) || [];
 
-            <!-- PROFIT & LOSS -->
-            <section id="pnl" class="view">
-                <div class="card">
-                    <h2>Profit &amp; Loss</h2>
-                    <p class="small">Auto-calculated from your ledger.</p>
-                    <div id="pnl-summary"></div>
-                </div>
-                <div class="card" style="margin-top: 8px;">
-                    <h3>Breakdown by Category (Expenses)</h3>
-                    <div id="pnl-by-category" class="small"></div>
-                </div>
-            </section>
+  function saveData() {
+    localStorage.setItem("book7data", JSON.stringify(transactions));
+  }
 
-            <!-- INVENTORY -->
-            <section id="inventory" class="view">
-                <div class="card">
-                    <h2>Inventory</h2>
-                    <form id="inventory-form">
-                        <div class="grid grid-2">
-                            <div>
-                                <label>
-                                    <span>Item name</span>
-                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('inv-name')" title="Voice input">
-                                        🎤
-                                    </button>
-                                </label>
-                                <input id="inv-name" type="text" placeholder="Product or asset name" required />
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <label><span>Quantity</span></label>
-                                    <input id="inv-qty" type="number" min="0" step="1" required />
-                                </div>
-                                <div>
-                                    <label><span>Unit Cost</span></label>
-                                    <input id="inv-cost" type="number" min="0" step="0.01" required />
-                                </div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap;">
-                            <button type="submit" class="btn btn-primary">Save Item</button>
-                            <button type="button" class="btn btn-ghost" onclick="clearInventory()">Clear Inventory</button>
-                        </div>
-                    </form>
-                </div>
+  function calculateBalance() {
+    let balance = 0;
+    transactions.forEach(t => {
+      if (t.type === "income") balance += t.amount;
+      else balance -= t.amount;
+    });
+    document.getElementById("balance").innerText = balance.toFixed(2);
+  }
 
-                <div class="card" style="margin-top:8px;">
-                    <h3>Inventory List</h3>
-                    <div id="inventory-summary" class="small"></div>
-                    <div class="scroll-y" style="max-height: 220px;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Qty</th>
-                                    <th>Unit</th>
-                                    <th>Total</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-table-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+  function renderList() {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+    transactions.forEach((t, index) => {
+      const li = document.createElement("li");
+      li.textContent = `${t.type.toUpperCase()} - ${t.desc} : Ksh ${t.amount}`;
+      list.appendChild(li);
+    });
+  }
 
-            <!-- DEBTS -->
-            <section id="debts" class="view">
-                <div class="card">
-                    <h2>Debts – Owed &amp; Owing</h2>
-                    <form id="debts-form">
-                        <div class="grid grid-2">
-                            <div>
-                                <label>
-                                    <span>Person / Entity</span>
-                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('debt-name')" title="Voice input">
-                                        🎤
-                                    </button>
-                                </label>
-                                <input id="debt-name" type="text" placeholder="Who?" required />
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <label><span>Amount</span></label>
-                                    <input id="debt-amount" type="number" min="0" step="0.01" required />
-                                </div>
-                                <div>
-                                    <label><span>Due date</span></label>
-                                    <input id="debt-date" type="date" />
-                                </div>
-                            </div>
-                            <div>
-        
+  function addTransaction() {
+    const desc = document.getElementById("desc").value.trim();
+    const amount = parseFloat(document.getElementById("amount").value);
+    const type = document.getElementById("type").value;
+
+    if (!desc || isNaN(amount)) {
+      alert("Fill all fields correctly");
+      return;
+    }
+
+    transactions.push({ desc, amount, type });
+    saveData();
+    renderList();
+    calculateBalance();
+
+    document.getElementById("desc").value = "";
+    document.getElementById("amount").value = "";
+  }
+
+  renderList();
+  calculateBalance();
+</script>
+
+</body>
+</html>
