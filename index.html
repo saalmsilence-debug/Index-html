@@ -29,6 +29,10 @@
         ::-webkit-scrollbar-track { background-color: #1e293b; }
         /* Style for interactive details in AI tab */
         details summary { cursor: pointer; padding: 10px 0; border-bottom: 1px solid #334155; }
+        /* CRITICAL FIX: Ensure all tab content is display:none by default */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -340,8 +344,4 @@
             activeTab.classList.add('active');
             activeTab.style.display = 'block'; // Ensure content is shown
 
-            const activeBtn = document.querySelector(`.tab-nav button[onclick*="${tabId}"]`);
-            activeBtn.classList.add('active', 'border-blue-500', 'text-white');
-            activeBtn.classList.remove('text-gray-400');
-
-            // Ensure
+            const activeBtn = document.querySelector(`.tab-nav button[onclick*="${tabI
