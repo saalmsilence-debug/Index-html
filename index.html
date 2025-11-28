@@ -54,7 +54,7 @@
                     <input type="password" id="pin" pattern="\d{4}" maxlength="4" placeholder="••••" required class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 
-                <!-- NEW: Error message display -->
+                <!-- Login Error message display -->
                 <p id="loginError" class="text-red-400 text-sm mb-4 text-center hidden"></p>
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
@@ -88,12 +88,12 @@
             
             <!-- Tab Navigation -->
             <nav class="tab-nav flex border-b border-gray-700 mb-4 overflow-x-auto whitespace-nowrap">
-                <button class="tab-btn active p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('dashboard')">Dashboard</button>
-                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('ledger')">Ledger</button>
-                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('ai-advisor')">AI Advisor</button>
-                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('planner')">Planner</button>
-                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('expenses')">Expenses</button>
-                <button class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('debt')">Debt</button>
+                <button type="button" class="tab-btn active p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('dashboard')">Dashboard</button>
+                <button type="button" class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('ledger')">Ledger</button>
+                <button type="button" class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('ai-advisor')">AI Advisor</button>
+                <button type="button" class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('planner')">Planner</button>
+                <button type="button" class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('expenses')">Expenses</button>
+                <button type="button" class="tab-btn p-3 text-sm flex-grow-0 hover:bg-gray-700 transition duration-150" onclick="showTab('debt')">Debt</button>
             </nav>
 
             <!-- TAB CONTENT CONTAINER -->
@@ -291,7 +291,7 @@
         const debtListDiv = document.getElementById('debtList');
         const expenseListUl = document.getElementById('expenseList');
         
-        // NEW: Get the error display element
+        // Get the error display element
         const loginErrorDisplay = document.getElementById('loginError');
 
         // --- Data Helpers ---
@@ -325,25 +325,23 @@
 
         // --- Tab Switching ---
         window.showTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            // Safety check to ensure display properties are correct
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.display = 'none'; // Ensure content is hidden
+            });
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active', 'border-blue-500', 'text-white');
                 btn.classList.add('text-gray-400');
             });
             
-            document.getElementById(tabId).classList.add('active');
+            // Activate the selected tab
+            const activeTab = document.getElementById(tabId);
+            activeTab.classList.add('active');
+            activeTab.style.display = 'block'; // Ensure content is shown
+
             const activeBtn = document.querySelector(`.tab-nav button[onclick*="${tabId}"]`);
             activeBtn.classList.add('active', 'border-blue-500', 'text-white');
             activeBtn.classList.remove('text-gray-400');
 
-            // Ensure chart renders if moving to dashboard
-            if (tabId === 'dashboard') {
-                updateChart(); 
-            }
-        }
-
-        // --- Login / Register Handler (FIXED) ---
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const businessName = document.getElementById('businessName').value.trim();
-            const pin = document.getElementBy
+            // Ensure
