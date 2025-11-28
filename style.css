@@ -1,0 +1,150 @@
+/* ----------------------- */
+/*  COLOUR VARIABLES       */
+/* ----------------------- */
+:root {
+    --color-primary-teal: #00796B;
+    --color-secondary-gold: #FFC107;
+    --color-background-dark: #121212;
+    --color-text-light: #f5f5f5;
+    --color-income: #4CAF50;
+    --color-expense: #D32F2F;
+    --color-card-bg: #1E1E1E;
+}
+
+/* ----------------------- */
+/*  GLOBAL UI RESET        */
+/* ----------------------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-background-dark);
+    color: var(--color-text-light);
+    margin: 0;
+    padding: 20px;
+}
+
+.app-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* ----------------------- */
+/*  HEADER + NET BALANCE   */
+/* ----------------------- */
+.dashboard-header {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-secondary-gold);
+    margin-bottom: 20px;
+}
+
+.net-balance-card {
+    background: var(--color-card-bg);
+    padding: 25px;
+    border-radius: 15px;
+    border-left: 5px solid var(--color-primary-teal);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.balance-gold {
+    color: var(--color-secondary-gold);
+    font-size: 2.6rem;
+    margin: 5px 0;
+}
+
+.reference-currency {
+    color: #9E9E9E;
+}
+
+/* ----------------------- */
+/*  QUICK ACTION BUTTONS   */
+/* ----------------------- */
+.quick-actions {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.action-btn {
+    flex-basis: 32%;
+    padding: 15px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    color: white;
+}
+
+.income-btn { background: var(--color-income); }
+.expense-btn { background: var(--color-expense); }
+.debt-btn { background: var(--color-primary-teal); }
+
+/* ----------------------- */
+/*  FLOWMAP DASHBOARD      */
+/* ----------------------- */
+.flowmap-dashboard,
+.debt-manager,
+.ledger-activity {
+    background: var(--color-card-bg);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+}
+
+.flow-chart-placeholder {
+    height: 150px;
+    background: #333;
+    color: var(--color-secondary-gold);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-style: italic;
+}
+
+.health-score-container {
+    text-align: center;
+    padding-top: 10px;
+}
+
+.score-number {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: var(--color-primary-teal);
+}
+
+/* ----------------------- */
+/*  DEBT SUMMARY           */
+/* ----------------------- */
+.debt-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.add-debt-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    background: var(--color-secondary-gold);
+    color: black;
+    font-weight: bold;
+}
+
+/* ----------------------- */
+/*  LEDGER LIST            */
+/* ----------------------- */
+#transaction-list {
+    list-style: none;
+    padding: 0;
+}
+
+#transaction-list li {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+}
