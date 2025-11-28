@@ -1,128 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Book 7 Ledger MVP</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7f9;
-      margin: 0;
-      padding: 10px;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 15px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    h1 { text-align: center; color: #1e3a8a; }
-    .tabs { display: flex; margin-bottom: 15px; border-radius: 8px; overflow: hidden; }
-    .tabs button {
-      flex-grow: 1;
-      padding: 12px 10px;
-      border: none;
-      background: #e0e7ff;
-      cursor: pointer;
-      font-weight: bold;
-      color: #3b82f6;
-    }
-    .tabs button.active {
-      background: #1e3a8a;
-      color: white;
-    }
-    .section { display: none; }
-    .section.active { display: block; }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    button.primary-btn {
-      background: #10b981;
-      color: white;
-      padding: 12px;
-      width: 100%;
-      border-radius: 10px;
-      border: none;
-      font-weight: bold;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    .card {
-      background: #f9fafb;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      border-left: 5px solid #3b82f6;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="container">
-  <h1>Book 7 Ledger MVP</h1>
-  <p style="text-align:center;font-size:12px;color:#666;">Local Storage Persistence</p>
-
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('journal')">1. Journal / Ledger</button>
-    <button class="tab" onclick="showTab('pnl')">2. P&L Tracking</button>
-    <button class="tab" onclick="showTab('calendar')">3. Calendar / Debts</button>
-    <button class="tab" onclick="showTab('ai-summary')">4. AI Analysis</button>
-  </div>
-
-  <div id="journal" class="section active">
-    <h3>New Entry (Journal)</h3>
-    <input type="date" id="tDate"/>
-    <select id="tCategory">
-      <option value="Sale">Sale (Revenue)</option>
-      <option value="Rent">Rent (Expense)</option>
-    </select>
-    <input type="number" id="tInflow" placeholder="Inflow (Ksh)"/>
-    <input type="number" id="tOutflow" placeholder="Outflow (Ksh)"/>
-    <textarea id="tDesc" placeholder="Description"></textarea>
-    <button class="primary-btn" onclick="addTransaction()">Save Entry</button>
-    <div id="transactionsList"></div>
-  </div>
-
-  <div id="pnl" class="section">
-    <h3>P&L Tracking</h3>
-  </div>
-
-  <div id="calendar" class="section">
-    <h3>Calendar / Debts</h3>
-  </div>
-
-  <div id="ai-summary" class="section">
-    <h3>AI Analysis</h3>
-  </div>
-</div>
-
-<script>
-function showTab(id){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Book 7 Ledger MVP</title>
+    <title>Book 7 Global OS</title>
     <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -139,10 +20,13 @@ function showTab(id){
         main { max-width: 600px; margin: 0 auto; padding: 20px; }
         header, footer { text-align: center; }
         button, a.button { width: 100%; margin: 10px 0; }
-        .tab-content { display: none; }
+        .tab-content { display: none; padding-top: 20px; }
         .tab-content.active { display: block; }
-        .tab-nav button { background: var(--color-background); color: var(--color-t); border: none; padding: 10px 15px; cursor: pointer; opacity: 0.6; transition: opacity 0.3s; width: 50%; }
-        .tab-nav button.active { opacity: 1; background: var(--color-secondary); }
+        
+        .tab-nav { display: flex; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 2px solid var(--color-secondary); }
+        .tab-nav button { background: var(--color-background); color: var(--color-t); border: none; padding: 10px 5px; cursor: pointer; opacity: 0.7; transition: opacity 0.3s; flex-grow: 1; border-radius: 0; margin: 0; font-size: 0.8em; }
+        .tab-nav button.active { opacity: 1; background: var(--color-secondary); border-radius: 4px 4px 0 0; }
+
         .card-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
         .card { flex: 1; padding: 15px; border-radius: 8px; text-align: center; color: var(--color-background); }
         .card h4 { margin: 0 0 5px 0; font-size: 0.8em; color: var(--color-background); opacity: 0.8; }
@@ -154,12 +38,16 @@ function showTab(id){
         .voice-entry-group { display: flex; gap: 10px; }
         .voice-entry-group input { flex-grow: 1; }
         .voice-entry-group button { flex-grow: 0; width: auto; padding: 10px 15px; }
+
+        .debt-item { border: 1px solid var(--color-secondary); padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+        .debt-item.to-me { border-left: 5px solid #34d399; }
+        .debt-item.i-owe { border-left: 5px solid #f87171; }
     </style>
 </head>
 <body>
     <main>
         <header>
-            <h1>Book 7 Ledger MVP</h1>
+            <h1>Book 7 Global OS</h1>
             <p id="currentUserDisplay" style="font-weight: bold;"></p>
             <hr>
         </header>
@@ -187,11 +75,20 @@ function showTab(id){
             <div id="alertBanner">Net Loss detected! Review your expenses immediately.</div>
             
             <nav class="tab-nav">
-                <button class="active" onclick="showTab('ledger')">Ledger</button>
-                <button onclick="showTab('ai-chart')">AI & Chart</button>
+                <button class="active" onclick="showTab('dashboard')">Dashboard</button>
+                <button onclick="showTab('ledger')">Ledger</button>
+                <button onclick="showTab('ai-advisor')">AI Advisor</button>
+                <button onclick="showTab('planner')">Planner</button>
+                <button onclick="showTab('expenses')">Expenses</button>
+                <button onclick="showTab('debt')">Debt</button>
             </nav>
 
-            <div id="ledger" class="tab-content active">
+            <div id="dashboard" class="tab-content active">
+                <h2>Profit & Cash Flow</h2>
+                <canvas id="financialChart"></canvas>
+            </div>
+
+            <div id="ledger" class="tab-content">
                 <form id="transactionForm">
                     <label for="type">Type:</label>
                     <select id="type" required>
@@ -227,10 +124,7 @@ function showTab(id){
                 </table>
             </div>
 
-            <div id="ai-chart" class="tab-content">
-                <h2>Financial Chart</h2>
-                <canvas id="financialChart"></canvas>
-
+            <div id="ai-advisor" class="tab-content">
                 <h2>AI Business Insight</h2>
                 <details>
                     <summary>Strong Profit Strategy</summary>
@@ -246,6 +140,59 @@ function showTab(id){
                 </details>
             </div>
 
+            <div id="planner" class="tab-content">
+                <h2>Growth Planner (MVP)</h2>
+                <p>This tab will feature Monthly Trend Comparison and Forecasting.</p>
+                <details>
+                    <summary>Monthly Trend Comparison (Coming Soon)</summary>
+                    <p>Current MVP focuses on live data. Full trend analysis is the next phase.</p>
+                </details>
+                <details>
+                    <summary>Simple Forecasting (Coming Soon)</summary>
+                    <p>Future projection based on historical data.</p>
+                </details>
+            </div>
+
+
+            <div id="expenses" class="tab-content">
+                <h2>Expense Guard</h2>
+                <p style="font-style: italic;">List of all recorded expenses:</p>
+                <ul id="expenseList"></ul>
+                <hr>
+                <h3>Top Expense Analysis (MVP)</h3>
+                <p>The **most common expense** category is currently: <strong id="topExpenseCategory">N/A</strong></p>
+                <p>Future features will include category limits and overspending alerts.</p>
+            </div>
+
+            <div id="debt" class="tab-content">
+                <h2>Debt Manager: Log a Debt</h2>
+                <form id="debtForm">
+                    <label for="debtType">Transaction Type:</label>
+                    <select id="debtType" required>
+                        <option value="iOwe">Debts I Owe (-)</option>
+                        <option value="toMe">Debts Owed to Me (+)</option>
+                    </select>
+                    
+                    <label for="debtAmount">Amount ($):</label>
+                    <input type="number" id="debtAmount" step="0.01" min="0.01" required>
+
+                    <label for="debtParty">Party (Who):</label>
+                    <input type="text" id="debtParty" placeholder="e.g., Supplier X, John Doe" required>
+
+                    <label for="debtDue">Due Date (Optional):</label>
+                    <input type="date" id="debtDue">
+
+                    <button type="submit">Log Debt</button>
+                </form>
+
+                <hr>
+
+                <h2>Current Debt Status</h2>
+                <div id="debtList">
+                    <p>No debts recorded yet.</p>
+                </div>
+            </div>
+
             <footer>
                 <hr>
                 <button id="logoutButton">Log Out</button>
@@ -257,65 +204,91 @@ function showTab(id){
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(registration => {
-                    console.log('SW registered: ', registration);
-                }).catch(registrationError => {
-                    console.log('SW registration failed: ', registrationError);
-                });
+                navigator.serviceWorker.register('sw.js');
             });
         }
 
-        // --- Core Application Logic ---
-
+        // --- Core Application Logic Setup ---
         let currentLedgerKey = null;
         let ledgerData = [];
+        let debtData = []; // New array for Debt Manager
         let chartInstance = null;
         
         const loginScreen = document.getElementById('loginScreen');
         const appScreen = document.getElementById('appScreen');
         const loginForm = document.getElementById('loginForm');
         const transactionForm = document.getElementById('transactionForm');
+        const debtForm = document.getElementById('debtForm');
         const ledgerTableBody = document.querySelector('#ledgerTable tbody');
         const netCard = document.getElementById('netCard');
         const alertBanner = document.getElementById('alertBanner');
         const currentUserDisplay = document.getElementById('currentUserDisplay');
+        const debtListDiv = document.getElementById('debtList');
+        const expenseListUl = document.getElementById('expenseList');
 
-        // Helper to load data from Local Storage
+        // --- Data Helpers ---
         function loadLedger(key) {
             currentLedgerKey = key;
-            const data = localStorage.getItem(key);
-            ledgerData = data ? JSON.parse(data) : [];
+            const ledgerKey = `ledger_${key}`;
+            const debtKey = `debt_${key}`;
+
+            ledgerData = JSON.parse(localStorage.getItem(ledgerKey) || '[]');
+            debtData = JSON.parse(localStorage.getItem(debtKey) || '[]');
+            
+            renderAllData();
+        }
+
+        function saveLedger() {
+            if (currentLedgerKey) {
+                localStorage.setItem(`ledger_${currentLedgerKey}`, JSON.stringify(ledgerData));
+                localStorage.setItem(`debt_${currentLedgerKey}`, JSON.stringify(debtData));
+            }
+        }
+
+        function renderAllData() {
             renderLedger();
             updateDashboard();
             updateChart();
             updateAIInsights();
+            renderDebtList(); // New rendering function
+            renderExpenseList(); // New rendering function
         }
 
-        // Helper to save data to Local Storage
-        function saveLedger() {
-            if (currentLedgerKey) {
-                localStorage.setItem(currentLedgerKey, JSON.stringify(ledgerData));
+        // --- Tab Switching ---
+        window.showTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-nav button[onclick*="${tabId}"]`).classList.add('active');
+            
+            if (tabId === 'dashboard') {
+                updateChart(); 
+            }
+            if (tabId === 'expenses') {
+                renderExpenseList();
             }
         }
 
-        // Login / Register Handler
+        // --- Login / Register Handler ---
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const businessName = document.getElementById('businessName').value.trim();
             const pin = document.getElementById('pin').value.trim();
             
             if (businessName && pin.length === 4) {
-                const key = `ledger_${businessName}_${pin}`;
+                const key = `${businessName}_${pin}`;
                 loadLedger(key);
                 currentUserDisplay.textContent = `Logged in as: ${businessName}`;
                 loginScreen.style.display = 'none';
                 appScreen.style.display = 'block';
+                showTab('dashboard'); // Start on dashboard
             } else {
                 alert('Please enter a business name and a 4-digit PIN.');
             }
         });
 
-        // Transaction Handler
+        // --- Transaction Handler (Pillar 1) ---
         transactionForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const type = document.getElementById('type').value;
@@ -324,20 +297,93 @@ function showTab(id){
             
             if (amount > 0) {
                 const newEntry = { type, amount, description, timestamp: new Date().toISOString() };
-                ledgerData.unshift(newEntry); // Add to top
+                ledgerData.unshift(newEntry);
                 saveLedger();
-                renderLedger();
-                updateDashboard();
-                updateChart();
-                updateAIInsights();
+                renderAllData();
                 transactionForm.reset();
             } else {
                 alert('Amount must be a positive number.');
             }
         });
 
-        // Rendering functions
-        function renderLedger() {
+        // --- Debt Manager Handler (Pillar 3) ---
+        debtForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const type = document.getElementById('debtType').value;
+            const amount = parseFloat(document.getElementById('debtAmount').value);
+            const party = document.getElementById('debtParty').value.trim();
+            const due = document.getElementById('debtDue').value;
+
+            if (amount > 0 && party) {
+                const newDebt = { type, amount, party, due, status: 'Pending', timestamp: new Date().toISOString() };
+                debtData.unshift(newDebt);
+                saveLedger();
+                renderDebtList();
+                debtForm.reset();
+            } else {
+                alert('Please enter a positive amount and the party\'s name.');
+            }
+        });
+
+        function renderDebtList() {
+            if (debtData.length === 0) {
+                debtListDiv.innerHTML = '<p>No debts recorded yet.</p>';
+                return;
+            }
+
+            debtListDiv.innerHTML = '';
+            debtData.forEach((debt, index) => {
+                const statusColor = debt.status === 'Pending' ? '#f59e0b' : (debt.status === 'Paid' ? '#34d399' : '#dc2626');
+                const html = `
+                    <div class="debt-item ${debt.type === 'toMe' ? 'to-me' : 'i-owe'}">
+                        <strong>${debt.type === 'toMe' ? 'Owed TO ME' : 'I OWE'}</strong>: $${debt.amount.toFixed(2)}<br>
+                        Party: ${debt.party}<br>
+                        Due: ${debt.due || 'N/A'} | Status: <span style="color:${statusColor};">${debt.status}</span>
+                    </div>
+                `;
+                debtListDiv.innerHTML += html;
+            });
+        }
+
+        // --- Expense Guard (Pillar 5 - MVP) ---
+        function renderExpenseList() {
+            expenseListUl.innerHTML = '';
+            const expenses = ledgerData.filter(e => e.type === 'expense');
+            const categoryCounts = {};
+
+            if (expenses.length === 0) {
+                expenseListUl.innerHTML = '<li>No expenses recorded.</li>';
+                document.getElementById('topExpenseCategory').textContent = 'N/A';
+                return;
+            }
+
+            expenses.forEach(e => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `$${e.amount.toFixed(2)} - ${e.description}`;
+                listItem.style.color = '#f87171';
+                expenseListUl.appendChild(listItem);
+
+                // Simple Category Logic (using first word of description for MVP)
+                const category = e.description.split(' ')[0].toLowerCase();
+                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            });
+
+            // Find Top Expense Category
+            let maxCount = 0;
+            let topCategory = 'N/A';
+            for (const category in categoryCounts) {
+                if (categoryCounts[category] > maxCount) {
+                    maxCount = categoryCounts[category];
+                    topCategory = category.charAt(0).toUpperCase() + category.slice(1);
+                }
+            }
+            document.getElementById('topExpenseCategory').textContent = topCategory;
+        }
+
+
+        // --- Dashboard & AI Functions (Pillars 2, 4, 6) ---
+
+        function renderLedger() { /* ... unchanged ... */
             ledgerTableBody.innerHTML = '';
             ledgerData.forEach(entry => {
                 const row = ledgerTableBody.insertRow();
@@ -348,7 +394,7 @@ function showTab(id){
             });
         }
 
-        function calculateTotals() {
+        function calculateTotals() { /* ... unchanged ... */
             let totalIncome = 0;
             let totalExpenses = 0;
             ledgerData.forEach(entry => {
@@ -362,23 +408,22 @@ function showTab(id){
             return { totalIncome, totalExpenses, net };
         }
 
-        function updateDashboard() {
+        function updateDashboard() { /* ... unchanged ... */
             const { totalIncome, totalExpenses, net } = calculateTotals();
             document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
             document.getElementById('totalExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
             document.getElementById('netProfit').textContent = `$${net.toFixed(2)}`;
             
             if (net < 0) {
-                netCard.style.backgroundColor = '#dc2626'; // Red for loss
+                netCard.style.backgroundColor = '#dc2626';
                 alertBanner.style.display = 'block';
             } else {
-                netCard.style.backgroundColor = '#60a5fa'; // Blue for profit
+                netCard.style.backgroundColor = '#60a5fa';
                 alertBanner.style.display = 'none';
             }
         }
         
-        // Chart.js Configuration
-        function updateChart() {
+        function updateChart() { /* ... unchanged ... */
             const { totalIncome, totalExpenses } = calculateTotals();
             const ctx = document.getElementById('financialChart').getContext('2d');
             
@@ -395,145 +440,17 @@ function showTab(id){
                     datasets: [{
                         label: 'Amount ($)',
                         data: [totalIncome, totalExpenses],
-                        backgroundColor: [
-                            '#34d399', // Green for Income
-                            '#f87171'  // Red for Expense
-                        ],
-                        borderColor: [
-                            '#10b981',
-                            '#ef4444'
-                        ],
+                        backgroundColor: ['#34d399', '#f87171'],
+                        borderColor: ['#10b981', '#ef4444'],
                         borderWidth: 1
                     }]
                 },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
+                options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
             });
         }
 
-        // AI Insight Stub Logic
-        function updateAIInsights() {
+        function updateAIInsights() { /* ... unchanged ... */
             const { net } = calculateTotals();
             
             const strategyText = net >= 1000 ? 
-                "**Strong Profit Strategy:** Your current model is highly effective. Focus on scaling your most profitable income streams and consider strategic investments into quality improvements or market expansion." :
-                "**Strong Profit Strategy:** You are consistently profitable. Maintain quality control and explore methods for increasing customer lifetime value (CLV) through loyalty programs or premium offerings.";
-
-            const optimizationText = net > 0 ?
-                "**Small Profit Optimisation:** Review recurring expenses, even small ones. Look for 5-10% cost reductions in non-core areas. Consider optimizing your pricing model slightly if demand is high." :
-                "**Small Profit Optimisation:** Focus on low-cost marketing strategies like social media engagement. Analyze your sales process to identify and reduce friction points that may lead to lost opportunities.";
-            
-            const lossText = net < 0 ?
-                "**Loss Emergency Advice:** Immediately review the past 30 days of expenses. Cut all non-essential spending. Prioritize generating quick income through clearance sales or accelerating customer invoices. Do not wait for the loss to compound." :
-                "**Loss Emergency Advice:** While profitable, maintain an emergency fund. Review contracts with suppliers for better terms. Ensure your cash flow forecast accounts for unexpected dips in sales or sudden large expenses.";
-
-            document.getElementById('strongStrategy').innerHTML = strategyText;
-            document.getElementById('smallOptimization').innerHTML = optimizationText;
-            document.getElementById('lossAdvice').innerHTML = lossText;
-        }
-
-        // Tab Switching
-        window.showTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-nav button[onclick*="${tabId}"]`).classList.add('active');
-            
-            if (tabId === 'ai-chart') {
-                updateChart(); // Ensure chart is drawn when its tab is active
-            }
-        }
-
-        // Logout
-        document.getElementById('logoutButton').addEventListener('click', () => {
-            currentLedgerKey = null;
-            ledgerData = [];
-            loginScreen.style.display = 'block';
-            appScreen.style.display = 'none';
-            document.getElementById('businessName').value = '';
-            document.getElementById('pin').value = '';
-            currentUserDisplay.textContent = '';
-            renderLedger();
-            updateDashboard();
-        });
-
-        // --- Voice Entry (Speech Recognition) Fix ---
-
-        document.getElementById('voiceButton').addEventListener('click', startVoiceEntry);
-
-        function startVoiceEntry() {
-            // Check for SpeechRecognition support across various browsers
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const descriptionInput = document.getElementById('description');
-            
-            if (!SpeechRecognition) {
-                alert('Speech Recognition is not supported by your browser. Please use Chrome/Edge on Desktop/Android.');
-                return;
-            }
-
-            const recognition = new SpeechRecognition();
-            recognition.continuous = false; // We want a single, short phrase
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            recognition.onstart = function() {
-                descriptionInput.placeholder = '... Listening, please speak now ...';
-                document.getElementById('voiceButton').textContent = '🔴 Speaking...';
-                document.getElementById('voiceButton').disabled = true;
-            };
-
-            recognition.onresult = function(event) {
-                // Get the final transcript from the results
-                const speechResult = event.results[0][0].transcript;
-                descriptionInput.value = speechResult;
-                console.log('Speech Result: ' + speechResult);
-            };
-
-            recognition.onerror = function(event) {
-                console.error('Speech recognition error: ' + event.error);
-                descriptionInput.placeholder = 'Speech recognition failed. Try typing.';
-                alert(`Voice command failed: ${event.error}. Ensure microphone access is allowed and your connection is stable.`);
-            };
-
-            recognition.onend = function() {
-                document.getElementById('voiceButton').textContent = '🎙️ Speak Description';
-                document.getElementById('voiceButton').disabled = false;
-                // Clean up placeholder if it was the listening message
-                if(descriptionInput.placeholder === '... Listening, please speak now ...') {
-                     descriptionInput.placeholder = 'e.g., Sales, Rent, Materials'; 
-                }
-            };
-
-            // Start the recognition process
-            try {
-                recognition.start();
-            } catch (e) {
-                // Catch errors if recognition is already active
-                if (e.name === 'InvalidStateError') {
-                    console.warn('Recognition already started. Ignoring second start call.');
-                } else {
-                    console.error('Failed to start recognition:', e);
-                }
-            }
-        }
-        
-        // Initial setup on page load
-        if (localStorage.getItem('lastUserKey')) {
-            // Future feature: auto-login
-        }
-    </script>
-</body>
-</html>
+                "**Strong Profit Strategy:** Yo
