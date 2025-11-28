@@ -12,7 +12,7 @@ button { padding:10px; margin:8px 0; width:100%; background:#222; color:#fff; bo
 input, select { padding:10px; width:100%; margin:5px 0; }
 .box { background:#fff; padding:12px; border-radius:10px; margin:10px 0; box-shadow:0 2px 6px rgba(0,0,0,.1); }
 li { margin:5px 0; font-size:14px; }
-/* Added style for visual distinction */
+/* Styles for visual distinction on the list */
 .income { color: darkgreen; }
 .expense { color: darkred; }
 </style>
@@ -58,6 +58,7 @@ li { margin:5px 0; font-size:14px; }
 </div>
 
 <script>
+// Load data from Local Storage on startup
 let records = JSON.parse(localStorage.getItem("book7data")) || [];
 let businessName = localStorage.getItem("book7user") || "";
 
@@ -88,7 +89,7 @@ function addRecord(){
   let type = document.getElementById("type").value;
   let feedback = document.getElementById("feedbackMessage"); 
 
-  // 1. INPUT VALIDATION: Check for Description, Number, and Positive Amount
+  // --- INPUT VALIDATION: Check for Description, Number, and Positive Amount ---
   if (!desc) {
     feedback.innerText = "❌ Please enter a description.";
     feedback.style.color = 'red';
@@ -103,21 +104,21 @@ function addRecord(){
   // Clear previous feedback on success path
   feedback.innerText = "";
   
-  // 2. SAVE RECORD
+  // Save record object
   records.push({desc, amount, type, date:new Date().toLocaleString()});
   localStorage.setItem("book7data", JSON.stringify(records));
   
-  // 3. CLEAR INPUTS
+  // Clear inputs
   document.getElementById("desc").value = "";
   document.getElementById("amount").value = "";
   
-  // 4. RENDER AND SHOW SUCCESS FEEDBACK
+  // Render updates and show success feedback
   render();
 
   feedback.innerText = `✅ Success! Ksh ${amount} (${type.toUpperCase()}) recorded.`;
   feedback.style.color = 'green';
   
-  // Optional: Clear the success message after a few seconds
+  // Clear the success message after 3 seconds
   setTimeout(() => { feedback.innerText = ""; }, 3000);
 }
 
@@ -130,10 +131,11 @@ function render(){
     let li = document.createElement("li");
     li.textContent = `${r.date} | ${r.desc} - ${r.type.toUpperCase()} : Ksh ${r.amount}`;
     
-    // Add CSS class for visual distinction
+    // Add CSS class (income or expense) for visual distinction
     li.classList.add(r.type); 
     
     list.appendChild(li);
+    // Calculate balance
     balance += (r.type === "income" ? r.amount : -r.amount);
   });
 
