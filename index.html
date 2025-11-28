@@ -1,9 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Book 7 Lite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+    button {
+      background: #0a7cff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    .balance {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      line-height: 1.4;
+    }
+    li strong {
+      font-size: 17px;
+      color: #222;
+    }
+    small {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📘 Book 7 Lite</h1>
+
+<div class="card">
+  <div class="balance">Balance: Ksh <span id="balance">0</span></div>
+</div>
+
+<div class="card">
+  <h3>Add Transaction</h3>
+  <input type="text" id="desc" placeholder="Description" />
+  <input type="number" id="amount" placeholder="Amount" />
+  <select id="type">
+    <option value="income">Income</option>
+    <option value="expense">Expense</option>
+  </select>
+  <button onclick="addTransaction()">Save</button>
+</div>
+
+<div class="card">
+  <h3>Ledger</h3>
+  <ul id="list"></ul>
+</div>
+
 <script>
   let transactions = JSON.parse(localStorage.getItem("book7data")) || [];
 
   function saveData() {
     localStorage.setItem("book7data", JSON.stringify(transactions));
-  }
+    }
 
   function calculateBalance() {
     let balance = 0;
@@ -18,12 +100,10 @@
     const list = document.getElementById("list");
     list.innerHTML = "";
 
-    // Sort newest on top
     const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    sorted.forEach((t, index) => {
+    sorted.forEach((t) => {
       const li = document.createElement("li");
-
       const prettyType = t.type.toUpperCase();
       const prettyDate = new Date(t.date).toLocaleString();
 
@@ -65,3 +145,6 @@
   renderList();
   calculateBalance();
 </script>
+
+</body>
+</html>
