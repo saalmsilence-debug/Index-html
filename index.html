@@ -1,77 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Book 7 Lite</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .card {
-      background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      font-size: 16px;
-    }
-    button {
-      background: #0a7cff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-    .balance {
-      font-size: 22px;
-      font-weight: bold;
-      text-align: center;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-    }
-  </style>
-</head>
-<body>
-
-<h1>📘 Book 7 Lite</h1>
-
-<div class="card">
-  <div class="balance">Balance: Ksh <span id="balance">0</span></div>
-</div>
-
-<div class="card">
-  <h3>Add Transaction</h3>
-  <input type="text" id="desc" placeholder="Description" />
-  <input type="number" id="amount" placeholder="Amount" />
-  <select id="type">
-    <option value="income">Income</option>
-    <option value="expense">Expense</option>
-  </select>
-  <button onclick="addTransaction()">Save</button>
-</div>
-
-<div class="card">
-  <h3>Transactions</h3>
-  <ul id="list"></ul>
-</div>
-
 <script>
   let transactions = JSON.parse(localStorage.getItem("book7data")) || [];
 
@@ -91,9 +17,22 @@
   function renderList() {
     const list = document.getElementById("list");
     list.innerHTML = "";
-    transactions.forEach((t, index) => {
+
+    // Sort newest on top
+    const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    sorted.forEach((t, index) => {
       const li = document.createElement("li");
-      li.textContent = `${t.type.toUpperCase()} - ${t.desc} : Ksh ${t.amount}`;
+
+      const prettyType = t.type.toUpperCase();
+      const prettyDate = new Date(t.date).toLocaleString();
+
+      li.innerHTML = `
+        <strong>${prettyType}</strong> - ${t.desc}<br>
+        Amount: Ksh ${t.amount}<br>
+        <small>${prettyDate}</small>
+      `;
+
       list.appendChild(li);
     });
   }
@@ -108,7 +47,13 @@
       return;
     }
 
-    transactions.push({ desc, amount, type });
+    transactions.push({
+      desc,
+      amount,
+      type,
+      date: new Date().toISOString()
+    });
+
     saveData();
     renderList();
     calculateBalance();
@@ -120,6 +65,3 @@
   renderList();
   calculateBalance();
 </script>
-
-</body>
-</html>
