@@ -117,4 +117,423 @@ function showTab(id){
 </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Book 7 Ledger MVP</title>
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --color-link: #1e3a8a;
+            --color-background: #0f172a;
+            --color-secondary: #1e3a8a;
+            --color-secondary-hover: #172554;
+            --color-accent: #3b82f6;
+            --color-lite: #60a5fa;
+            --color-t: #f1f5f9;
+        }
+        main { max-width: 600px; margin: 0 auto; padding: 20px; }
+        header, footer { text-align: center; }
+        button, a.button { width: 100%; margin: 10px 0; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-nav button { background: var(--color-background); color: var(--color-t); border: none; padding: 10px 15px; cursor: pointer; opacity: 0.6; transition: opacity 0.3s; width: 50%; }
+        .tab-nav button.active { opacity: 1; background: var(--color-secondary); }
+        .card-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+        .card { flex: 1; padding: 15px; border-radius: 8px; text-align: center; color: var(--color-background); }
+        .card h4 { margin: 0 0 5px 0; font-size: 0.8em; color: var(--color-background); opacity: 0.8; }
+        .card p { margin: 0; font-size: 1.5em; font-weight: bold; }
+        #incomeCard { background: #34d399; }
+        #expenseCard { background: #f87171; }
+        #netCard { background: #60a5fa; }
+        #alertBanner { padding: 10px; background: #dc2626; color: white; text-align: center; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: bold; }
+        .voice-entry-group { display: flex; gap: 10px; }
+        .voice-entry-group input { flex-grow: 1; }
+        .voice-entry-group button { flex-grow: 0; width: auto; padding: 10px 15px; }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Book 7 Ledger MVP</h1>
+            <p id="currentUserDisplay" style="font-weight: bold;"></p>
+            <hr>
+        </header>
+
+        <section id="loginScreen">
+            <h2>Business Login</h2>
+            <form id="loginForm">
+                <label for="businessName">Business Name:</label>
+                <input type="text" id="businessName" placeholder="e.g., Jane's Bakery" required>
+                
+                <label for="pin">4-Digit PIN:</label>
+                <input type="password" id="pin" pattern="\d{4}" maxlength="4" placeholder="••••" required>
+                
+                <button type="submit">Login / Register</button>
+            </form>
+        </section>
+
+        <section id="appScreen" style="display: none;">
+            <div class="card-container">
+                <div class="card" id="incomeCard"><h4>Total Income</h4><p id="totalIncome">$0.00</p></div>
+                <div class="card" id="expenseCard"><h4>Total Expenses</h4><p id="totalExpenses">$0.00</p></div>
+                <div class="card" id="netCard"><h4>Net</h4><p id="netProfit">$0.00</p></div>
+            </div>
+
+            <div id="alertBanner">Net Loss detected! Review your expenses immediately.</div>
+            
+            <nav class="tab-nav">
+                <button class="active" onclick="showTab('ledger')">Ledger</button>
+                <button onclick="showTab('ai-chart')">AI & Chart</button>
+            </nav>
+
+            <div id="ledger" class="tab-content active">
+                <form id="transactionForm">
+                    <label for="type">Type:</label>
+                    <select id="type" required>
+                        <option value="income">Income (+)</option>
+                        <option value="expense">Expense (-)</option>
+                    </select>
+
+                    <label for="amount">Amount ($):</label>
+                    <input type="number" id="amount" step="0.01" min="0.01" required>
+
+                    <label for="description">Description (optional):</label>
+                    <div class="voice-entry-group">
+                        <input type="text" id="description" placeholder="e.g., Sales, Rent, Materials">
+                        <button type="button" id="voiceButton">🎙️ Speak Description</button>
+                    </div>
+
+                    <button type="submit">Add Entry</button>
+                </form>
+
+                <hr>
+                
+                <h2>Ledger History</h2>
+                <table id="ledgerTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="ai-chart" class="tab-content">
+                <h2>Financial Chart</h2>
+                <canvas id="financialChart"></canvas>
+
+                <h2>AI Business Insight</h2>
+                <details>
+                    <summary>Strong Profit Strategy</summary>
+                    <p id="strongStrategy"></p>
+                </details>
+                <details>
+                    <summary>Small Profit Optimisation</summary>
+                    <p id="smallOptimization"></p>
+                </details>
+                <details>
+                    <summary>Loss Emergency Advice</summary>
+                    <p id="lossAdvice"></p>
+                </details>
+            </div>
+
+            <footer>
+                <hr>
+                <button id="logoutButton">Log Out</button>
+            </footer>
+        </section>
+    </main>
+
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+
+        // --- Core Application Logic ---
+
+        let currentLedgerKey = null;
+        let ledgerData = [];
+        let chartInstance = null;
+        
+        const loginScreen = document.getElementById('loginScreen');
+        const appScreen = document.getElementById('appScreen');
+        const loginForm = document.getElementById('loginForm');
+        const transactionForm = document.getElementById('transactionForm');
+        const ledgerTableBody = document.querySelector('#ledgerTable tbody');
+        const netCard = document.getElementById('netCard');
+        const alertBanner = document.getElementById('alertBanner');
+        const currentUserDisplay = document.getElementById('currentUserDisplay');
+
+        // Helper to load data from Local Storage
+        function loadLedger(key) {
+            currentLedgerKey = key;
+            const data = localStorage.getItem(key);
+            ledgerData = data ? JSON.parse(data) : [];
+            renderLedger();
+            updateDashboard();
+            updateChart();
+            updateAIInsights();
+        }
+
+        // Helper to save data to Local Storage
+        function saveLedger() {
+            if (currentLedgerKey) {
+                localStorage.setItem(currentLedgerKey, JSON.stringify(ledgerData));
+            }
+        }
+
+        // Login / Register Handler
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const businessName = document.getElementById('businessName').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+            
+            if (businessName && pin.length === 4) {
+                const key = `ledger_${businessName}_${pin}`;
+                loadLedger(key);
+                currentUserDisplay.textContent = `Logged in as: ${businessName}`;
+                loginScreen.style.display = 'none';
+                appScreen.style.display = 'block';
+            } else {
+                alert('Please enter a business name and a 4-digit PIN.');
+            }
+        });
+
+        // Transaction Handler
+        transactionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const type = document.getElementById('type').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const description = document.getElementById('description').value || 'N/A';
+            
+            if (amount > 0) {
+                const newEntry = { type, amount, description, timestamp: new Date().toISOString() };
+                ledgerData.unshift(newEntry); // Add to top
+                saveLedger();
+                renderLedger();
+                updateDashboard();
+                updateChart();
+                updateAIInsights();
+                transactionForm.reset();
+            } else {
+                alert('Amount must be a positive number.');
+            }
+        });
+
+        // Rendering functions
+        function renderLedger() {
+            ledgerTableBody.innerHTML = '';
+            ledgerData.forEach(entry => {
+                const row = ledgerTableBody.insertRow();
+                row.insertCell().textContent = entry.type === 'income' ? 'Income' : 'Expense';
+                row.insertCell().textContent = `$${entry.amount.toFixed(2)}`;
+                row.insertCell().textContent = entry.description;
+                row.style.color = entry.type === 'income' ? '#34d399' : '#f87171';
+            });
+        }
+
+        function calculateTotals() {
+            let totalIncome = 0;
+            let totalExpenses = 0;
+            ledgerData.forEach(entry => {
+                if (entry.type === 'income') {
+                    totalIncome += entry.amount;
+                } else {
+                    totalExpenses += entry.amount;
+                }
+            });
+            const net = totalIncome - totalExpenses;
+            return { totalIncome, totalExpenses, net };
+        }
+
+        function updateDashboard() {
+            const { totalIncome, totalExpenses, net } = calculateTotals();
+            document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
+            document.getElementById('netProfit').textContent = `$${net.toFixed(2)}`;
+            
+            if (net < 0) {
+                netCard.style.backgroundColor = '#dc2626'; // Red for loss
+                alertBanner.style.display = 'block';
+            } else {
+                netCard.style.backgroundColor = '#60a5fa'; // Blue for profit
+                alertBanner.style.display = 'none';
+            }
+        }
+        
+        // Chart.js Configuration
+        function updateChart() {
+            const { totalIncome, totalExpenses } = calculateTotals();
+            const ctx = document.getElementById('financialChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.data.datasets[0].data = [totalIncome, totalExpenses];
+                chartInstance.update();
+                return;
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Income', 'Total Expenses'],
+                    datasets: [{
+                        label: 'Amount ($)',
+                        data: [totalIncome, totalExpenses],
+                        backgroundColor: [
+                            '#34d399', // Green for Income
+                            '#f87171'  // Red for Expense
+                        ],
+                        borderColor: [
+                            '#10b981',
+                            '#ef4444'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // AI Insight Stub Logic
+        function updateAIInsights() {
+            const { net } = calculateTotals();
+            
+            const strategyText = net >= 1000 ? 
+                "**Strong Profit Strategy:** Your current model is highly effective. Focus on scaling your most profitable income streams and consider strategic investments into quality improvements or market expansion." :
+                "**Strong Profit Strategy:** You are consistently profitable. Maintain quality control and explore methods for increasing customer lifetime value (CLV) through loyalty programs or premium offerings.";
+
+            const optimizationText = net > 0 ?
+                "**Small Profit Optimisation:** Review recurring expenses, even small ones. Look for 5-10% cost reductions in non-core areas. Consider optimizing your pricing model slightly if demand is high." :
+                "**Small Profit Optimisation:** Focus on low-cost marketing strategies like social media engagement. Analyze your sales process to identify and reduce friction points that may lead to lost opportunities.";
+            
+            const lossText = net < 0 ?
+                "**Loss Emergency Advice:** Immediately review the past 30 days of expenses. Cut all non-essential spending. Prioritize generating quick income through clearance sales or accelerating customer invoices. Do not wait for the loss to compound." :
+                "**Loss Emergency Advice:** While profitable, maintain an emergency fund. Review contracts with suppliers for better terms. Ensure your cash flow forecast accounts for unexpected dips in sales or sudden large expenses.";
+
+            document.getElementById('strongStrategy').innerHTML = strategyText;
+            document.getElementById('smallOptimization').innerHTML = optimizationText;
+            document.getElementById('lossAdvice').innerHTML = lossText;
+        }
+
+        // Tab Switching
+        window.showTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-nav button[onclick*="${tabId}"]`).classList.add('active');
+            
+            if (tabId === 'ai-chart') {
+                updateChart(); // Ensure chart is drawn when its tab is active
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            currentLedgerKey = null;
+            ledgerData = [];
+            loginScreen.style.display = 'block';
+            appScreen.style.display = 'none';
+            document.getElementById('businessName').value = '';
+            document.getElementById('pin').value = '';
+            currentUserDisplay.textContent = '';
+            renderLedger();
+            updateDashboard();
+        });
+
+        // --- Voice Entry (Speech Recognition) Fix ---
+
+        document.getElementById('voiceButton').addEventListener('click', startVoiceEntry);
+
+        function startVoiceEntry() {
+            // Check for SpeechRecognition support across various browsers
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const descriptionInput = document.getElementById('description');
+            
+            if (!SpeechRecognition) {
+                alert('Speech Recognition is not supported by your browser. Please use Chrome/Edge on Desktop/Android.');
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false; // We want a single, short phrase
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                descriptionInput.placeholder = '... Listening, please speak now ...';
+                document.getElementById('voiceButton').textContent = '🔴 Speaking...';
+                document.getElementById('voiceButton').disabled = true;
+            };
+
+            recognition.onresult = function(event) {
+                // Get the final transcript from the results
+                const speechResult = event.results[0][0].transcript;
+                descriptionInput.value = speechResult;
+                console.log('Speech Result: ' + speechResult);
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error: ' + event.error);
+                descriptionInput.placeholder = 'Speech recognition failed. Try typing.';
+                alert(`Voice command failed: ${event.error}. Ensure microphone access is allowed and your connection is stable.`);
+            };
+
+            recognition.onend = function() {
+                document.getElementById('voiceButton').textContent = '🎙️ Speak Description';
+                document.getElementById('voiceButton').disabled = false;
+                // Clean up placeholder if it was the listening message
+                if(descriptionInput.placeholder === '... Listening, please speak now ...') {
+                     descriptionInput.placeholder = 'e.g., Sales, Rent, Materials'; 
+                }
+            };
+
+            // Start the recognition process
+            try {
+                recognition.start();
+            } catch (e) {
+                // Catch errors if recognition is already active
+                if (e.name === 'InvalidStateError') {
+                    console.warn('Recognition already started. Ignoring second start call.');
+                } else {
+                    console.error('Failed to start recognition:', e);
+                }
+            }
+        }
+        
+        // Initial setup on page load
+        if (localStorage.getItem('lastUserKey')) {
+            // Future feature: auto-login
+        }
+    </script>
+</body>
 </html>
