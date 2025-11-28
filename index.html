@@ -1,535 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Book 7 Finance Hub</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- Load Tailwind CSS for modern, responsive styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root {
-      --accent: #10b981; /* Emerald green for positive action/income */
-      --secondary: #3b82f6; /* Blue for primary focus */
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --card-bg: #ffffff;
-      --bg: #f9fafb;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg);
-    }
-    /* Custom container centering */
-    .container-custom {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      margin-bottom: 1rem;
-      padding: 1rem;
-    }
-    /* Specific styles for lists and items */
-    .ledger-item, .debt-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    .ledger-item:last-child, .debt-item:last-child {
-      border-bottom: none;
-    }
-    .income { color: var(--accent); }
-    .expense { color: var(--danger); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Ledger | Global Finance Hub</title>
 
-    /* Calendar styles */
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
-    }
-    .calendar-day {
-      aspect-ratio: 1 / 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 0.8rem;
-      border-radius: 0.375rem;
-      cursor: pointer;
-      padding: 2px;
-      position: relative;
-      background-color: #f9fafb;
-    }
-    .calendar-header {
-      font-weight: 600;
-      text-align: center;
-      padding: 4px;
-    }
-    .current-month {
-      background-color: var(--card-bg);
-    }
-    .current-day {
-      border: 2px solid var(--secondary);
-      font-weight: 700;
-    }
-    .has-debt {
-      border: 2px solid var(--danger);
-      background-color: #fef2f2;
-    }
-    .due-count {
-      position: absolute;
-      top: 1px;
-      right: 1px;
-      font-size: 0.6rem;
-      line-height: 1;
-      background: var(--danger);
-      color: white;
-      border-radius: 9999px;
-      padding: 1px 4px;
-    }
-    .tooltip-content {
-        max-width: 250px;
-    }
-    /* Notification styling */
-    .notification {
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        display: none;
-    }
-    .notification.success { background-color: #d1fae5; color: #065f46; }
-    .notification.error { background-color: #fee2e2; color: #991b1b; }
-    .notification.warning { background-color: #fef3c7; color: #92400e; }
-  </style>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'Arial', 'sans-serif'],
-          },
-        }
-      }
-    }
-  </script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
+    <div class="app-container">
 
-<div class="container-custom">
-  <header class="text-center py-4">
-    <h1 class="text-3xl font-bold text-gray-800">📘 Book 7 Finance Hub</h1>
-    <p class="text-sm text-gray-500">Ledger, Debt Manager & Calendar View</p>
-  </header>
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="logo">Nexus Ledger</div>
 
-  <!-- Global Balance -->
-  <div class="card">
-    <div class="text-xl font-semibold text-center text-gray-700">Net Ledger Balance:</div>
-    <div id="balance" class="text-3xl font-extrabold text-center mt-1 text-secondary">Ksh 0.00</div>
-  </div>
-  
-  <!-- Notification Area -->
-  <div id="notification-area" class="mt-4"></div>
-  
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    
-    <!-- Column 1: Transaction and Journal Forms -->
-    <div class="lg:col-span-1">
-        
-      <!-- Add Transaction (Ledger) -->
-      <div class="card">
-        <h3 class="text-xl font-semibold mb-3 border-b pb-2">💸 Add Transaction</h3>
-        <input type="hidden" id="ledger-edit-id" />
-        <div class="mb-3">
-          <label for="desc" class="block text-sm font-medium text-gray-700">Description</label>
-          <input type="text" id="desc" placeholder="Salary, Rent, Grocery" class="w-full mt-1 p-2 border rounded-md" />
-        </div>
-        <div class="grid grid-cols-2 gap-3 mb-3">
-          <div>
-            <label for="amount" class="block text-sm font-medium text-gray-700">Amount (Ksh)</label>
-            <input type="number" id="amount" placeholder="5000" class="w-full mt-1 p-2 border rounded-md" />
-          </div>
-          <div>
-            <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
-            <select id="type" class="w-full mt-1 p-2 border rounded-md">
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-3 gap-3">
-            <button id="ledger-submit-btn" onclick="addTransaction()" class="col-span-2 py-2 rounded-md bg-secondary hover:bg-blue-600 text-white font-semibold">
-              Save to Ledger
-            </button>
-            <button id="ledger-cancel-btn" onclick="resetLedgerForm()" class="col-span-1 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold" style="display:none;">
-              Cancel
-            </button>
-        </div>
-      </div>
-
-      <!-- Quick Journal/Notes -->
-      <div class="card">
-        <h3 class="text-xl font-semibold mb-3 border-b pb-2">✍️ Transaction Journal</h3>
-        <textarea id="journal-text" rows="5" placeholder="Quick notes about today's spending or debt thoughts..." class="w-full p-2 border rounded-md mb-2"></textarea>
-        <div id="journal-output" class="text-sm text-gray-500 border-t pt-2 mt-2"></div>
-        <button onclick="saveJournal()" class="w-full py-2 rounded-md bg-gray-500 hover:bg-gray-600 text-white font-semibold text-sm mt-3">
-          Save Note
-        </button>
-      </div>
-
-    </div>
-    
-    <!-- Column 2: Debt Manager -->
-    <div class="lg:col-span-2">
-      <div class="card">
-        <h3 class="text-xl font-semibold mb-3 border-b pb-2">🏦 Debt & Receivables Manager</h3>
-        
-        <!-- Debt Totals -->
-        <div class="grid grid-cols-3 gap-3 mb-4 text-center">
-          <div class="bg-blue-50 p-3 rounded-lg">
-            <div class="text-sm text-gray-600">Owed to Me (Pending)</div>
-            <div id="total-owed" class="text-lg font-bold text-secondary">Ksh 0.00</div>
-          </div>
-          <div class="bg-red-50 p-3 rounded-lg">
-            <div class="text-sm text-gray-600">I Owe (Pending)</div>
-            <div id="total-owe" class="text-lg font-bold text-danger">Ksh 0.00</div>
-          </div>
-          <div class="bg-green-50 p-3 rounded-lg">
-            <div class="text-sm text-gray-600">Net Debt Position</div>
-            <div id="net-pos" class="text-lg font-bold text-accent">Ksh 0.00</div>
-          </div>
-        </div>
-        
-        <!-- Add/Edit Debt Form -->
-        <div class="border p-3 rounded-lg bg-gray-50">
-          <h4 id="debt-title" class="text-lg font-semibold mb-2">➕ Add New Debt</h4>
-          <input type="hidden" id="debt-edit-id" />
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-gray-700">Name</label>
-              <input type="text" id="debt-name" placeholder="Person/Business" class="w-full p-2 border rounded-md text-sm" />
+            <div class="net-balance-card">
+                <span class="label">Net Ledger Balance</span>
+                <h1 id="net-balance-ksh" class="balance-gold">Ksh 0.00</h1>
+                <p id="net-balance-usd-ref" class="reference-currency">~$0.00 USD</p>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-gray-700">Amount</label>
-              <input type="number" id="debt-amount" placeholder="1000" class="w-full p-2 border rounded-md text-sm" />
+        </header>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <button class="action-btn income-btn"><i class="fa-solid fa-plus"></i> Income</button>
+            <button class="action-btn expense-btn"><i class="fa-solid fa-minus"></i> Expense</button>
+            <button class="action-btn debt-btn"><i class="fa-solid fa-handshake"></i> IOU</button>
+        </section>
+
+        <!-- FlowMap Dashboard -->
+        <section class="flowmap-dashboard">
+            <h2><i class="fa-solid fa-chart-line"></i> FlowMap Dashboard</h2>
+            <div class="flow-chart-placeholder">Flow Graph Coming Soon...</div>
+
+            <div class="health-score-container">
+                <span class="label">Financial Health Score</span>
+                <span id="fhs-score" class="score-number">N/A</span>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-gray-700">Type</label>
-              <select id="debt-type" class="w-full p-2 border rounded-md text-sm">
-                <option value="owed">Owed to me</option>
-                <option value="owe">I owe</option>
-              </select>
+        </section>
+
+        <!-- Debt Manager -->
+        <section class="debt-manager">
+            <h2><i class="fa-solid fa-scale-balanced"></i> Debt & Receivables Manager</h2>
+
+            <div class="debt-summary">
+                <div class="owed-to-me">Owed to Me: Ksh 0.00</div>
+                <div class="i-owe">I Owe: Ksh 0.00</div>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-gray-700">Due Date</label>
-              <input type="date" id="debt-due" class="w-full p-2 border rounded-md text-sm" />
-            </div>
-          </div>
-          <div class="mt-3">
-            <label class="block text-xs font-medium text-gray-700">Reason/Note</label>
-            <input type="text" id="debt-reason" placeholder="Goods sold, personal loan, etc." class="w-full p-2 border rounded-md text-sm" />
-          </div>
-          <button id="debt-submit-btn" onclick="addDebt()" class="w-full py-2 mt-3 rounded-md bg-secondary hover:bg-blue-600 text-white font-semibold text-sm">
-            Add Debt Record
-          </button>
-        </div>
 
-        <!-- Debt List -->
-        <h4 class="text-lg font-semibold mt-4 mb-2">📋 Pending Debts</h4>
-        <div id="debt-list-container" class="space-y-2">
-            <!-- Rendered Debts Go Here -->
-        </div>
-      </div>
-    </div>
-  </div>
+            <button class="add-debt-btn">Add New Debt Record</button>
+        </section>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    
-    <!-- Column 3: Calendar View -->
-    <div class="lg:col-span-1">
-      <div class="card">
-        <h3 class="text-xl font-semibold mb-3 border-b pb-2">📅 Debt Calendar</h3>
-        <div class="flex justify-between items-center mb-3">
-          <button onclick="changeMonth(-1)" class="p-2 text-gray-600 hover:text-secondary">&lt; Prev</button>
-          <span id="month-year" class="font-bold text-lg"></span>
-          <button onclick="changeMonth(1)" class="p-2 text-gray-600 hover:text-secondary">Next &gt;</button>
-        </div>
-        <div class="calendar-grid text-gray-700">
-          <div class="calendar-header">Sun</div>
-          <div class="calendar-header">Mon</div>
-          <div class="calendar-header">Tue</div>
-          <div class="calendar-header">Wed</div>
-          <div class="calendar-header">Thu</div>
-          <div class="calendar-header">Fri</div>
-          <div class="calendar-header">Sat</div>
-        </div>
-        <div id="calendar-days" class="calendar-grid">
-          <!-- Calendar Days Rendered Here -->
-        </div>
-      </div>
+        <!-- Ledger Activity -->
+        <section class="ledger-activity">
+            <h2><i class="fa-solid fa-book"></i> Recent Activity</h2>
+            <ul id="transaction-list"></ul>
+        </section>
+
     </div>
 
-    <!-- Column 4: Ledger List -->
-    <div class="lg:col-span-1">
-      <div class="card">
-        <h3 class="text-xl font-semibold mb-3 border-b pb-2">📘 Recent Ledger Activity</h3>
-        <ul id="list" class="divide-y divide-gray-100">
-          <!-- Ledger Transactions Rendered Here -->
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal for Calendar Details -->
-<div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 md:w-1/3">
-        <div class="flex justify-between items-center border-b pb-3 mb-3">
-            <h3 id="modal-title" class="text-xl font-semibold">Debt Details</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
-        </div>
-        <div id="modal-body" class="max-h-96 overflow-y-auto">
-            <!-- Debt details go here -->
-        </div>
-    </div>
-</div>
-
-<script>
-  // Global Data Storage
-  let transactions = JSON.parse(localStorage.getItem('book7data')) || [];
-  let debts = JSON.parse(localStorage.getItem('book7-debts')) || [];
-  let journal = JSON.parse(localStorage.getItem('book7-journal')) || [];
-  let currentCalendarDate = new Date();
-
-  // --- UTILITIES ---
-  function toNumber(v) {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
-  }
-  function generateId(prefix) {
-    // Generate a slightly more unique ID by combining timestamp and random number
-    return prefix + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
-  }
-  function saveAll() {
-    localStorage.setItem('book7data', JSON.stringify(transactions));
-    localStorage.setItem('book7-debts', JSON.stringify(debts));
-    localStorage.setItem('book7-journal', JSON.stringify(journal));
-  }
-  function capitalize(s){ return (s||'').toString().charAt(0).toUpperCase() + (s||'').toString().slice(1); }
-  function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
-  function getToday() {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      return d.toISOString().split('T')[0];
-  }
-  
-  // --- NOTIFICATION SYSTEM ---
-  let notificationTimeout;
-  function showNotification(message, type = 'success', duration = 3000) {
-      const area = document.getElementById('notification-area');
-      
-      // Clear previous timeout and existing message
-      clearTimeout(notificationTimeout);
-      area.innerHTML = '';
-
-      const div = document.createElement('div');
-      div.className = `notification ${type} opacity-0 transition-opacity duration-300`;
-      div.innerText = message;
-      area.appendChild(div);
-      
-      // Fade in
-      setTimeout(() => {
-          div.style.opacity = 1;
-      }, 10);
-
-      // Fade out and remove
-      notificationTimeout = setTimeout(() => {
-          div.style.opacity = 0;
-          setTimeout(() => {
-              area.innerHTML = '';
-          }, 300);
-      }, duration);
-  }
-
-
-  // --- MODAL ---
-  function openModal(title, content) {
-      document.getElementById('modal-title').innerText = title;
-      document.getElementById('modal-body').innerHTML = content;
-      document.getElementById('modal').style.display = 'flex';
-  }
-  function closeModal() {
-      document.getElementById('modal').style.display = 'none';
-  }
-
-  // --- LEDGER FUNCTIONS ---
-  function calculateBalance() {
-    let balance = 0;
-    transactions.forEach(t => {
-      if (t.type === 'income') balance += toNumber(t.amount);
-      else balance -= toNumber(t.amount);
-    });
-    document.getElementById('balance').innerText = `Ksh ${balance.toFixed(2)}`;
-    document.getElementById('balance').className = `text-3xl font-extrabold text-center mt-1 ${balance >= 0 ? 'text-accent' : 'text-danger'}`;
-  }
-
-  function addTransaction() {
-    const id = document.getElementById('ledger-edit-id').value;
-    const desc = document.getElementById('desc').value.trim();
-    const amount = toNumber(document.getElementById('amount').value);
-    const type = document.getElementById('type').value;
-    const isUpdate = !!id;
-
-    if (!desc || !amount || amount <= 0) {
-      showNotification('Validation Error: Enter description and a positive amount.', 'error');
-      return;
-    }
-
-    if (isUpdate) {
-      // Update logic
-      const index = transactions.findIndex(t => t.id === id);
-      if (index !== -1) {
-        transactions[index] = { ...transactions[index], desc, amount, type };
-        showNotification('Transaction updated successfully.', 'success');
-      }
-    } else {
-      // Add logic
-      transactions.push({ id: generateId('t-'), desc, amount, type, date: new Date().toISOString() });
-      showNotification('Transaction saved successfully.', 'success');
-    }
-
-    saveAll();
-    renderList();
-    calculateBalance();
-    resetLedgerForm();
-  }
-
-  function deleteTransaction(id) {
-    if (confirm('Delete this ledger entry?')) {
-      transactions = transactions.filter(t => t.id !== id);
-      saveAll();
-      renderList();
-      calculateBalance();
-      showNotification('Ledger entry deleted.', 'warning');
-    }
-  }
-
-  function editTransaction(id) {
-    const t = transactions.find(x => x.id === id);
-    if (!t) return;
-    document.getElementById('ledger-edit-id').value = t.id;
-    document.getElementById('desc').value = t.desc;
-    document.getElementById('amount').value = t.amount;
-    document.getElementById('type').value = t.type;
-    
-    document.getElementById('ledger-submit-btn').innerText = 'Update Transaction';
-    document.getElementById('ledger-submit-btn').className = 'col-span-2 py-2 rounded-md bg-warning hover:bg-yellow-600 text-white font-semibold';
-    document.getElementById('ledger-cancel-btn').style.display = 'block';
-    document.getElementById('desc').focus();
-    showNotification('Editing ledger entry.', 'warning');
-  }
-
-  function resetLedgerForm() {
-    document.getElementById('ledger-edit-id').value = '';
-    document.getElementById('desc').value = '';
-    document.getElementById('amount').value = '';
-    document.getElementById('type').value = 'income';
-    document.getElementById('ledger-submit-btn').innerText = 'Save to Ledger';
-    document.getElementById('ledger-submit-btn').className = 'col-span-2 py-2 rounded-md bg-secondary hover:bg-blue-600 text-white font-semibold';
-    document.getElementById('ledger-cancel-btn').style.display = 'none';
-  }
-
-  function renderList() {
-    const list = document.getElementById('list');
-    list.innerHTML = '';
-    const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10); // Show top 10 recent
-
-    if (sorted.length === 0) {
-      list.innerHTML = '<li class="text-sm text-gray-500 py-2">No recent transactions.</li>';
-      return;
-    }
-
-    sorted.forEach(t => {
-      const li = document.createElement('li');
-      li.className = 'ledger-item';
-      const amountClass = t.type === 'income' ? 'income' : 'expense';
-      const sign = t.type === 'income' ? '+' : '-';
-      
-      li.innerHTML = `
-        <div class="flex-1 min-w-0">
-          <div class="font-medium text-gray-800">${escapeHtml(t.desc)}</div>
-          <div class="text-xs text-gray-500">${new Date(t.date).toLocaleDateString()}</div>
-        </div>
-        <div class="flex items-center space-x-2">
-          <span class="font-semibold ${amountClass}">${sign}Ksh ${Number(t.amount).toFixed(2)}</span>
-          <button onclick="editTransaction('${t.id}')" class="text-xs text-blue-500 hover:text-blue-700">✏️</button>
-          <button onclick="deleteTransaction('${t.id}')" class="text-xs text-red-500 hover:text-red-700">🗑️</button>
-        </div>
-      `;
-      list.appendChild(li);
-    });
-  }
-  
-  // --- JOURNAL FUNCTIONS ---
-  function saveJournal() {
-    const text = document.getElementById('journal-text').value.trim();
-    if (text) {
-        journal.push({ 
-            id: generateId('j-'), 
-            date: new Date().toISOString(), 
-            note: text 
-        });
-        document.getElementById('journal-text').value = '';
-        saveAll();
-        renderJournal();
-        showNotification('Journal note saved.', 'success');
-    } else {
-        showNotification('Journal is empty, nothing to save.', 'warning');
-    }
-  }
-
-  function renderJournal() {
-      const output = document.getElementById('journal-output');
-      output.innerHTML = '';
-      const recent = [...journal].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3); // Show 3 recent notes
-      
-      if (recent.length === 0) {
-          output.innerHTML = 'No recent notes.';
-          return;
-      }
-
-      recent.forEach(j => {
-          const p = document.createElement('p');
-          p.className = 'text-xs text-gray-700 border-b last:border-b-0 py-1';
-          p.innerHTML = `<strong>${new Date(j.date).toLocaleDateString()}</strong>: ${escapeHtml(j.note)}`;
-          output.appendChild(p);
-      });
-  }
-
-
-  // --- DEBT MANAGER FUNCTIONS ---
-  function computeDebtStatus(d) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const remaining = toNumber(d.remaining);
-    
-    if (remaining <= 0) return { status: 'paid', color: 'bg-accent' };
-    
-    if (d.due) {
-      const dueDate = new Date(d.due);
-      dueDate.setHours(0, 0, 0, 0);
-      if (dueDate < today) return { status: 'overdue', color: 'bg-danger' };
-    }
-    
-    const totalPaid = d.history.reduce((sum, h) => sum + toNumber(h.amt), 0);
-    if (totalPaid > 0) return { status: 'partial', color: 'bg-warning' };
-    
-    return { status: 'pending', color: 'bg-secondary' };
-  }
-
-  function 
+    <script src="app.js"></script>
+</body>
+</html>
