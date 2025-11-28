@@ -1,68 +1,443 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Ledger | Global Finance Hub</title>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Book7 — MVP</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#9aa6b2; --accent2:#f59e0b;
+    --glass: rgba(255,255,255,0.03);
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{background:linear-gradient(180deg,#071028 0%, #061322 100%); color:#e6eef6; padding:16px;}
+  .app{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 380px;gap:16px;}
+  header{grid-column:1/-1; display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;}
+  h1{font-size:20px;margin:0;}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+  .left{display:flex;flex-direction:column; gap:12px;}
+  .form-row{display:flex;gap:8px;flex-wrap:wrap;}
+  input,select,textarea,button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px;border-radius:8px;min-height:40px;}
+  input:focus,select:focus,textarea:focus{outline:2px solid rgba(6,182,212,0.12); color:#e6eef6;}
+  label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;}
+  .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#031123;border:none;padding:10px 12px;border-radius:8px;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:6px 8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);color:var(--muted);}
+  .mini{font-size:12px;color:var(--muted);}
+  .right{display:flex;flex-direction:column;gap:12px;}
+  .flex{display:flex;gap:8px;align-items:center;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .day{min-height:60px;padding:6px;border-radius:6px;background:var(--glass);font-size:13px;}
+  .badge{display:inline-block;padding:3px 6px;border-radius:999px;background:rgba(6,182,212,0.15);color:var(--accent);font-size:12px;margin-top:6px;}
+  .small{font-size:12px;color:var(--muted);}
+  footer{grid-column:1/-1;margin-top:8px;text-align:center;color:var(--muted);font-size:12px;}
+  @media(max-width:900px){ .app{grid-template-columns:1fr; } .right{order:2} }
+</style>
 </head>
-
 <body>
-    <div class="app-container">
-
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="logo">Nexus Ledger</div>
-
-            <div class="net-balance-card">
-                <span class="label">Net Ledger Balance</span>
-                <h1 id="net-balance-ksh" class="balance-gold">Ksh 0.00</h1>
-                <p id="net-balance-usd-ref" class="reference-currency">~$0.00 USD</p>
-            </div>
-        </header>
-
-        <!-- Quick Actions -->
-        <section class="quick-actions">
-            <button class="action-btn income-btn"><i class="fa-solid fa-plus"></i> Income</button>
-            <button class="action-btn expense-btn"><i class="fa-solid fa-minus"></i> Expense</button>
-            <button class="action-btn debt-btn"><i class="fa-solid fa-handshake"></i> IOU</button>
-        </section>
-
-        <!-- FlowMap Dashboard -->
-        <section class="flowmap-dashboard">
-            <h2><i class="fa-solid fa-chart-line"></i> FlowMap Dashboard</h2>
-            <div class="flow-chart-placeholder">Flow Graph Coming Soon...</div>
-
-            <div class="health-score-container">
-                <span class="label">Financial Health Score</span>
-                <span id="fhs-score" class="score-number">N/A</span>
-            </div>
-        </section>
-
-        <!-- Debt Manager -->
-        <section class="debt-manager">
-            <h2><i class="fa-solid fa-scale-balanced"></i> Debt & Receivables Manager</h2>
-
-            <div class="debt-summary">
-                <div class="owed-to-me">Owed to Me: Ksh 0.00</div>
-                <div class="i-owe">I Owe: Ksh 0.00</div>
-            </div>
-
-            <button class="add-debt-btn">Add New Debt Record</button>
-        </section>
-
-        <!-- Ledger Activity -->
-        <section class="ledger-activity">
-            <h2><i class="fa-solid fa-book"></i> Recent Activity</h2>
-            <ul id="transaction-list"></ul>
-        </section>
-
+<div class="app">
+  <header>
+    <div>
+      <h1>Book7 — Mini OS (MVP)</h1>
+      <div class="small">Ledger • P&L • Inventory • Debts • Calendar • Voice entry</div>
     </div>
+    <div class="flex">
+      <button id="exportBtn" class="btn">Export JSON</button>
+      <input id="fileInput" type="file" accept="application/json" style="display:none" />
+      <button id="importBtn" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Import</button>
+    </div>
+  </header>
 
-    <script src="app.js"></script>
-</body>
-</html>
+  <div class="left">
+    <!-- LEDGER ENTRY -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong>Quick Entry</strong>
+        <div class="mini">Balance: <span id="balance">0</span></div>
+      </div>
+      <div style="margin-top:8px" class="form-row">
+        <div style="flex:1">
+          <label>Date</label>
+          <input id="entryDate" type="date" />
+        </div>
+        <div style="flex:1">
+          <label>Account / Party</label>
+          <input id="entryAccount" placeholder="e.g., Cash, Mpesa, Client A" />
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:8px">
+        <div style="width:120px">
+          <label>Type</label>
+          <select id="entryType">
+            <option value="income">Income (credit)</option>
+            <option value="expense">Expense (debit)</option>
+            <option value="transfer">Transfer</option>
+          </select>
+        </div>
+        <div style="width:140px">
+          <label>Amount</label>
+          <input id="entryAmount" type="number" min="0" step="0.01" />
+        </div>
+        <div style="flex:1">
+          <label>Category</label>
+          <input id="entryCategory" placeholder="e.g., Sales, Salary, Supplies" />
+        </div>
+      </div>
+
+      <div style="margin-top:8px" class="form-row">
+        <div style="flex:1">
+          <label>Note</label>
+          <input id="entryNote" placeholder="Short note" />
+        </div>
+        <div style="width:160px;display:flex;flex-direction:column;gap:6px;justify-content:flex-end;">
+          <button id="voiceBtn" class="btn" style="width:100%">🎤 Voice</button>
+          <button id="addEntry" class="btn" style="width:100%">Add Entry</button>
+        </div>
+      </div>
+
+      <div style="margin-top:8px" class="small" id="aiTip">AI tips will appear here</div>
+    </section>
+
+    <!-- LEDGER LIST -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>Ledger</strong>
+        <div class="mini">Entries: <span id="entriesCount">0</span></div>
+      </div>
+      <div style="max-height:260px;overflow:auto">
+        <table id="ledgerTable">
+          <thead><tr><th>Date</th><th>Account</th><th>Type</th><th>Category</th><th>Amount</th><th>Note</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- P&L -->
+    <section class="card">
+      <strong>Profit & Loss</strong>
+      <div class="grid-2" style="margin-top:8px">
+        <div>
+          <div class="small">Total Income</div>
+          <div id="totalIncome" style="font-size:18px">0</div>
+        </div>
+        <div>
+          <div class="small">Total Expense</div>
+          <div id="totalExpense" style="font-size:18px">0</div>
+        </div>
+      </div>
+      <div style="margin-top:8px" class="small">Net Profit: <span id="netProfit">0</span></div>
+    </section>
+  </div>
+
+  <aside class="right">
+    <!-- Calendar -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong>Calendar</strong>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="prevMonth" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">◀</button>
+          <div id="monthLabel" class="mini">Month</div>
+          <button id="nextMonth" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">▶</button>
+        </div>
+      </div>
+      <div style="margin-top:8px" id="calendarGrid" class="calendar"></div>
+    </section>
+
+    <!-- Debts -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong>Debts (Owed / Owing)</strong>
+        <button id="addDebt" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Add</button>
+      </div>
+      <div style="margin-top:8px;max-height:170px;overflow:auto">
+        <table id="debtsTable"><thead><tr><th>Party</th><th>Amt</th><th>Type</th><th></th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- Inventory -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong>Inventory</strong>
+        <button id="addItemBtn" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Add</button>
+      </div>
+      <div style="margin-top:8px;max-height:170px;overflow:auto">
+        <table id="inventoryTable"><thead><tr><th>Item</th><th>Qty</th><th>Cost</th><th>Value</th><th></th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section class="card">
+      <strong>Quick Tools</strong>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+        <button id="clearAll" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Clear Data</button>
+        <button id="helpBtn" class="btn">How to use</button>
+      </div>
+    </section>
+  </aside>
+
+  <footer class="mini card">
+    Book7 MVP — data saved locally in your browser. Export JSON to backup. Voice uses browser speech API.
+  </footer>
+</div>
+
+<script>
+/* ========= Simple MVP Book7 logic =========
+ - Data stored in localStorage under 'book7_data'
+ - Objects: entries[], debts[], inventory[], settings
+ - Voice entry: tries to parse a simple sentence like "sold goods 12000 to client a category sales"
+ - AI Tips: small local rules (high expenses, repeat categories etc.)
+*/
+
+// --- Utilities
+const $ = id => document.getElementById(id);
+const parseFloatSafe = v => Number(parseFloat(v) || 0).toFixed(2);
+
+// Data container
+let state = { entries: [], debts: [], inventory: [], settings: {monthOffset:0} };
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('book7_data');
+    if(raw) state = JSON.parse(raw);
+  } catch(e){ console.error('load error', e); }
+}
+function saveState(){ localStorage.setItem('book7_data', JSON.stringify(state)); renderAll(); }
+
+// --- Render functions
+function renderLedger(){
+  const tbody = document.querySelector('#ledgerTable tbody'); tbody.innerHTML='';
+  state.entries.sort((a,b)=> new Date(b.date)-new Date(a.date));
+  state.entries.forEach((e,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${e.date}</td><td>${escapeHtml(e.account)}</td><td>${e.type}</td><td>${escapeHtml(e.category)}</td><td>${formatMoney(e.amount)}</td><td>${escapeHtml(e.note)}</td><td><button data-i="${i}" class="delEntry" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
+    tbody.appendChild(tr);
+  });
+  $('entriesCount').textContent = state.entries.length;
+  computePL();
+  computeBalance();
+  renderCalendar();
+}
+
+function renderDebts(){
+  const tbody = document.querySelector('#debtsTable tbody'); tbody.innerHTML='';
+  state.debts.forEach((d,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHtml(d.party)}</td><td>${formatMoney(d.amount)}</td><td>${d.type}</td><td><button data-i="${i}" class="delDebt" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderInventory(){
+  const tbody = document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
+  state.inventory.forEach((it,i)=>{
+    const tr = document.createElement('tr');
+    const value = (Number(it.qty)||0)*(Number(it.cost)||0);
+    tr.innerHTML = `<td>${escapeHtml(it.name)}</td><td>${it.qty}</td><td>${formatMoney(it.cost)}</td><td>${formatMoney(value)}</td><td><button data-i="${i}" class="delItem" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function computePL(){
+  const income = state.entries.filter(e=>e.type==='income').reduce((s,e)=>s+Number(e.amount),0);
+  const expense = state.entries.filter(e=>e.type==='expense').reduce((s,e)=>s+Number(e.amount),0);
+  $('totalIncome').textContent = formatMoney(income);
+  $('totalExpense').textContent = formatMoney(expense);
+  $('netProfit').textContent = formatMoney(income - expense);
+}
+
+function computeBalance(){
+  // naive balance: sum(income) - sum(expense)
+  const bal = state.entries.reduce((s,e)=> e.type==='income'? s+Number(e.amount) : e.type==='expense' ? s-Number(e.amount) : s, 0);
+  $('balance').textContent = formatMoney(bal);
+}
+
+function formatMoney(n){ return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function escapeHtml(s){ if(!s) return ''; return s.toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]); }
+
+// --- Calendar rendering
+function renderCalendar(){
+  const grid = $('calendarGrid'); grid.innerHTML='';
+  const d = new Date();
+  const offset = state.settings.monthOffset || 0;
+  d.setMonth(d.getMonth()+offset);
+  const year = d.getFullYear(), month = d.getMonth();
+  $('monthLabel').textContent = d.toLocaleString(undefined,{month:'long', year:'numeric'});
+
+  const first = new Date(year, month, 1);
+  const startDay = (first.getDay()+6)%7; // shift so monday first
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  // weekday headers
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(w=>{
+    const h = document.createElement('div'); h.className='day'; h.style.fontWeight='700'; h.style.background='transparent'; h.style.border='none'; h.textContent = w; grid.appendChild(h);
+  });
+
+  for(let i=0;i<startDay;i++){ const empty = document.createElement('div'); empty.className='day'; grid.appendChild(empty); }
+  for(let dnum=1; dnum<=daysInMonth; dnum++){
+    const cell = document.createElement('div'); cell.className='day';
+    const dateStr = new Date(year,month,dnum).toISOString().slice(0,10);
+    cell.innerHTML = `<div style="font-weight:700">${dnum}</div>`;
+    const todays = state.entries.filter(e=>e.date===dateStr);
+    todays.slice(0,3).forEach(t=>{
+      const el = document.createElement('div'); el.className='badge'; el.textContent = `${t.type==='income' ? '+' : '-'} ${t.category||t.account} ${formatMoney(t.amount)}`; cell.appendChild(el);
+    });
+    if(todays.length>3){ const more = document.createElement('div'); more.className='small'; more.textContent = `+${todays.length-3} more`; cell.appendChild(more); }
+    grid.appendChild(cell);
+  }
+}
+
+// --- Actions
+$('addEntry').onclick = ()=>{
+  const date = $('entryDate').value || (new Date()).toISOString().slice(0,10);
+  const account = $('entryAccount').value || 'Unknown';
+  const type = $('entryType').value;
+  const amount = Number($('entryAmount').value) || 0;
+  const category = $('entryCategory').value || (type==='income'?'Sales':'General');
+  const note = $('entryNote').value || '';
+  if(!amount){ alert('Enter amount'); return; }
+  state.entries.push({date,account,type,amount,category,note,created:Date.now()});
+  saveState();
+  clearEntryForm();
+  showAiTip();
+};
+
+function clearEntryForm(){
+  $('entryAmount').value=''; $('entryNote').value=''; $('entryCategory').value=''; $('entryAccount').value='';
+}
+
+// Delete handlers via delegation
+document.addEventListener('click', (ev)=>{
+  if(ev.target.classList.contains('delEntry')){
+    const i = Number(ev.target.dataset.i);
+    if(confirm('Delete entry?')){ state.entries.splice(i,1); saveState(); }
+  } else if(ev.target.classList.contains('delDebt')){
+    const i = Number(ev.target.dataset.i);
+    if(confirm('Remove debt?')){ state.debts.splice(i,1); saveState(); }
+  } else if(ev.target.classList.contains('delItem')){
+    const i = Number(ev.target.dataset.i);
+    if(confirm('Remove item?')){ state.inventory.splice(i,1); saveState(); }
+  }
+});
+
+// Debts
+$('addDebt').onclick = ()=>{
+  const party = prompt('Party name (who owes / owed to):','Client A');
+  if(!party) return;
+  const amt = Number(prompt('Amount','0')) || 0;
+  const type = prompt('Type: owed-to-you or you-owe? Enter "owed" or "owing"','owed') === 'owed' ? 'owed' : 'owing';
+  state.debts.push({party,amount:amt,type,created:Date.now()});
+  saveState();
+};
+
+// Inventory
+$('addItemBtn').onclick = ()=>{
+  const name = prompt('Item name','Tomato');
+  if(!name) return;
+  const qty = Number(prompt('Quantity','1')) || 0;
+  const cost = Number(prompt('Unit cost','0')) || 0;
+  state.inventory.push({name,qty,cost,created:Date.now()});
+  saveState();
+};
+
+// Clear all
+$('clearAll').onclick = ()=>{ if(confirm('Clear ALL Book7 data? This cannot be undone.')){ state = {entries:[],debts:[],inventory:[],settings:{monthOffset:0}}; saveState(); } };
+
+// Help
+$('helpBtn').onclick = ()=> {
+  alert('Book7 MVP help:\\n- Add entries via Quick Entry.\\n- Use Voice to dictate (try: "income 12000 sales client A").\\n- Export JSON to backup.\\n- Calendar shows entries per day.');
+};
+
+// Export / Import
+$('exportBtn').onclick = ()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download = 'book7-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+};
+$('importBtn').onclick = ()=> $('fileInput').click();
+$('fileInput').onchange = (ev)=>{
+  const f = ev.target.files[0]; if(!f) return;
+  const reader = new FileReader(); reader.onload = e=>{
+    try{ const data = JSON.parse(e.target.result); if(confirm('Replace local data with imported file?')){ state = data; saveState(); } } catch(err){ alert('Invalid JSON'); }
+  }; reader.readAsText(f);
+};
+
+// Month navigation
+$('prevMonth').onclick = ()=> { state.settings.monthOffset = (state.settings.monthOffset||0)-1; saveState(); };
+$('nextMonth').onclick = ()=> { state.settings.monthOffset = (state.settings.monthOffset||0)+1; saveState(); };
+
+// Voice entry (simple)
+const recognitionAvailable = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
+let recog;
+if(recognitionAvailable){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recog = new SR();
+  recog.lang = 'en-GB';
+  recog.onresult = e=>{
+    const text = e.results[0][0].transcript;
+    $('entryNote').value = text;
+    parseVoiceToEntry(text);
+  };
+  recog.onerror = ()=>{ console.log('voice error'); };
+}
+$('voiceBtn').onclick = ()=>{
+  if(!recog){ alert('Speech not supported in this browser'); return; }
+  recog.start();
+};
+
+// naive voice parser
+function parseVoiceToEntry(text){
+  // attempt to find amount + type + category
+  const t = text.toLowerCase();
+  const amtMatch = t.match(/(\d+[.,]?\d{0,2})/);
+  const type = t.includes('expense') || t.includes('buy') || t.includes('paid') ? 'expense' : t.includes('income') || t.includes('sold') || t.includes('receive') ? 'income' : $('entryType').value;
+  if(amtMatch){ const amt = amtMatch[1].replace(',', '.'); $('entryAmount').value = amt; }
+  $('entryType').value = type;
+  // category guess: look for words after 'for' or last word
+  const catMatch = t.match(/(?:for|category|as)\s+([a-zA-Z]+)/);
+  if(catMatch) $('entryCategory').value = catMatch[1];
+  // set note
+  $('entryNote').value = text;
+  showAiTip();
+}
+
+// AI tip (local rules)
+function showAiTip(){
+  const last = state.entries[state.entries.length-1];
+  let tip = 'No tips yet.';
+  // if last added just now (in form), offer suggestion
+  const formAmt = Number($('entryAmount').value) || 0;
+  if(formAmt > 100000) tip = 'Large amount detected — consider adding proof or invoice number.';
+  else if(formAmt > 50000) tip = 'High value entry — tag as "Capital" or "Investment" if applicable.';
+  else {
+    // repeated category check
+    const cat = $('entryCategory').value;
+    if(cat){
+      const recent = state.entries.filter(e=>e.category && e.category.toLowerCase()===cat.toLowerCase());
+      if(recent.length >= 3) tip = `You have ${recent.length} entries for "${cat}". Consider creating a recurring subscription/label.`;
+      else tip = `Tip: Tag receipts for "${cat}" to track P&L by category.`;
+    } else tip = 'Tip: Add category to track P&L automatically.';
+  }
+  $('aiTip').textContent = tip;
+}
+
+// helpers
+function initDates(){
+  $('entryDate').value = (new Date()).toISOString().slice(0,10);
+}
+
+// Escape just in case
+function safeNumber(x){ return Number(x)||0; }
+
+// Load + initial render
+loadState(); initDates(); renderAll();
+
+function renderAll(){ renderLedger(); renderDebts(); renderInventory(); renderCalendar(); showAiTip(); }
+
+// Simple remaining: allow clicking an entry in calendar to prefill forms (nice to have)
+document.querySelector('#calendarGrid').addEventListener('click', function(e){
+  const dayEl = e.target.closest('.day');
+  if(!dayEl) return;
+  const dayText = dayEl.querySelector('div')?.textContent;
+  if(!dayText || isNaN(Number(dayText))) return;
+  const monthTxt = $('monthLabel').textContent;
+  // try construct date
