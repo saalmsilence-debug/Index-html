@@ -1,674 +1,610 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Book 7 - Business OS MVP</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
-      color: #222;
-      padding-bottom: 60px;
-    }
-    header {
-      background: #222;
-      color: #fff;
-      padding: 10px 15px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    .container {
-      padding: 10px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .top-bar {
-      background: #fff;
-      padding: 8px;
-      border-radius: 8px;
-      margin: 10px 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      align-items: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-    .top-bar input {
-      flex: 1;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      min-width: 140px;
-    }
-    .top-bar button {
-      padding: 8px 10px;
-      border: none;
-      border-radius: 4px;
-      background: #222;
-      color: #fff;
-      cursor: pointer;
-    }
-    .nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin: 10px 0;
-    }
-    .nav button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background: #444;
-      color: #fff;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .nav button.active {
-      background: #0d8b3e;
-    }
-    .screen {
-      display: none;
-      background: #fff;
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-    }
-    .screen.active {
-      display: block;
-    }
-    h2 {
-      margin-top: 0;
-      font-size: 18px;
-    }
-    h3 {
-      margin-bottom: 6px;
-      margin-top: 14px;
-      font-size: 16px;
-    }
-    label {
-      font-size: 13px;
-      display: block;
-      margin-top: 6px;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 7px;
-      margin-top: 3px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    textarea {
-      min-height: 60px;
-    }
-    .btn {
-      margin-top: 8px;
-      padding: 8px 10px;
-      background: #222;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 100%;
-    }
-    .btn.secondary {
-      background: #888;
-    }
-    .summary-box {
-      background: #f8f8f8;
-      border-radius: 6px;
-      padding: 8px;
-      font-size: 14px;
-      margin-top: 8px;
-    }
-    .list {
-      margin-top: 8px;
-      font-size: 14px;
-      max-height: 220px;
-      overflow-y: auto;
-      border-top: 1px solid #eee;
-      padding-top: 5px;
-    }
-    .list-item {
-      border-bottom: 1px solid #eee;
-      padding: 4px 0;
-    }
-    .tag {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 10px;
-      margin-left: 4px;
-      color: #fff;
-    }
-    .tag.income { background: #0d8b3e; }
-    .tag.expense { background: #c0392b; }
-    .tag.owed { background: #c0392b; }
-    .tag.owing { background: #0d8b3e; }
-    .tag.open { background: #e67e22; }
-    .tag.paid { background: #16a085; }
-    .ai-tip {
-      margin-top: 10px;
-      padding: 8px;
-      border-radius: 6px;
-      background: #e8f7ff;
-      font-size: 13px;
-      border-left: 3px solid #2980b9;
-    }
-    .small {
-      font-size: 12px;
-      color: #666;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Book 7 – Business Brain MVP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <style>
+        :root {
+            --bg: #050816;
+            --bg-alt: #0b1020;
+            --accent: #16a34a;
+            --accent-soft: rgba(22, 163, 74, 0.2);
+            --accent-strong: #22c55e;
+            --danger: #dc2626;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --border: #1f2933;
+            --card: #0f172a;
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(to right, #020617, #0b1120);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        header .title {
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header .title span.logo {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 20%, #22c55e 0, #166534 50%, #111827 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        header .subtitle {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 1.2fr 0.9fr;
+            gap: 12px;
+            padding: 12px;
+            flex: 1;
+        }
+
+        @media (max-width: 900px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            padding: 8px 0 4px;
+            overflow-x: auto;
+        }
+
+        nav button {
+            flex: 0 0 auto;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--muted);
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        nav button.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent-strong);
+        }
+
+        nav button span.dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent);
+        }
+
+        main {
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        section.view {
+            display: none;
+            flex: 1;
+            overflow: auto;
+        }
+
+        section.view.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 0.92rem;
+            margin: 0 0 4px;
+        }
+
+        h3 {
+            font-size: 0.82rem;
+            margin: 10px 0 6px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .pill {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        @media (min-width: 900px) {
+            .grid-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 8px;
+        }
+
+        label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            background: #020617;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+
+        textarea {
+            border-radius: 10px;
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: 1px solid var(--accent);
+            border-color: var(--accent);
+        }
+
+        .row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .row > * {
+            flex: 1;
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            background: #020617;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: radial-gradient(circle at 30% 0, var(--accent-strong), var(--accent));
+            border-color: #16a34a;
+        }
+
+        .btn-danger {
+            border-color: var(--danger);
+            color: #fecaca;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border-style: dashed;
+        }
+
+        .btn-icon {
+            width: 29px;
+            min-width: 29px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        th, td {
+            padding: 4px 6px;
+            border-bottom: 1px solid rgba(31, 41, 55, 0.7);
+            text-align: left;
+        }
+
+        th {
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        tr:hover td {
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .tag-income {
+            color: #4ade80;
+        }
+
+        .tag-expense {
+            color: #fb7185;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin: 2px 0;
+        }
+
+        .stat-row strong {
+            font-weight: 600;
+        }
+
+        .stat-positive {
+            color: #4ade80;
+        }
+        .stat-negative {
+            color: #fb7185;
+        }
+
+        /* AI side panel */
+        aside#ai-panel {
+            background: radial-gradient(circle at 0 0, #0f172a 0, #020617 45%, #000 100%);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
+        }
+
+        #ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #ai-header h2 {
+            font-size: 0.86rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #ai-header span.brain {
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 0, #22c55e 0, #22c55e 30%, #16a34a 60%, #064e3b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 800;
+        }
+
+        #ai-context {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        #ai-output {
+            font-size: 0.8rem;
+            line-height: 1.35;
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 8px;
+            white-space: pre-line;
+        }
+
+        #ai-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .small {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 1px dashed var(--border);
+        }
+
+        .danger-text {
+            color: #fca5a5;
+        }
+
+        .success-text {
+            color: #a7f3d0;
+        }
+
+        .scroll-y {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
-<header>Book 7 – Business OS MVP</header>
-
-<div class="container">
-  <div class="top-bar">
-    <input id="businessNameInput" placeholder="Business name (e.g. 7th Manly Shop)">
-    <button id="saveBusinessBtn" type="button">Save Business</button>
-    <span id="businessLabel" class="small"></span>
-  </div>
-
-  <div class="nav">
-    <button data-screen="ledger" class="active">Ledger</button>
-    <button data-screen="pl">Profit & Loss</button>
-    <button data-screen="calendar">Calendar</button>
-    <button data-screen="debts">Debts</button>
-    <button data-screen="inventory">Inventory</button>
-  </div>
-
-  <!-- LEDGER SCREEN -->
-  <div id="screen-ledger" class="screen active">
-    <h2>Ledger</h2>
-    <p class="small">Track all income and expenses. This powers Profit & Loss and AI tips.</p>
-
-    <label>Date</label>
-    <input id="ledgerDate" type="date">
-
-    <label>Description</label>
-    <input id="ledgerDesc" type="text" placeholder="e.g. Cash sale, Rent, Stock purchase">
-
-    <label>Amount (Ksh)</label>
-    <input id="ledgerAmount" type="number" step="0.01" placeholder="e.g. 1500">
-
-    <label>Type</label>
-    <select id="ledgerType">
-      <option value="income">Income</option>
-      <option value="expense">Expense</option>
-    </select>
-
-    <label>Category (optional)</label>
-    <input id="ledgerCategory" type="text" placeholder="e.g. Sales, Rent, Supplies">
-
-    <button id="addLedgerBtn" class="btn" type="button">Add Ledger Entry</button>
-
-    <div class="summary-box" id="ledgerSummary">No records yet.</div>
-    <div class="list" id="ledgerList"></div>
-
-    <div class="ai-tip" id="ledgerAiTip">
-      AI Ledger Insight will appear here after you add some entries.
+<header>
+    <div>
+        <div class="title">
+            <span class="logo">7</span>
+            <span>Book 7 – Global Business Brain</span>
+        </div>
+        <div class="subtitle">Ledger • P&L • Debts • Inventory • Calendar • AI Coach</div>
     </div>
-  </div>
-
-  <!-- PROFIT & LOSS SCREEN -->
-  <div id="screen-pl" class="screen">
-    <h2>Profit & Loss</h2>
-    <p class="small">Automatically calculated from your ledger.</p>
-    <div class="summary-box" id="plSummary"></div>
-    <div class="ai-tip" id="plAiTip"></div>
-  </div>
-
-  <!-- CALENDAR SCREEN -->
-  <div id="screen-calendar" class="screen">
-    <h2>Calendar View</h2>
-    <p class="small">See all business activity for a specific day.</p>
-
-    <label>Select date</label>
-    <input id="calendarDate" type="date">
-
-    <button id="calendarShowBtn" class="btn secondary" type="button">Show Day Activity</button>
-
-    <div class="list" id="calendarList"></div>
-
-    <div class="ai-tip" id="calendarAiTip">
-      AI Calendar Insight will appear here after you view a day with activity.
-    </div>
-  </div>
-
-  <!-- DEBTS SCREEN -->
-  <div id="screen-debts" class="screen">
-    <h2>Debts – Owed & Owing</h2>
-    <p class="small">Track who owes you and who you owe.</p>
-
-    <label>Date</label>
-    <input id="debtDate" type="date">
-
-    <label>Name / Party</label>
-    <input id="debtName" type="text" placeholder="e.g. Supplier X, Customer Y">
-
-    <label>Amount (Ksh)</label>
-    <input id="debtAmount" type="number" step="0.01" placeholder="e.g. 5000">
-
-    <label>Direction</label>
-    <select id="debtDirection">
-      <option value="owed">I OWE them (liability)</option>
-      <option value="owing">They OWE me (asset)</option>
-    </select>
-
-    <label>Status</label>
-    <select id="debtStatus">
-      <option value="open">Open / Unpaid</option>
-      <option value="paid">Paid / Settled</option>
-    </select>
-
-    <button id="addDebtBtn" class="btn" type="button">Add Debt</button>
-
-    <div class="summary-box" id="debtSummary"></div>
-    <div class="list" id="debtList"></div>
-
-    <div class="ai-tip" id="debtAiTip">
-      AI Debt Insight will appear here after you add debts.
-    </div>
-  </div>
-
-  <!-- INVENTORY SCREEN -->
-  <div id="screen-inventory" class="screen">
-    <h2>Inventory</h2>
-    <p class="small">Track stock levels and total inventory value.</p>
-
-    <label>Date</label>
-    <input id="invDate" type="date">
-
-    <label>Item name</label>
-    <input id="invItem" type="text" placeholder="e.g. Jersey, Boots, Drinks">
-
-    <label>Quantity</label>
-    <input id="invQty" type="number" step="1" placeholder="e.g. 10">
-
-    <label>Unit cost (Ksh)</label>
-    <input id="invUnitCost" type="number" step="0.01" placeholder="e.g. 300">
-
-    <button id="addInvBtn" class="btn" type="button">Add / Update Inventory</button>
-
-    <div class="summary-box" id="invSummary"></div>
-    <div class="list" id="invList"></div>
-
-    <div class="ai-tip" id="invAiTip">
-      AI Inventory Insight will appear here after you add inventory.
-    </div>
-  </div>
-</div>
-
-<script>
-  // ==== DATA MODEL & STORAGE ====
-  var state = {
-    ledger: [],      // {id, date, desc, amount, type, category}
-    debts: [],       // {id, date, name, amount, direction, status}
-    inventory: []    // {id, date, item, qty, unitCost}
-  };
-  var businessName = "";
-
-  function loadState() {
-    try {
-      var saved = localStorage.getItem("book7_state");
-      if (saved) {
-        state = JSON.parse(saved) || state;
-      }
-      var savedBiz = localStorage.getItem("book7_business");
-      if (savedBiz) {
-        businessName = savedBiz;
-      }
-    } catch (e) {
-      console.log("Error loading state:", e);
-    }
-  }
-
-  function saveState() {
-    try {
-      localStorage.setItem("book7_state", JSON.stringify(state));
-    } catch (e) {
-      console.log("Error saving state:", e);
-    }
-  }
-
-  function saveBusiness() {
-    var input = document.getElementById("businessNameInput");
-    var name = input.value ? input.value.trim() : "";
-    if (!name) {
-      alert("Enter a business name.");
-      return;
-    }
-    businessName = name;
-    try {
-      localStorage.setItem("book7_business", businessName);
-    } catch (e) {
-      console.log("Error saving business:", e);
-    }
-    updateBusinessLabel();
-  }
-
-  function updateBusinessLabel() {
-    var label = document.getElementById("businessLabel");
-    if (businessName) {
-      label.textContent = "Business: " + businessName;
-    } else {
-      label.textContent = "";
-    }
-  }
-
-  // ==== NAVIGATION ====
-  function showScreen(name) {
-    var screens = document.querySelectorAll(".screen");
-    for (var i = 0; i < screens.length; i++) {
-      screens[i].classList.remove("active");
-    }
-    var target = document.getElementById("screen-" + name);
-    if (target) {
-      target.classList.add("active");
-    }
-
-    var navButtons = document.querySelectorAll(".nav button");
-    for (var j = 0; j < navButtons.length; j++) {
-      navButtons[j].classList.remove("active");
-      if (navButtons[j].getAttribute("data-screen") === name) {
-        navButtons[j].classList.add("active");
-      }
-    }
-
-    // Refresh summaries/tips when switching
-    renderAll();
-  }
-
-  // ==== LEDGER LOGIC ====
-  function addLedger() {
-    var dateEl = document.getElementById("ledgerDate");
-    var descEl = document.getElementById("ledgerDesc");
-    var amountEl = document.getElementById("ledgerAmount");
-    var typeEl = document.getElementById("ledgerType");
-    var catEl = document.getElementById("ledgerCategory");
-
-    var date = dateEl.value;
-    var desc = descEl.value ? descEl.value.trim() : "";
-    var amount = parseFloat(amountEl.value);
-    var type = typeEl.value;
-    var category = catEl.value ? catEl.value.trim() : "";
-
-    if (!date || !desc || isNaN(amount)) {
-      alert("Fill date, description and amount correctly.");
-      return;
-    }
-
-    var entry = {
-      id: "L" + Date.now(),
-      date: date,
-      desc: desc,
-      amount: amount,
-      type: type,
-      category: category
-    };
-    state.ledger.push(entry);
-    saveState();
-
-    // Clear inputs
-    descEl.value = "";
-    amountEl.value = "";
-    catEl.value = "";
-
-    renderLedger();
-    renderPL();
-    renderCalendar();
-  }
-
-  function renderLedger() {
-    var listEl = document.getElementById("ledgerList");
-    var summaryEl = document.getElementById("ledgerSummary");
-    listEl.innerHTML = "";
-
-    if (!state.ledger.length) {
-      summaryEl.textContent = "No records yet.";
-      document.getElementById("ledgerAiTip").textContent =
-        "Add income and expense records to see AI insights about your cash flow.";
-      return;
-    }
-
-    var income = 0;
-    var expense = 0;
-
-    // Sort by date (latest first)
-    var ledgerSorted = state.ledger.slice().sort(function(a, b) {
-      if (a.date === b.date) {
-        return 0;
-      }
-      return a.date < b.date ? 1 : -1;
-    });
-
-    for (var i = 0; i < ledgerSorted.length; i++) {
-      var r = ledgerSorted[i];
-      if (r.type === "income") income += r.amount;
-      else expense += r.amount;
-
-      var div = document.createElement("div");
-      div.className = "list-item";
-      var tagClass = r.type === "income" ? "tag income" : "tag expense";
-      var tagText = r.type === "income" ? "IN" : "OUT";
-
-      div.innerHTML =
-        "<strong>" + r.date + "</strong> – " +
-        r.desc + " (" + (r.category || "General") + ")" +
-        " – Ksh " + r.amount.toFixed(2) +
-        " <span class='" + tagClass + "'>" + tagText + "</span>";
-      listEl.appendChild(div);
-    }
-
-    var balance = income - expense;
-    summaryEl.innerHTML =
-      "Income: <strong>Ksh " + income.toFixed(2) +
-      "</strong> | Expense: <strong>Ksh " + expense.toFixed(2) +
-      "</strong> | Balance: <strong>Ksh " + balance.toFixed(2) + "</strong>";
-
-    document.getElementById("ledgerAiTip").textContent = getLedgerTip(income, expense, balance);
-  }
-
-  function getLedgerTip(income, expense, balance) {
-    // Simple built-in "AI" rules
-    if (income === 0 && expense === 0) {
-      return "No activity yet. Start logging income and expenses to understand your business cash flow.";
-    }
-    if (income > 0 && expense === 0) {
-      return "You have only income recorded and no expenses. Double check that you’re capturing rent, stock, and other costs.";
-    }
-    if (expense > income) {
-      return "Expenses are higher than income. Consider cutting recurring costs or increasing prices on high-demand items.";
-    }
-    if (balance > 0 && (income - expense) / income < 0.2) {
-      return "You’re profitable but margins are thin. Look for expenses that don’t directly produce income and reduce them.";
-    }
-    if (balance > 0 && (income - expense) / income >= 0.2) {
-      return "Good job! Your business is generating healthy profit. Reinforce what’s working: focus on your best-selling items and services.";
-    }
-    if (balance < 0) {
-      return "The business is running at a loss. Use this signal early: review your largest expenses and test small price increases.";
-    }
-    return "Keep logging every transaction daily. The more complete the ledger, the smarter your Profit & Loss and decisions become.";
-  }
-
-  // ==== PROFIT & LOSS ====
-  function renderPL() {
-    var summaryEl = document.getElementById("plSummary");
-    var aiEl = document.getElementById("plAiTip");
-
-    if (!state.ledger.length) {
-      summaryEl.textContent = "No ledger data yet. Add records in the Ledger screen.";
-      aiEl.textContent = "Once you have at least a week of data, this will show your basic profit and spending pattern.";
-      return;
-    }
-
-    var income = 0;
-    var expense = 0;
-    for (var i = 0; i < state.ledger.length; i++) {
-      var r = state.ledger[i];
-      if (r.type === "income") income += r.amount;
-      else expense += r.amount;
-    }
-    var net = income - expense;
-    var margin = income > 0 ? (net / income) * 100 : 0;
-
-    summaryEl.innerHTML =
-      "<strong>Total Income:</strong> Ksh " + income.toFixed(2) + "<br>" +
-      "<strong>Total Expenses:</strong> Ksh " + expense.toFixed(2) + "<br>" +
-      "<strong>Net Profit / Loss:</strong> Ksh " + net.toFixed(2) + "<br>" +
-      "<strong>Profit Margin:</strong> " + margin.toFixed(1) + "%";
-
-    // Simple "AI" P&L tip
-    if (income === 0) {
-      aiEl.textContent = "You have no recorded income. Are you missing sales entries or are you in setup phase?";
-    } else if (net < 0) {
-      aiEl.textContent =
-        "The business is currently at a loss. Focus on increasing income from your strongest products and reducing 1–2 big expenses.";
-    } else if (margin < 10) {
-      aiEl.textContent =
-        "You are profitable but margins are low. Try small price increases or negotiate better supplier terms.";
-    } else if (margin >= 10 && margin < 30) {
-      aiEl.textContent =
-        "Your margins look healthy. Consider reinvesting a fixed % of profit back into marketing or inventory.";
-    } else {
-      aiEl.textContent =
-        "Strong profitability. Protect this by tracking your biggest costs weekly and avoiding unnecessary new expenses.";
-    }
-  }
-
-  // ==== CALENDAR ====
-  function showCalendarDay() {
-    var date = document.getElementById("calendarDate").value;
-    var listEl = document.getElementById("calendarList");
-    var aiEl = document.getElementById("calendarAiTip");
-    listEl.innerHTML = "";
-
-    if (!date) {
-      alert("Select a date to view activity.");
-      return;
-    }
-
-    var hasActivity = false;
-
-    function addLine(text) {
-      var div = document.createElement("div");
-      div.className = "list-item";
-      div.textContent = text;
-      listEl.appendChild(div);
-      hasActivity = true;
-    }
-
-    // Ledger
-    for (var i = 0; i < state.ledger.length; i++) {
-      var r = state.ledger[i];
-      if (r.date === date) {
-        addLine("[Ledger] " + r.type.toUpperCase() + " – " + r.desc + " – Ksh " + r.amount.toFixed(2));
-      }
-    }
-    // Debts
-    for (var j = 0; j < state.debts.length; j++) {
-      var d = state.debts[j];
-      if (d.date === date) {
-        addLine("[Debt] " + d.name + " – " + d.direction.toUpperCase() + " – Ksh " + d.amount.toFixed(2) + " (" + d.status + ")");
-      }
-    }
-    // Inventory
-    for (var k = 0; k < state.inventory.length; k++) {
-      var inv = state.inventory[k];
-      if (inv.date === date) {
-        addLine("[Inventory] " + inv.item + " – Qty " + inv.qty + " @ Ksh " + inv.unitCost.toFixed(2));
-      }
-    }
-
-    if (!hasActivity) {
-      listEl.innerHTML = "<div class='small'>No activity recorded for this day.</div>";
-      aiEl.textContent = "Quiet day. Consider if anything happened that should be recorded (stock arrival, expenses, sales).";
-    } else {
-      aiEl.textContent =
-        "Use active days to spot patterns. Are your sales concentrated on certain days of the week? Plan stock and staff around that.";
-    }
-  }
-
-  function renderCalendar() {
-    // just refresh if current date selected
-    var date = document.getElementById("calendarDate").value;
-    if (date) {
-      showCalendarDay();
-    }
-  }
-
-  // ==== DEBTS ====
-  function addDebt() {
-    var dateEl = document.getElementById("debtDate");
-    var nameEl = document.getElementById("debtName");
-    var amountEl = document.getElementById("debtAmount");
-    var dirEl = document.getElementById("debtDirection");
-    var statusEl = document.getElementById("debtStatus");
-
-    var date = dateEl.value;
-    var name = nameEl.value ? nameEl.value.trim() : "";
-    var amount = parseFloat(amountEl.value);
-    var direction = dirEl.value;
-    var status = statusEl.value;
-
-    if (!date || !name || isNaN(amount)) {
-      alert("Fill date, name and amount correctly.");
-      return;
-    }
-
-    var entry = {
-      id: "D" + Date.now(),
-      date: date,
-      name: name,
-      amount: amount,
-      direction: direction,
-      status: status
-    };
-    state.debts.push(entry);
-    saveState();
-
-    nameEl.value = "";
-    amountEl.value = "";
-
-    renderDebts();
-    renderCalendar();
-  }
-
-  function renderDebts() {
-    var listEl = document.getElementById("debtList");
-    var summaryEl = document.getElementById("debtSummary");
-    var aiEl = document.getElementById("debtAiTip");
-
-    listEl.innerHTML = "";
-
-    if (!state.debts.length) {
-      summaryEl.textContent = "No debts recorded yet.";
-      aiEl.textContent = "Record every person you owe and who owes you. Debts are silent killers of cash flow if not tracked.";
-      return;
-    }
-
-    var owedOpen = 0;
-    var owingOpen = 0;
-
-    for (var i = 0; i < state.debts.length; i++) {
-      var d = state.debts[i];
-
-      if (d.direction === "owed" && d.status === "open") owedOpen += d.amount;
-      if (d.direction === "owing" && d.status === "open") owingOpen += d.amount;
-
-      var div = document.createElement("div");
-      div.className = "list-item";
-
-      var dirClass = d.direction === "owed" ? "tag owed" : "tag owing";
-      var dirText = d.direction === "owed" ? "I OWE" : "THEY OWE";
-
-      var statusClass = d.status === "or
+    <div class="pill">Local device MVP • v0.1</div>
+</header>
+
+<div class="shell">
+    <!-- MAIN APP -->
+    <div>
+        <nav>
+            <button type="button" data-view="dashboard" class="active">
+                <span class="dot"></span> Dashboard
+            </button>
+            <button type="button" data-view="ledger">Ledger</button>
+            <button type="button" data-view="pnl">Profit &amp; Loss</button>
+            <button type="button" data-view="inventory">Inventory</button>
+            <button type="button" data-view="debts">Debts</button>
+            <button type="button" data-view="calendar">Calendar</button>
+            <button type="button" data-view="settings">Settings</button>
+        </nav>
+
+        <main>
+            <!-- DASHBOARD -->
+            <section id="dashboard" class="view active">
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h2>Today’s Business Snapshot</h2>
+                        <div id="dash-date" class="small"></div>
+                        <hr style="border: none; border-top: 1px solid rgba(31,41,55,0.7); margin: 6px 0;" />
+                        <div id="dash-pnl"></div>
+                        <h3>Ledger Activity</h3>
+                        <div id="dash-ledger" class="scroll-y small"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Upcoming Items</h3>
+                        <div id="dash-calendar" class="small scroll-y"></div>
+
+                        <h3>Debts Focus</h3>
+                        <div id="dash-debts" class="small scroll-y"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LEDGER -->
+            <section id="ledger" class="view">
+                <div class="card">
+                    <h2>Ledger – Income &amp; Expenses</h2>
+                    <form id="ledger-form">
+                        <div class="grid grid-2">
+                            <div>
+                                <label>
+                                    <span>Date</span>
+                                </label>
+                                <input type="date" id="ledger-date" required />
+                            </div>
+                            <div>
+                                <label>
+                                    <span>Description</span>
+                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('ledger-description')" title="Voice input">
+                                        🎤
+                                    </button>
+                                </label>
+                                <input type="text" id="ledger-description" placeholder="What happened?" required />
+                            </div>
+                            <div>
+                                <label>
+                                    <span>Category</span>
+                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('ledger-category')" title="Voice input">
+                                        🎤
+                                    </button>
+                                </label>
+                                <input type="text" id="ledger-category" placeholder="Sales, Rent, Salaries..." />
+                            </div>
+                            <div class="row">
+                                <div>
+                                    <label><span>Type</span></label>
+                                    <select id="ledger-type">
+                                        <option value="income">Income</option>
+                                        <option value="expense">Expense</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label><span>Amount</span></label>
+                                    <input type="number" id="ledger-amount" step="0.01" min="0" placeholder="0.00" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn-primary">Save Entry</button>
+                            <button type="button" class="btn btn-ghost" onclick="clearLedger()">Clear All Ledger</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card" style="margin-top: 8px;">
+                    <h3>Entries</h3>
+                    <div class="scroll-y" style="max-height: 220px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Desc</th>
+                                    <th>Cat</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROFIT & LOSS -->
+            <section id="pnl" class="view">
+                <div class="card">
+                    <h2>Profit &amp; Loss</h2>
+                    <p class="small">Auto-calculated from your ledger.</p>
+                    <div id="pnl-summary"></div>
+                </div>
+                <div class="card" style="margin-top: 8px;">
+                    <h3>Breakdown by Category (Expenses)</h3>
+                    <div id="pnl-by-category" class="small"></div>
+                </div>
+            </section>
+
+            <!-- INVENTORY -->
+            <section id="inventory" class="view">
+                <div class="card">
+                    <h2>Inventory</h2>
+                    <form id="inventory-form">
+                        <div class="grid grid-2">
+                            <div>
+                                <label>
+                                    <span>Item name</span>
+                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('inv-name')" title="Voice input">
+                                        🎤
+                                    </button>
+                                </label>
+                                <input id="inv-name" type="text" placeholder="Product or asset name" required />
+                            </div>
+                            <div class="row">
+                                <div>
+                                    <label><span>Quantity</span></label>
+                                    <input id="inv-qty" type="number" min="0" step="1" required />
+                                </div>
+                                <div>
+                                    <label><span>Unit Cost</span></label>
+                                    <input id="inv-cost" type="number" min="0" step="0.01" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="submit" class="btn btn-primary">Save Item</button>
+                            <button type="button" class="btn btn-ghost" onclick="clearInventory()">Clear Inventory</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card" style="margin-top:8px;">
+                    <h3>Inventory List</h3>
+                    <div id="inventory-summary" class="small"></div>
+                    <div class="scroll-y" style="max-height: 220px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th>Unit</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DEBTS -->
+            <section id="debts" class="view">
+                <div class="card">
+                    <h2>Debts – Owed &amp; Owing</h2>
+                    <form id="debts-form">
+                        <div class="grid grid-2">
+                            <div>
+                                <label>
+                                    <span>Person / Entity</span>
+                                    <button type="button" class="btn btn-icon" onclick="startVoiceInput('debt-name')" title="Voice input">
+                                        🎤
+                                    </button>
+                                </label>
+                                <input id="debt-name" type="text" placeholder="Who?" required />
+                            </div>
+                            <div class="row">
+                                <div>
+                                    <label><span>Amount</span></label>
+                                    <input id="debt-amount" type="number" min="0" step="0.01" required />
+                                </div>
+                                <div>
+                                    <label><span>Due date</span></label>
+                                    <input id="debt-date" type="date" />
+                                </div>
+                            </div>
+                            <div>
+        
