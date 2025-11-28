@@ -7,7 +7,7 @@
   <style>
     :root{
       --accent:#0a7cff; --card:#fff; --bg:#f4f6f8; --muted:#666;
-      --danger:#e74c3c; --success:#27ae60;
+      --danger:#e74c3c; --success:#27ae60; --warning:#f39c12;
     }
     body{
       margin:0; padding:16px; font-family:Inter, system-ui, Arial;
@@ -29,17 +29,20 @@
     .col{flex:1;}
     .small{font-size:13px; color:var(--muted);}
     button.primary{background:var(--accent); color:#fff; border:none; font-weight:700;}
+    button.warning{background:var(--warning); color:#fff; border:none; font-weight:700;}
     .ledger-list, .debt-list{list-style:none; margin:0; padding:0;}
     li.item{padding:12px 8px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:flex-start;}
     .left{flex:1}
     .meta{color:var(--muted); font-size:13px; margin-top:6px}
     .btn{border-radius:6px; padding:6px 10px; border:1px solid #ddd; background:#fff; cursor:pointer;}
     .btn.danger{border-color:var(--danger); color:var(--danger); background:rgba(231,76,60,0.04)}
+    .btn.warning{border-color:var(--warning); color:var(--warning); background:rgba(243,156,18,0.08);}
     .btn.success{border-color:var(--success); color:var(--success); background:rgba(39,174,96,0.04)}
     .badge{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; margin-left:6px;}
     .badge.pending{background:#f0f5ff; color:var(--accent);}
     .badge.paid{background:rgba(39,174,96,0.12); color:var(--success);}
     .badge.partial{background:#fff7e6; color:#b17000;}
+    .badge.overdue{background:rgba(231,76,60,0.1); color:var(--danger);}
     .totals{display:flex; gap:10px; justify-content:space-between; margin-top:8px;}
     .totals .box{flex:1; text-align:center; padding:10px; border-radius:8px; background:#fbfdff; border:1px solid #eef6ff;}
     .controls{display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;}
@@ -47,6 +50,7 @@
     .debt-actions{display:flex; gap:6px; margin-left:8px;}
     .history{font-size:13px; color:var(--muted); margin-top:6px;}
     .small-btn{font-size:13px; padding:6px 8px;}
+    .history-item-actions{margin-left:auto;}
     @media(min-width:720px){
       .row{flex-wrap:nowrap;}
       .col-half{flex:0 0 48%;}
@@ -61,12 +65,12 @@
 </header>
 
 <div class="card">
-  <div class="balance">Balance: Ksh <span id="balance">0</span></div>
+  <div class="balance">Balance: Ksh <span id="balance">0.00</span></div>
 </div>
 
-<!-- Add Transaction (Ledger) -->
 <div class="card" id="add-transaction-card">
-  <h3 style="margin:0 0 8px 0">➕ Add Transaction (Ledger)</h3>
+  <h3 style="margin:0 0 8px 0" id="ledger-title">➕ Add Transaction (Ledger)</h3>
+  <input type="hidden" id="ledger-edit-id" />
   <div class="row">
     <div class="col">
       <label for="desc">Description</label>
@@ -87,14 +91,14 @@
     </div>
     <div style="width:160px">
       <label>&nbsp;</label>
-      <button class="primary" onclick="addTransaction()">Save to Ledger</button>
+      <button class="primary" id="ledger-submit-btn" onclick="addTransaction()">Save to Ledger</button>
     </div>
   </div>
 </div>
 
-<!-- Debt Manager -->
 <div class="card">
-  <h3 style="margin:0 0 8px 0">🏦 Debt Manager (Advanced)</h3>
+  <h3 style="margin:0 0 8px 0" id="debt-title">🏦 Debt Manager (Advanced)</h3>
+  <input type="hidden" id="debt-edit-id" />
 
   <div class="controls">
     <div style="flex:1; min-width:160px;">
@@ -125,22 +129,22 @@
     </div>
     <div style="width:160px">
       <label>&nbsp;</label>
-      <button class="primary" onclick="addDebt()">Add Debt</button>
+      <button class="primary" id="debt-submit-btn" onclick="addDebt()">Add Debt</button>
     </div>
   </div>
 
   <div class="totals" style="margin-top:12px;">
     <div class="box">
       <div class="small muted-line">Total Owed to Me</div>
-      <div style="font-weight:800; font-size:18px; margin-top:6px;">Ksh <span id="total-owed">0</span></div>
+      <div style="font-weight:800; font-size:18px; margin-top:6px;">Ksh <span id="total-owed">0.00</span></div>
     </div>
     <div class="box">
       <div class="small muted-line">Total I Owe</div>
-      <div style="font-weight:800; font-size:18px; margin-top:6px;">Ksh <span id="total-owe">0</span></div>
+      <div style="font-weight:800; font-size:18px; margin-top:6px;">Ksh <span id="total-owe">0.00</span></div>
     </div>
     <div class="box">
       <div class="small muted-line">Net Position</div>
-      <div style="font-weight:800; font-size:18px; margin-top:6px;">Ksh <span id="net-pos">0</span></div>
+      <div style="font-weight:800; font-size:18px; margin-top:6px;">Ksh <span id="net-pos">0.00</span></div>
     </div>
   </div>
 
@@ -170,28 +174,25 @@
         <option value="oldest">Oldest</option>
         <option value="due-asc">Due Date ↑</option>
         <option value="due-desc">Due Date ↓</option>
-        <option value="amount-desc">Amount ↓</option>
-        <option value="amount-asc">Amount ↑</option>
+        <option value="amount-desc">Remaining ↓</option>
+        <option value="amount-asc">Remaining ↑</option>
       </select>
     </div>
   </div>
 
 </div>
 
-<!-- Debts List -->
 <div class="card">
   <h3 style="margin:0 0 8px 0">📋 Debts</h3>
   <ul id="debt-list" class="debt-list"></ul>
 </div>
 
-<!-- Ledger -->
 <div class="card">
   <h3 style="margin:0 0 8px 0">📘 Ledger</h3>
   <ul id="list" class="ledger-list"></ul>
 </div>
 
-<!-- Debt history modal (simple) -->
-<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
   <div style="background:#fff; border-radius:10px; max-width:720px; width:94%; padding:16px; max-height:80vh; overflow:auto;" id="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h3 id="modal-title">History</h3>
@@ -204,8 +205,6 @@
 <script>
 /* -------------------------
   Storage & Structures
-   - transactions: ledger entries
-   - debts: advanced debt objects
 ---------------------------*/
 let transactions = JSON.parse(localStorage.getItem('book7data')) || [];
 let debts = JSON.parse(localStorage.getItem('book7-debts')) || [];
@@ -216,6 +215,10 @@ function toNumber(v){
   if (Number.isFinite(n)) return Math.round(n*100)/100; // 2 decimals
   return 0;
 }
+/* Generate simple unique ID */
+function generateId(prefix) {
+    return prefix + Date.now() + Math.floor(Math.random() * 999);
+}
 
 /* Save */
 function saveAll(){
@@ -224,8 +227,62 @@ function saveAll(){
 }
 
 /* -------------------------
-  Ledger functions (unchanged core)
+  Ledger functions (Add, Edit, Delete)
 ---------------------------*/
+function resetLedgerForm(){
+    document.getElementById('ledger-edit-id').value = '';
+    document.getElementById('desc').value = '';
+    document.getElementById('amount').value = '';
+    document.getElementById('type').value = 'income';
+    document.getElementById('ledger-submit-btn').innerText = 'Save to Ledger';
+    document.getElementById('ledger-submit-btn').onclick = addTransaction;
+    document.getElementById('ledger-submit-btn').className = 'primary';
+    document.getElementById('ledger-title').innerText = '➕ Add Transaction (Ledger)';
+}
+
+function editTransaction(id){
+    const t = transactions.find(x => x.id === id);
+    if (!t) return alert('Transaction not found');
+
+    // Populate form
+    document.getElementById('ledger-edit-id').value = t.id;
+    document.getElementById('desc').value = t.desc;
+    document.getElementById('amount').value = t.amount;
+    document.getElementById('type').value = t.type;
+    
+    // Change button to Update
+    document.getElementById('ledger-submit-btn').innerText = 'Update Transaction';
+    document.getElementById('ledger-submit-btn').onclick = updateTransaction;
+    document.getElementById('ledger-submit-btn').className = 'warning';
+    document.getElementById('ledger-title').innerText = '✏️ Edit Transaction (Ledger)';
+    
+    // Scroll to form
+    document.getElementById('add-transaction-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateTransaction(){
+    const id = document.getElementById('ledger-edit-id').value;
+    const index = transactions.findIndex(x => x.id === id);
+    if (index === -1) { alert('Transaction not found for update'); resetLedgerForm(); return; }
+    
+    const desc = document.getElementById('desc').value.trim();
+    const amount = toNumber(document.getElementById('amount').value);
+    const type = document.getElementById('type').value;
+
+    if (!desc || !amount){ alert('Fill description and a valid amount'); return; }
+
+    // Update object properties
+    transactions[index].desc = desc;
+    transactions[index].amount = amount;
+    transactions[index].type = type;
+    
+    // Cleanup and refresh
+    saveAll(); 
+    renderList(); 
+    calculateBalance();
+    resetLedgerForm();
+}
+
 function calculateBalance(){
   let balance = 0;
   transactions.forEach(t => {
@@ -234,10 +291,17 @@ function calculateBalance(){
   });
   document.getElementById('balance').innerText = balance.toFixed(2);
 }
+
 function renderList(){
   const list = document.getElementById('list');
   list.innerHTML = '';
   const sorted = [...transactions].sort((a,b)=> new Date(b.date) - new Date(a.date));
+  
+  if (sorted.length === 0) {
+      list.innerHTML = '<li class="item"><div class="left"><div class="meta">No ledger entries yet.</div></div></li>';
+      return;
+  }
+  
   sorted.forEach(t=>{
     const li = document.createElement('li');
     li.className='item';
@@ -246,9 +310,13 @@ function renderList(){
     const prettyDate = t.date ? new Date(t.date).toLocaleString() : '—';
     left.innerHTML = `<strong>${prettyType}</strong> - ${escapeHtml(t.desc || '')}
       <div class="meta">Amount: Ksh ${Number(t.amount).toFixed(2)}<br><small>${prettyDate}</small></div>`;
+    
     const actions = document.createElement('div');
+    const edit = document.createElement('button'); edit.className='btn warning small-btn'; edit.innerText='Edit';
+    edit.onclick = ()=> editTransaction(t.id);
     const del = document.createElement('button'); del.className='btn danger small-btn'; del.innerText='Delete';
-    del.onclick = ()=>{ if(confirm('Delete this ledger entry?')){ transactions = transactions.filter(x=>x.id !== t.id); saveAll(); renderList(); calculateBalance(); } };
+    del.onclick = ()=>{ if(confirm('Delete this ledger entry? This cannot be undone.')){ transactions = transactions.filter(x=>x.id !== t.id); saveAll(); renderList(); calculateBalance(); } };
+    actions.appendChild(edit);
     actions.appendChild(del);
     li.appendChild(left); li.appendChild(actions);
     list.appendChild(li);
@@ -260,26 +328,117 @@ function addTransaction(){
   const desc = document.getElementById('desc').value.trim();
   const amount = toNumber(document.getElementById('amount').value);
   const type = document.getElementById('type').value;
-  if (!desc || !amount){ alert('Fill description and a valid amount'); return; }
-  const obj = { id: 't-'+Date.now(), desc, amount, type, date:new Date().toISOString() };
+  if (!desc || !amount || amount <= 0){ alert('Enter description and a positive amount'); return; }
+  const obj = { id: generateId('t-'), desc, amount, type, date:new Date().toISOString() };
   transactions.push(obj); saveAll(); renderList(); calculateBalance();
-  document.getElementById('desc').value=''; document.getElementById('amount').value='';
+  resetLedgerForm(); // Use reset function to clear inputs
 }
 
+
 /* -------------------------
-  Debt Manager functions
+  Debt Manager functions (Add, Edit, Delete, Payment)
 ---------------------------*/
+
+function resetDebtForm(){
+    document.getElementById('debt-edit-id').value = '';
+    document.getElementById('debt-type').value = 'owed';
+    document.getElementById('debt-amount').value = '';
+    document.getElementById('debt-name').value = '';
+    document.getElementById('debt-reason').value = '';
+    document.getElementById('debt-due').value = '';
+    document.getElementById('debt-submit-btn').innerText = 'Add Debt';
+    document.getElementById('debt-submit-btn').onclick = addDebt;
+    document.getElementById('debt-submit-btn').className = 'primary';
+    document.getElementById('debt-title').innerText = '🏦 Debt Manager (Advanced)';
+    // Re-enable debt type and amount fields when adding
+    document.getElementById('debt-type').disabled = false;
+    document.getElementById('debt-amount').disabled = false;
+}
+
+function editDebt(id){
+    const d = debts.find(x => x.id === id);
+    if (!d) return alert('Debt not found');
+
+    // Populate form
+    document.getElementById('debt-edit-id').value = d.id;
+    document.getElementById('debt-type').value = d.type;
+    document.getElementById('debt-amount').value = d.amount;
+    document.getElementById('debt-name').value = d.name;
+    document.getElementById('debt-reason').value = d.reason;
+    document.getElementById('debt-due').value = d.due || '';
+    
+    // Crucial: Prevent editing type/original amount once payments are recorded
+    if (d.history.length > 0) {
+        alert('Cannot edit original amount or type after a payment has been recorded. You can only edit Name, Reason, and Due Date.');
+        document.getElementById('debt-type').disabled = true;
+        document.getElementById('debt-amount').disabled = true;
+    } else {
+        document.getElementById('debt-type').disabled = false;
+        document.getElementById('debt-amount').disabled = false;
+    }
+
+    // Change button to Update
+    document.getElementById('debt-submit-btn').innerText = 'Update Debt';
+    document.getElementById('debt-submit-btn').onclick = updateDebt;
+    document.getElementById('debt-submit-btn').className = 'warning';
+    document.getElementById('debt-title').innerText = '✏️ Edit Debt Entry';
+}
+
+function updateDebt(){
+    const id = document.getElementById('debt-edit-id').value;
+    const index = debts.findIndex(x => x.id === id);
+    if (index === -1) { alert('Debt not found for update'); resetDebtForm(); return; }
+    
+    const d = debts[index];
+    const type = document.getElementById('debt-type').value;
+    const amount = toNumber(document.getElementById('debt-amount').value);
+    const name = document.getElementById('debt-name').value.trim();
+    const reason = document.getElementById('debt-reason').value.trim();
+    const due = document.getElementById('debt-due').value || null;
+
+    if (!name || !amount || amount <= 0){ alert('Enter name and a positive amount'); return; }
+
+    // If original amount is changed, recalculate remaining ONLY if no history exists
+    if (d.amount !== amount && d.history.length === 0) {
+        d.remaining = amount;
+    } else if (d.amount !== amount && d.history.length > 0) {
+        // This case is already blocked in editDebt(), but serves as a final guard
+        alert('Cannot change the original amount after payments have been recorded. Re-add the debt if you need to change the amount.');
+        resetDebtForm();
+        return;
+    }
+    
+    // Update properties
+    d.type = type;
+    d.amount = amount; 
+    d.name = name;
+    d.reason = reason;
+    d.due = due;
+    
+    // Cleanup and refresh
+    d.status = computeDebtStatus(d); 
+    saveAll(); 
+    renderDebts();
+    resetDebtForm();
+}
+
+
 function computeDebtStatus(d){
-  // d structure: { id, type('owed'|'owe'), name, amount, remaining, reason, due, history: [{amt,date,note,ledger}], created }
   const today = new Date();
+  today.setHours(0,0,0,0); // Normalize today's date
   const remaining = toNumber(d.remaining);
+  
   if (remaining <= 0) return 'paid';
+  
+  // Overdue check
   if (d.due){
     const dueDate = new Date(d.due);
-    if (dueDate < today && remaining > 0) return 'overdue';
+    dueDate.setHours(0,0,0,0); // Normalize due date
+    if (dueDate < today) return 'overdue';
   }
+  
   // partial if some payments exist but remaining > 0
-  if ((d.history && d.history.length>0) && remaining>0) return 'partial';
+  if ((d.history && d.history.length > 0) && remaining > 0) return 'partial';
   return 'pending';
 }
 
@@ -289,9 +448,10 @@ function addDebt(){
   const name = document.getElementById('debt-name').value.trim();
   const reason = document.getElementById('debt-reason').value.trim();
   const due = document.getElementById('debt-due').value || null;
-  if (!name || !amount){ alert('Enter name and amount'); return; }
+  if (!name || !amount || amount <= 0){ alert('Enter name and a positive amount'); return; }
+  
   const obj = {
-    id: 'd-'+Date.now(),
+    id: generateId('d-'),
     type,
     name,
     amount,
@@ -301,8 +461,8 @@ function addDebt(){
     history: [],
     created: new Date().toISOString()
   };
-  debts.push(obj); saveAll(); renderDebts(); renderList(); calculateBalance();
-  document.getElementById('debt-name').value=''; document.getElementById('debt-amount').value=''; document.getElementById('debt-reason').value=''; document.getElementById('debt-due').value='';
+  debts.push(obj); saveAll(); renderDebts(); calculateBalance();
+  resetDebtForm();
 }
 
 /* Render debts */
@@ -327,7 +487,7 @@ function renderDebts(){
     if (sortBy==='newest') return new Date(b.created) - new Date(a.created);
     if (sortBy==='oldest') return new Date(a.created) - new Date(b.created);
     if (sortBy==='due-asc') return (a.due?new Date(a.due):0) - (b.due?new Date(b.due):0);
-    if (sortBy==='due-desc') return (b.due?new Date(b.due):0) - (a.due?new Date(a.due):0);
+    if (sortBy==='due-desc') return (b.due?new Date(b.due):0) - (a.due?new Date(b.due):0);
     if (sortBy==='amount-desc') return b.remaining - a.remaining;
     if (sortBy==='amount-asc') return a.remaining - b.remaining;
     return 0;
@@ -342,150 +502,6 @@ function renderDebts(){
   document.getElementById('total-owed').innerText = totalOwed.toFixed(2);
   document.getElementById('total-owe').innerText = totalOwe.toFixed(2);
   document.getElementById('net-pos').innerText = (totalOwed - totalOwe).toFixed(2);
-
-  shown.forEach(d=>{
-    const li = document.createElement('li'); li.className='item';
-    const left = document.createElement('div'); left.className='left';
-    const title = document.createElement('div');
-    title.innerHTML = `<strong>${d.type==='owed' ? 'INCOMING (Owed to me)' : 'OUTGOING (I owe)'}</strong> - ${escapeHtml(d.name)}
-      <span class="badge ${d.status==='pending'?'pending':d.status==='paid'?'paid':'partial'}">${capitalize(d.status)}</span>`;
-    const meta = document.createElement('div');
-    meta.className='meta';
-    const dueText = d.due ? (new Date(d.due)).toLocaleDateString() : 'No due date';
-    meta.innerHTML = `Amount: Ksh ${Number(d.amount).toFixed(2)}<br>
-      Remaining: Ksh ${Number(d.remaining).toFixed(2)}<br>
-      Due: ${dueText}<br><small>${escapeHtml(d.reason || '')}</small>`;
-    left.appendChild(title); left.appendChild(meta);
-
-    const actions = document.createElement('div');
-    actions.className='debt-actions';
-    // View history
-    const viewBtn = document.createElement('button'); viewBtn.className='btn small-btn'; viewBtn.innerText='History';
-    viewBtn.onclick = ()=> openHistory(d.id);
-    actions.appendChild(viewBtn);
-    // Record payment button
-    const payBtn = document.createElement('button'); payBtn.className='btn success small-btn'; payBtn.innerText='Record Payment';
-    payBtn.onclick = ()=> promptPayment(d.id);
-    actions.appendChild(payBtn);
-    // Quick mark paid (asks)
-    const markBtn = document.createElement('button'); markBtn.className='btn small-btn'; markBtn.innerText='Mark Paid';
-    markBtn.onclick = ()=> markAsPaid(d.id);
-    actions.appendChild(markBtn);
-    // Delete
-    const delBtn = document.createElement('button'); delBtn.className='btn danger small-btn'; delBtn.innerText='Delete';
-    delBtn.onclick = ()=> { if(confirm('Delete this debt and history?')){ debts = debts.filter(x=>x.id !== d.id); saveAll(); renderDebts(); } };
-    actions.appendChild(delBtn);
-
-    li.appendChild(left); li.appendChild(actions);
-    list.appendChild(li);
-  });
-}
-
-/* Payment flow */
-function promptPayment(debtId){
-  const d = debts.find(x=>x.id===debtId); if(!d) return alert('Debt not found');
-  const pay = prompt(`Enter payment amount for "${d.name}" (Remaining Ksh ${Number(d.remaining).toFixed(2)})`);
-  if (pay === null) return;
-  const amt = toNumber(pay);
-  if (!amt || amt <= 0) return alert('Enter a valid amount');
-  if (amt > d.remaining) {
-    if (!confirm('Payment exceeds remaining amount. Record anyway and create credit?')) return;
-  }
-  const note = prompt('Optional note for this payment (e.g., MPesa Txn, cash)');
-  // Option: ask to also log into ledger
-  const logToLedger = confirm('Also record this payment into the Ledger? (Choose OK for yes)');
-  recordPayment(d.id, amt, note || '', logToLedger);
-}
-
-function recordPayment(debtId, amount, note, logToLedger){
-  const d = debts.find(x=>x.id===debtId); if(!d) return;
-  // reduce remaining
-  d.remaining = toNumber(d.remaining - amount);
-  if (d.remaining < 0) {
-    // create credit record in history
-    d.history.push({ amt: amount, date: new Date().toISOString(), note: note || 'Overpayment' });
-    // keep remaining as 0 for debt
-    d.remaining = 0;
-  } else {
-    d.history.push({ amt: amount, date: new Date().toISOString(), note: note || '' });
-  }
-  // if user asked to log in ledger
-  if (logToLedger){
-    // if debt.type === 'owed' then recording a payment means someone paid you => income
-    // if debt.type === 'owe' then you paid someone => expense
-    const ledgerType = d.type === 'owed' ? 'income' : 'expense';
-    const t = {
-      id: 't-'+Date.now(),
-      desc: `${d.type==='owed'?'Payment received from':'Payment to'} ${d.name} (${note || 'debt payment'})`,
-      amount: amount,
-      type: ledgerType,
-      date: new Date().toISOString()
-    };
-    transactions.push(t);
-  }
-  // update status
-  d.status = computeDebtStatus(d);
-  saveAll();
-  renderDebts();
-  renderList();
-  calculateBalance();
-}
-
-/* Mark fully paid */
-function markAsPaid(debtId){
-  const d = debts.find(x=>x.id===debtId); if(!d) return;
-  if (!confirm('Mark this debt as fully paid and add remaining amount as payment?')) return;
-  const amount = toNumber(d.remaining);
-  if (amount >0){
-    // record payment without asking ledger logging; ask user
-    const logToLedger = confirm('Record final payment into ledger? OK=yes');
-    recordPayment(debtId, amount, 'Marked paid', logToLedger);
-  } else {
-    d.remaining =0; d.status = 'paid'; saveAll(); renderDebts();
-  }
-}
-
-/* View history modal */
-function openHistory(debtId){
-  const d = debts.find(x=>x.id===debtId); if(!d) return;
-  const body = document.getElementById('modal-body');
-  document.getElementById('modal-title').innerText = `History — ${d.name}`;
-  let html = `<div><strong>Original Amount:</strong> Ksh ${Number(d.amount).toFixed(2)}</div>
-    <div><strong>Remaining:</strong> Ksh ${Number(d.remaining).toFixed(2)}</div>
-    <div class="small muted-line">Reason: ${escapeHtml(d.reason || '')}</div>
-    <div class="small muted-line">Created: ${new Date(d.created).toLocaleString()}</div>
-    <hr/>`;
-  if (d.history.length === 0) html += `<div class="small muted-line">No payments recorded</div>`;
-  else {
-    html += '<ul style="padding-left:0; list-style:none;">';
-    d.history.slice().reverse().forEach(h=>{
-      html += `<li style="padding:8px 0; border-bottom:1px solid #f0f0f0;">
-        <div><strong>Ksh ${Number(h.amt).toFixed(2)}</strong> <small style="color:#666">- ${new Date(h.date).toLocaleString()}</small></div>
-        <div class="history">${escapeHtml(h.note || '')}</div>
-      </li>`;
-    });
-    html += '</ul>';
-  }
-  // quick actions inside modal
-  html += `<hr/><div style="display:flex; gap:8px; flex-wrap:wrap;">
-    <button class="btn primary" onclick="promptPayment('${d.id}')">Record Payment</button>
-    <button class="btn" onclick="downloadDebt('${d.id}')">Download (.json)</button>
-    <button class="btn danger" onclick="deleteDebtFromModal('${d.id}')">Delete Debt</button>
-  </div>`;
-  body.innerHTML = html;
-  document.getElementById('modal').style.display='flex';
-}
-function closeModal(){ document.getElementById('modal').style.display='none'; }
-
-/* Delete from modal */
-function deleteDebtFromModal(id){
-  if (!confirm('Delete this debt permanently?')) return;
-  debts = debts.filter(x=>x.id!==id); saveAll(); renderDebts(); closeModal();
-}
-
-/* Download debt JSON */
-function downloadDebt(id){
-  const d = debts.find(x=>x.id===id); if (!d) return alert('Not found');
-  const blob = new Blob([JSON.stringify(d, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
- 
+  
+  if (shown.length === 0) {
+      list.innerHTML = '<li class="item"><div class="left"><div class="meta">No debt entries ma
