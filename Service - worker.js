@@ -1,38 +1,20 @@
-const CACHE_NAME = 'book7-cache-v3'; // 🔥 version bumped
+const CACHE_NAME = 'book7-dev-mode';
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // force new SW to take control immediately
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      // Caching critical assets for offline use
-      return cache.addAll([
-        './',
-        './index.html',
-        './manifest.json'
-      ]);
-    })
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      // Delete any caches that are not the current CACHE_NAME (v3)
+    caches.keys().then(names => {
       return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('ServiceWorker: Deleting old cache:', cache);
-            return caches.delete(cache); // ✅ delete old cached versions
-          }
-        })
+        names.map(name => caches.delete(name))
       );
-    }).then(() => self.clients.claim()) // Take control of unhandled pages
+    }).then(() => self.clients.claim())
   );
 });
 
+// Always load fresh files from network
 self.addEventListener('fetch', event => {
-  // Network-first strategy: try to fetch from the network, but fall back to cache for assets
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
+  event.respondWith(fetch(event.request));
 });
