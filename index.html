@@ -1,96 +1,734 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Book 7 - Working MVP</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { font-family: Arial; background:#f1f1f1; margin:0; padding:10px; }
-.screen { display:none; }
-.screen.active { display:block; }
-button { padding:10px; margin:5px 0; }
-input { padding:8px; width:100%; margin:5px 0; }
-.box { background:#fff; padding:10px; border-radius:6px; margin:10px 0; }
-</style>
-</head>
+  <meta charset="UTF-8">
+  <title>Book 7 – Business Control Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Simple, global, professional styling -->
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #ffffff;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --danger: #dc2626;
+      --text-main: #0f172a;
+      --text-muted: #6b7280;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #020617, #0f172a);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      background: radial-gradient(circle at top left, #1d2a3f 0, #020617 45%, #020617 100%);
+      width: 100%;
+      max-width: 900px;
+      border-radius: 24px;
+      padding: 18px;
+      color: #e5e7eb;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 0.76rem;
+      color: #9ca3af;
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.72rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #e5e7eb;
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    /* Navigation */
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .nav button {
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: rgba(15, 23, 42, 0.7);
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav button.active {
+      background: #e5e7eb;
+      color: #0f172a;
+    }
+
+    .nav button span.icon {
+      font-size: 1rem;
+    }
+
+    /* Layout */
+    .content {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 720px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: var(--radius);
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.6);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    h3 {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    /* Inputs */
+    label {
+      display: block;
+      font-size: 0.75rem;
+      margin-bottom: 3px;
+      color: #e5e7eb;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      outline: none;
+      margin-bottom: 8px;
+    }
+
+    input::placeholder {
+      color: #6b7280;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 999px;
+      border: 0;
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      color: #f9fafb;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 4px;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Dashboard stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 480px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 12px;
+      padding: 8px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: #9ca3af;
+    }
+
+    .stat-value {
+      margin-top: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .stat-tag {
+      margin-top: 2px;
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .stat--positive .stat-value {
+      color: #22c55e;
+    }
+
+    .stat--negative .stat-value {
+      color: #f97316;
+    }
+
+    /* Alert */
+    .alert {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      background: rgba(220, 38, 38, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.7);
+      color: #fecaca;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    /* Lists */
+    .list {
+      margin-top: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .list-item {
+      padding: 8px 8px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .list-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    .badge-income {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    .badge-expense {
+      background: rgba(248, 113, 113, 0.1);
+      border-color: rgba(248, 113, 113, 0.5);
+      color: #fecaca;
+    }
+
+    .badge-credit {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.7);
+      color: #bfdbfe;
+    }
+
+    .badge-debt {
+      background: rgba(249, 115, 22, 0.15);
+      border-color: rgba(249, 115, 22, 0.8);
+      color: #fed7aa;
+    }
+
+    .text-muted {
+      color: #9ca3af;
+      font-size: 0.72rem;
+    }
+
+    .amount-positive {
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .amount-negative {
+      color: #f97316;
+      font-weight: 600;
+    }
+
+    footer {
+      margin-top: 6px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
 <body>
 
-<div id="login" class="screen active">
-  <h2>Book 7 Login</h2>
-  <input id="user" placeholder="Business Name">
-  <button onclick="login()">Enter</button>
-</div>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="brand-title">BOOK 7</div>
+      <div class="brand-sub">Global Business Control • v1.0 MVP</div>
+    </div>
+    <div class="pill">
+      <span class="pill-dot"></span>
+      <span>Live Local Mode · Offline Ready</span>
+    </div>
+  </header>
 
-<div id="dashboard" class="screen">
-  <h2 id="welcome"></h2>
+  <nav class="nav">
+    <button class="active" data-screen="dashboardScreen">
+      <span class="icon">📊</span> Dashboard
+    </button>
+    <button data-screen="transactionsScreen">
+      <span class="icon">🧾</span> Transactions
+    </button>
+    <button data-screen="debtsScreen">
+      <span class="icon">💳</span> Debts & Credits
+    </button>
+  </nav>
 
-  <div class="box">
-    <h3>Add Record</h3>
-    <input id="desc" placeholder="Description">
-    <input id="amount" type="number" placeholder="Amount">
-    <select id="type">
-      <option value="income">Income</option>
-      <option value="expense">Expense</option>
-    </select>
-    <button onclick="addRecord()">Save</button>
+  <div class="content">
+    <!-- LEFT: FORMS & INPUT -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Quick Financial Capture</div>
+          <div class="card-subtitle">Add today’s money movement in under 10 seconds.</div>
+        </div>
+      </div>
+
+      <!-- Transaction Form -->
+      <div id="transactionsFormBlock">
+        <h3>1. Log a Transaction</h3>
+
+        <label>Description</label>
+        <input id="txDesc" placeholder="e.g., Cash sale, Rent payment">
+
+        <label>Amount</label>
+        <input id="txAmount" type="number" min="0" step="0.01" placeholder="e.g., 1500">
+
+        <label>Type</label>
+        <select id="txType">
+          <option value="income">Income (Cash In)</option>
+          <option value="expense">Expense (Cash Out)</option>
+        </select>
+
+        <label>Category</label>
+        <select id="txCategory">
+          <option value="Sales">Sales</option>
+          <option value="Service Income">Service Income</option>
+          <option value="Stock Purchase">Stock Purchase</option>
+          <option value="Rent">Rent</option>
+          <option value="Salary">Salary</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label>Payment Method</label>
+        <select id="txMethod">
+          <option value="Cash">Cash</option>
+          <option value="M-Pesa">M-Pesa</option>
+          <option value="Bank">Bank</option>
+          <option value="Card">Card</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <button class="btn-primary" onclick="addTransaction()">Save Transaction</button>
+      </div>
+
+      <hr style="border:0;border-top:1px solid #1f2933; margin:10px 0;">
+
+      <!-- Debt Form -->
+      <div id="debtFormBlock">
+        <h3>2. Log a Debt / Credit</h3>
+
+        <label>Person / Business Name</label>
+        <input id="debtName" placeholder="e.g., John (Customer), Supplier XYZ">
+
+        <label>Amount</label>
+        <input id="debtAmount" type="number" min="0" step="0.01" placeholder="e.g., 3000">
+
+        <label>Direction</label>
+        <select id="debtDirection">
+          <option value="credit">Customer owes me</option>
+          <option value="debt">I owe supplier</option>
+        </select>
+
+        <label>Due Date (optional)</label>
+        <input id="debtDue" type="date">
+
+        <button class="btn-primary" onclick="addDebt()">Save Debt / Credit</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: DASHBOARD & LISTS -->
+    <section class="card">
+      <!-- DASHBOARD SCREEN -->
+      <div id="dashboardScreen">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Business Health Snapshot</div>
+            <div class="card-subtitle">Live view of your position and today’s flow.</div>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat" id="statNet">
+            <div class="stat-label">Net Position</div>
+            <div class="stat-value" id="netPositionValue">Ksh 0</div>
+            <div class="stat-tag">Total Income – Total Expenses</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Today · Income</div>
+            <div class="stat-value" id="todayIncomeValue">Ksh 0</div>
+            <div class="stat-tag">Cash In recorded today</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Today · Expenses</div>
+            <div class="stat-value" id="todayExpenseValue">Ksh 0</div>
+            <div class="stat-tag">Cash Out recorded today</div>
+          </div>
+        </div>
+
+        <div class="stats-row" style="margin-top:8px;">
+          <div class="stat">
+            <div class="stat-label">Outstanding Credit (Customers owe you)</div>
+            <div class="stat-value" id="outstandingCreditValue">Ksh 0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Outstanding Debt (You owe)</div>
+            <div class="stat-value" id="outstandingDebtValue">Ksh 0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Last Update</div>
+            <div class="stat-value" id="lastUpdateValue">—</div>
+            <div class="stat-tag">Based on device date/time</div>
+          </div>
+        </div>
+
+        <div id="alertBanner" class="alert">
+          <!-- Filled by JS if risk detected -->
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS SCREEN -->
+      <div id="transactionsScreen" style="display:none;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">All Transactions</div>
+            <div class="card-subtitle">Chronological record of income and expenses.</div>
+          </div>
+        </div>
+        <div class="list" id="transactionsList"></div>
+      </div>
+
+      <!-- DEBTS SCREEN -->
+      <div id="debtsScreen" style="display:none;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Debts & Credits</div>
+            <div class="card-subtitle">Who owes you and who you owe.</div>
+          </div>
+        </div>
+        <div class="list" id="debtsList"></div>
+      </div>
+    </section>
   </div>
 
-  <div class="box">
-    <h3>Balance</h3>
-    <p id="balance">0</p>
-  </div>
-
-  <div class="box">
-    <h3>Records</h3>
-    <ul id="list"></ul>
-  </div>
-
-  <button onclick="logout()">Logout</button>
+  <footer>
+    Book 7 · Global Business Operating System MVP · Local-only demo (data stored in this device only).
+  </footer>
 </div>
 
 <script>
-let records = JSON.parse(localStorage.getItem("book7data")) || [];
+  // --- Data Storage Keys ---
+  const TX_KEY = "book7_transactions_v1";
+  const DEBT_KEY = "book7_debts_v1";
 
-function login(){
-  let user = document.getElementById("user").value;
-  if(!user) return alert("Enter business name");
-  document.getElementById("login").classList.remove("active");
-  document.getElementById("dashboard").classList.add("active");
-  document.getElementById("welcome").innerText = "Welcome to Book 7, " + user;
-  render();
-}
+  let transactions = JSON.parse(localStorage.getItem(TX_KEY) || "[]");
+  let debts = JSON.parse(localStorage.getItem(DEBT_KEY) || "[]");
 
-function addRecord(){
-  let desc = document.getElementById("desc").value;
-  let amount = parseFloat(document.getElementById("amount").value);
-  let type = document.getElementById("type").value;
-  if(!desc || !amount) return;
+  // --- Helpers ---
+  function saveData() {
+    localStorage.setItem(TX_KEY, JSON.stringify(transactions));
+    localStorage.setItem(DEBT_KEY, JSON.stringify(debts));
+  }
 
-  records.push({desc, amount, type});
-  localStorage.setItem("book7data", JSON.stringify(records));
-  render();
-}
+  function formatCurrency(amount) {
+    if (isNaN(amount)) return "Ksh 0";
+    return "Ksh " + amount.toLocaleString("en-KE", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
 
-function render(){
-  let list = document.getElementById("list");
-  list.innerHTML = "";
-  let balance = 0;
+  function todayISO() {
+    const d = new Date();
+    return d.toISOString().slice(0, 10); // YYYY-MM-DD
+  }
 
-  records.forEach(r=>{
-    let li = document.createElement("li");
-    li.textContent = r.desc + " - " + r.type + ": " + r.amount;
-    list.appendChild(li);
-    balance += (r.type === "income" ? r.amount : -r.amount);
-  });
+  // --- Add Transaction ---
+  function addTransaction() {
+    const desc = document.getElementById("txDesc").value.trim();
+    const amountVal = parseFloat(document.getElementById("txAmount").value);
+    const type = document.getElementById("txType").value;
+    const category = document.getElementById("txCategory").value;
+    const method = document.getElementById("txMethod").value;
 
-  document.getElementById("balance").innerText = "Ksh " + balance;
-}
+    if (!desc || isNaN(amountVal) || amountVal <= 0) {
+      alert("Please enter a description and a valid amount.");
+      return;
+    }
 
-function logout(){
-  location.reload();
-}
-</script>
+    const tx = {
+      id: Date.now(),
+      desc,
+      amount: amountVal,
+      type,         // "income" or "expense"
+      category,
+      method,
+      date: todayISO(),
+      timestamp: new Date().toISOString()
+    };
 
-</body>
-</html>
+    transactions.unshift(tx); // newest first
+    saveData();
+
+    // Clear fields
+    document.getElementById("txDesc").value = "";
+    document.getElementById("txAmount").value = "";
+
+    renderAll();
+  }
+
+  // --- Add Debt / Credit ---
+  function addDebt() {
+    const name = document.getElementById("debtName").value.trim();
+    const amountVal = parseFloat(document.getElementById("debtAmount").value);
+    const direction = document.getElementById("debtDirection").value; // "credit" or "debt"
+    const dueDate = document.getElementById("debtDue").value || null;
+
+    if (!name || isNaN(amountVal) || amountVal <= 0) {
+      alert("Please enter a name and a valid amount.");
+      return;
+    }
+
+    const record = {
+      id: Date.now(),
+      name,
+      amount: amountVal,
+      direction,
+      dueDate,
+      status: "Pending",
+      createdAt: todayISO()
+    };
+
+    debts.unshift(record);
+    saveData();
+
+    // Clear fields
+    document.getElementById("debtName").value = "";
+    document.getElementById("debtAmount").value = "";
+    document.getElementById("debtDue").value = "";
+
+    renderAll();
+  }
+
+  // --- Dashboard Calculation & Rendering ---
+  function renderDashboard() {
+    let totalIncome = 0;
+    let totalExpense = 0;
+    let todayIncome = 0;
+    let todayExpense = 0;
+
+    const today = todayISO();
+
+    transactions.forEach(tx => {
+      if (tx.type === "income") {
+        totalIncome += tx.amount;
+        if (tx.date === today) todayIncome += tx.amount;
+      } else if (tx.type === "expense") {
+        totalExpense += tx.amount;
+        if (tx.date === today) todayExpense += tx.amount;
+      }
+    });
+
+    const net = totalIncome - totalExpense;
+    const netEl = document.getElementById("netPositionValue");
+    const statNet = document.getElementById("statNet");
+
+    netEl.textContent = formatCurrency(net);
+    statNet.classList.remove("stat--positive", "stat--negative");
+    if (net > 0) statNet.classList.add("stat--positive");
+    if (net < 0) statNet.classList.add("stat--negative");
+
+    document.getElementById("todayIncomeValue").textContent = formatCurrency(todayIncome);
+    document.getElementById("todayExpenseValue").textContent = formatCurrency(todayExpense);
+
+    // Debts aggregation
+    let totalCredit = 0; // customers owe you
+    let totalDebt = 0;   // you owe others
+
+    debts.forEach(d => {
+      if (d.status !== "Pending") return;
+      if (d.direction === "credit") totalCredit += d.amount;
+      if (d.direction === "debt") totalDebt += d.amount;
+    });
+
+    document.getElementById("outstandingCreditValue").textContent = formatCurrency(totalCredit);
+    document.getElementById("outstandingDebtValue").textContent = formatCurrency(totalDebt);
+
+    // Last update (simple)
+    const lastUpdate = transactions[0]?.timestamp || debts[0]?.createdAt || null;
+    document.getElementById("lastUpdateValue").textContent = lastUpdate
+      ? new Date(lastUpdate).toLocaleString()
+      : "No records yet";
+
+    // Simple risk alert logic
+    const alertBanner = document.getElementById("alertBanner");
+    alertBanner.classList.remove("show");
+    alertBanner.textContent = "";
+
+    if (net < 0) {
+      alertBanner.textContent = "❌ CRITICAL: Your net position is negative. You are losing money overall. Review your expenses immediately.";
+      alertBanner.classList.add("show");
+    } else if (todayExpense > todayIncome && todayExpense > 0) {
+      alertBanner.textContent = "⚠️ ALERT: Today your expenses are higher than income. Consider reducing non-essential spending.";
+      alertBanner.classList.add("show");
+    } else if (totalCredit > totalDebt * 2 && totalCredit > 0) {
+      alertBanner.textContent = "📌 REMINDER: You have significant outstanding customer credit. Follow up on collections.";
+      alertBanner.classList.add("show");
+    }
+  }
+
+  // --- Render Transactions List ---
+  function renderTransactionsList() {
+    const container = document.getElementById("transactionsList");
+    container.innerHTML = "";
+
+    if (!transactions.length) {
+      container.innerHTML = "<div class='text-muted'>No transactions yet. Start by logging your first income or expense.</div>";
+      return;
+    }
+
+    transactions.forEach(tx => {
+      const item = document.createElement("div");
+      item.className = "list-item";
+
+      const top = document.createElement("div");
+      top.className = "list-item-top";
+
+      const left = document.createElement("div");
+      left.innerHTML = `<strong>${tx.desc}</strong> <span class="text-muted">· ${tx.category}</span>`;
+
+      const right = document.createElement("div");
+      const badge = document.createElement("span");
+      badge.className = "badge " + (tx.type === "income" ? "badge-income" : "badge-expense");
+      badge.textContent = tx.type === "income" ? "Income" : "Expense";
+
+      const amountSpan = document.createElement("span");
+      amountSpan.className = tx.type === "income" ? "amount-positive" : "amount-negative";
+      amountSpan.style.marginLeft = "8px";
+      amountSpan.textContent = formatCurrency(tx.amount);
+
+      right.appendChild(badge);
+      right.appendChild(amountSpan);
+
+      top.appendChild(left);
+    
