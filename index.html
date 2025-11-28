@@ -6,41 +6,37 @@
 <title>Book7 — MVP</title>
 <style>
   :root{
-    --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#9aa6b2; --accent2:#f59e0b;
+    --bg:#071028; --card:#071629; --accent:#06b6d4; --muted:#9aa6b2; --accent2:#f59e0b;
     --glass: rgba(255,255,255,0.03);
   }
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  body{background:linear-gradient(180deg,#071028 0%, #061322 100%); color:#e6eef6; padding:16px;}
-  .app{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 380px;gap:16px;}
-  header{grid-column:1/-1; display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,#061322 0%, #041226 100%);}
+  .wrap{max-width:1100px;margin:12px auto;padding:12px;display:grid;grid-template-columns:1fr 380px;gap:14px;}
+  header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;}
   h1{font-size:20px;margin:0;}
   .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
   .left{display:flex;flex-direction:column; gap:12px;}
-  .form-row{display:flex;gap:8px;flex-wrap:wrap;}
-  input,select,textarea,button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px;border-radius:8px;min-height:40px;}
-  input:focus,select:focus,textarea:focus{outline:2px solid rgba(6,182,212,0.12); color:#e6eef6;}
+  .right{display:flex;flex-direction:column; gap:12px;}
   label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;}
-  .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#031123;border:none;padding:10px 12px;border-radius:8px;cursor:pointer;}
+  input,select,textarea,button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#e6eef6;padding:8px;border-radius:8px;min-height:40px;}
+  input:focus,select:focus,textarea:focus{outline:2px solid rgba(6,182,212,0.12);}
+  .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#031123;border:none;padding:9px 12px;border-radius:8px;cursor:pointer;}
+  .muted{color:var(--muted);font-size:13px;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
   th,td{padding:6px 8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);color:var(--muted);}
-  .mini{font-size:12px;color:var(--muted);}
-  .right{display:flex;flex-direction:column;gap:12px;}
+  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .day{min-height:64px;padding:8px;border-radius:8px;background:var(--glass);font-size:13px;position:relative;}
+  .badge{display:inline-block;padding:3px 6px;border-radius:999px;background:rgba(6,182,212,0.12);color:var(--accent);font-size:12px;margin-top:6px;}
   .flex{display:flex;gap:8px;align-items:center;}
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-  .day{min-height:60px;padding:6px;border-radius:6px;background:var(--glass);font-size:13px;}
-  .badge{display:inline-block;padding:3px 6px;border-radius:999px;background:rgba(6,182,212,0.15);color:var(--accent);font-size:12px;margin-top:6px;}
-  .small{font-size:12px;color:var(--muted);}
-  footer{grid-column:1/-1;margin-top:8px;text-align:center;color:var(--muted);font-size:12px;}
-  @media(max-width:900px){ .app{grid-template-columns:1fr; } .right{order:2} }
+  footer{grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding-top:6px;}
+  @media(max-width:960px){ .wrap{grid-template-columns:1fr;} .right{order:2} }
 </style>
 </head>
 <body>
-<div class="app">
+<div class="wrap">
   <header>
     <div>
-      <h1>Book7 — Mini OS (MVP)</h1>
-      <div class="small">Ledger • P&L • Inventory • Debts • Calendar • Voice entry</div>
+      <h1>Book7 — MVP</h1>
+      <div class="muted">Ledger • P&L • Calendar • Debts • Inventory — Local storage</div>
     </div>
     <div class="flex">
       <button id="exportBtn" class="btn">Export JSON</button>
@@ -49,26 +45,27 @@
     </div>
   </header>
 
-  <div class="left">
-    <!-- LEDGER ENTRY -->
+  <main class="left">
+    <!-- Quick Entry -->
     <section class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <strong>Quick Entry</strong>
-        <div class="mini">Balance: <span id="balance">0</span></div>
+        <div class="muted">Balance: <span id="balance">0.00</span></div>
       </div>
-      <div style="margin-top:8px" class="form-row">
-        <div style="flex:1">
+
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;">
           <label>Date</label>
           <input id="entryDate" type="date" />
         </div>
-        <div style="flex:1">
+        <div style="flex:1;">
           <label>Account / Party</label>
-          <input id="entryAccount" placeholder="e.g., Cash, Mpesa, Client A" />
+          <input id="entryAccount" placeholder="Cash, Mpesa, Client A" />
         </div>
       </div>
 
-      <div class="form-row" style="margin-top:8px">
-        <div style="width:120px">
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:end;">
+        <div style="width:140px;">
           <label>Type</label>
           <select id="entryType">
             <option value="income">Income (credit)</option>
@@ -76,37 +73,35 @@
             <option value="transfer">Transfer</option>
           </select>
         </div>
-        <div style="width:140px">
+        <div style="width:140px;">
           <label>Amount</label>
           <input id="entryAmount" type="number" min="0" step="0.01" />
         </div>
-        <div style="flex:1">
+        <div style="flex:1;">
           <label>Category</label>
-          <input id="entryCategory" placeholder="e.g., Sales, Salary, Supplies" />
+          <input id="entryCategory" placeholder="Sales, Salary, Supplies" />
+        </div>
+        <div style="width:170px;display:flex;flex-direction:column;gap:6px;">
+          <button id="voiceBtn" class="btn">🎤 Voice</button>
+          <button id="addEntry" class="btn">Add Entry</button>
         </div>
       </div>
 
-      <div style="margin-top:8px" class="form-row">
-        <div style="flex:1">
-          <label>Note</label>
-          <input id="entryNote" placeholder="Short note" />
-        </div>
-        <div style="width:160px;display:flex;flex-direction:column;gap:6px;justify-content:flex-end;">
-          <button id="voiceBtn" class="btn" style="width:100%">🎤 Voice</button>
-          <button id="addEntry" class="btn" style="width:100%">Add Entry</button>
-        </div>
+      <div style="margin-top:8px;">
+        <label>Note</label>
+        <input id="entryNote" placeholder="Short note or invoice #" />
       </div>
 
-      <div style="margin-top:8px" class="small" id="aiTip">AI tips will appear here</div>
+      <div style="margin-top:8px;" id="aiTip" class="muted">AI tips appear here</div>
     </section>
 
-    <!-- LEDGER LIST -->
+    <!-- Ledger -->
     <section class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
         <strong>Ledger</strong>
-        <div class="mini">Entries: <span id="entriesCount">0</span></div>
+        <div class="muted">Entries: <span id="entriesCount">0</span></div>
       </div>
-      <div style="max-height:260px;overflow:auto">
+      <div style="margin-top:8px;max-height:260px;overflow:auto">
         <table id="ledgerTable">
           <thead><tr><th>Date</th><th>Account</th><th>Type</th><th>Category</th><th>Amount</th><th>Note</th><th></th></tr></thead>
           <tbody></tbody>
@@ -117,19 +112,22 @@
     <!-- P&L -->
     <section class="card">
       <strong>Profit & Loss</strong>
-      <div class="grid-2" style="margin-top:8px">
+      <div style="display:flex;justify-content:space-between;margin-top:8px;">
         <div>
-          <div class="small">Total Income</div>
-          <div id="totalIncome" style="font-size:18px">0</div>
+          <div class="muted">Total Income</div>
+          <div id="totalIncome">0.00</div>
         </div>
         <div>
-          <div class="small">Total Expense</div>
-          <div id="totalExpense" style="font-size:18px">0</div>
+          <div class="muted">Total Expense</div>
+          <div id="totalExpense">0.00</div>
+        </div>
+        <div>
+          <div class="muted">Net</div>
+          <div id="netProfit">0.00</div>
         </div>
       </div>
-      <div style="margin-top:8px" class="small">Net Profit: <span id="netProfit">0</span></div>
     </section>
-  </div>
+  </main>
 
   <aside class="right">
     <!-- Calendar -->
@@ -138,20 +136,20 @@
         <strong>Calendar</strong>
         <div style="display:flex;gap:8px;align-items:center;">
           <button id="prevMonth" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">◀</button>
-          <div id="monthLabel" class="mini">Month</div>
+          <div id="monthLabel" class="muted">Month</div>
           <button id="nextMonth" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">▶</button>
         </div>
       </div>
-      <div style="margin-top:8px" id="calendarGrid" class="calendar"></div>
+      <div style="margin-top:8px;" id="calendarGrid" class="calendar"></div>
     </section>
 
     <!-- Debts -->
     <section class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong>Debts (Owed / Owing)</strong>
+        <strong>Debts</strong>
         <button id="addDebt" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Add</button>
       </div>
-      <div style="margin-top:8px;max-height:170px;overflow:auto">
+      <div style="margin-top:8px;max-height:150px;overflow:auto">
         <table id="debtsTable"><thead><tr><th>Party</th><th>Amt</th><th>Type</th><th></th></tr></thead><tbody></tbody></table>
       </div>
     </section>
@@ -162,282 +160,309 @@
         <strong>Inventory</strong>
         <button id="addItemBtn" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Add</button>
       </div>
-      <div style="margin-top:8px;max-height:170px;overflow:auto">
+      <div style="margin-top:8px;max-height:150px;overflow:auto">
         <table id="inventoryTable"><thead><tr><th>Item</th><th>Qty</th><th>Cost</th><th>Value</th><th></th></tr></thead><tbody></tbody></table>
       </div>
     </section>
 
     <section class="card">
-      <strong>Quick Tools</strong>
-      <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+      <strong>Tools</strong>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
         <button id="clearAll" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Clear Data</button>
         <button id="helpBtn" class="btn">How to use</button>
       </div>
     </section>
   </aside>
 
-  <footer class="mini card">
-    Book7 MVP — data saved locally in your browser. Export JSON to backup. Voice uses browser speech API.
+  <footer class="card muted">
+    Book7 MVP — data saved locally in your browser. Use Export to backup. Works offline after first load.
   </footer>
 </div>
 
 <script>
-/* ========= Simple MVP Book7 logic =========
- - Data stored in localStorage under 'book7_data'
- - Objects: entries[], debts[], inventory[], settings
- - Voice entry: tries to parse a simple sentence like "sold goods 12000 to client a category sales"
- - AI Tips: small local rules (high expenses, repeat categories etc.)
-*/
-
-// --- Utilities
+/* Book7 — Single-file MVP JS */
 const $ = id => document.getElementById(id);
-const parseFloatSafe = v => Number(parseFloat(v) || 0).toFixed(2);
+const qs = sel => document.querySelector(sel);
 
-// Data container
-let state = { entries: [], debts: [], inventory: [], settings: {monthOffset:0} };
+// storage key
+const STORAGE_KEY = 'book7_data_v1';
 
+// state
+let state = {
+  entries: [], // {date, account, type, category, amount, note, id}
+  debts: [],   // {party, amount, type, id}
+  inventory: [], // {name, qty, cost, id}
+  settings: { monthOffset: 0 }
+};
+
+// helpers
+const formatMoney = n => Number(n || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const todayISO = () => new Date().toISOString().slice(0,10);
+const safeNum = v => Number(v || 0);
+
+// load/save
 function loadState(){
   try{
-    const raw = localStorage.getItem('book7_data');
+    const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) state = JSON.parse(raw);
   } catch(e){ console.error('load error', e); }
 }
-function saveState(){ localStorage.setItem('book7_data', JSON.stringify(state)); renderAll(); }
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  renderAll();
+}
 
-// --- Render functions
+// render functions
 function renderLedger(){
-  const tbody = document.querySelector('#ledgerTable tbody'); tbody.innerHTML='';
-  state.entries.sort((a,b)=> new Date(b.date)-new Date(a.date));
-  state.entries.forEach((e,i)=>{
+  const tbody = qs('#ledgerTable tbody');
+  tbody.innerHTML = '';
+  // sort descending by date then created id
+  const entries = [...state.entries].sort((a,b)=> new Date(b.date) - new Date(a.date) || b.id.localeCompare(a.id));
+  entries.forEach(e=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${e.date}</td><td>${escapeHtml(e.account)}</td><td>${e.type}</td><td>${escapeHtml(e.category)}</td><td>${formatMoney(e.amount)}</td><td>${escapeHtml(e.note)}</td><td><button data-i="${i}" class="delEntry" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
+    tr.innerHTML = `<td>${e.date}</td><td>${escapeHtml(e.account)}</td><td>${e.type}</td><td>${escapeHtml(e.category)}</td><td style="text-align:right">${formatMoney(e.amount)}</td><td>${escapeHtml(e.note)}</td><td><button data-id="${e.id}" class="delEntry" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
     tbody.appendChild(tr);
   });
-  $('entriesCount').textContent = state.entries.length;
+  $('entriesCount').textContent = entries.length;
   computePL();
   computeBalance();
   renderCalendar();
 }
 
 function renderDebts(){
-  const tbody = document.querySelector('#debtsTable tbody'); tbody.innerHTML='';
-  state.debts.forEach((d,i)=>{
+  const tbody = qs('#debtsTable tbody'); tbody.innerHTML = '';
+  state.debts.forEach(d=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escapeHtml(d.party)}</td><td>${formatMoney(d.amount)}</td><td>${d.type}</td><td><button data-i="${i}" class="delDebt" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
+    tr.innerHTML = `<td>${escapeHtml(d.party)}</td><td style="text-align:right">${formatMoney(d.amount)}</td><td>${d.type}</td><td><button data-id="${d.id}" class="delDebt" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
     tbody.appendChild(tr);
   });
 }
 
 function renderInventory(){
-  const tbody = document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
-  state.inventory.forEach((it,i)=>{
+  const tbody = qs('#inventoryTable tbody'); tbody.innerHTML = '';
+  state.inventory.forEach(it=>{
+    const value = safeNum(it.qty) * safeNum(it.cost);
     const tr = document.createElement('tr');
-    const value = (Number(it.qty)||0)*(Number(it.cost)||0);
-    tr.innerHTML = `<td>${escapeHtml(it.name)}</td><td>${it.qty}</td><td>${formatMoney(it.cost)}</td><td>${formatMoney(value)}</td><td><button data-i="${i}" class="delItem" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
+    tr.innerHTML = `<td>${escapeHtml(it.name)}</td><td style="text-align:right">${it.qty}</td><td style="text-align:right">${formatMoney(it.cost)}</td><td style="text-align:right">${formatMoney(value)}</td><td><button data-id="${it.id}" class="delItem" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
     tbody.appendChild(tr);
   });
 }
 
 function computePL(){
-  const income = state.entries.filter(e=>e.type==='income').reduce((s,e)=>s+Number(e.amount),0);
-  const expense = state.entries.filter(e=>e.type==='expense').reduce((s,e)=>s+Number(e.amount),0);
+  const income = state.entries.filter(e=>e.type==='income').reduce((s,e)=>s+safeNum(e.amount),0);
+  const expense = state.entries.filter(e=>e.type==='expense').reduce((s,e)=>s+safeNum(e.amount),0);
   $('totalIncome').textContent = formatMoney(income);
   $('totalExpense').textContent = formatMoney(expense);
   $('netProfit').textContent = formatMoney(income - expense);
 }
 
 function computeBalance(){
-  // naive balance: sum(income) - sum(expense)
-  const bal = state.entries.reduce((s,e)=> e.type==='income'? s+Number(e.amount) : e.type==='expense' ? s-Number(e.amount) : s, 0);
+  const bal = state.entries.reduce((s,e)=> e.type==='income' ? s + safeNum(e.amount) : e.type==='expense' ? s - safeNum(e.amount) : s, 0);
   $('balance').textContent = formatMoney(bal);
 }
 
-function formatMoney(n){ return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function escapeHtml(s){ if(!s) return ''; return s.toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]); }
-
-// --- Calendar rendering
+// calendar
 function renderCalendar(){
-  const grid = $('calendarGrid'); grid.innerHTML='';
+  const grid = $('calendarGrid'); grid.innerHTML = '';
   const d = new Date();
   const offset = state.settings.monthOffset || 0;
-  d.setMonth(d.getMonth()+offset);
+  d.setMonth(d.getMonth() + offset);
   const year = d.getFullYear(), month = d.getMonth();
-  $('monthLabel').textContent = d.toLocaleString(undefined,{month:'long', year:'numeric'});
+  $('monthLabel').textContent = d.toLocaleString(undefined, {month:'long', year:'numeric'});
 
-  const first = new Date(year, month, 1);
-  const startDay = (first.getDay()+6)%7; // shift so monday first
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  // weekday headers
-  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(w=>{
-    const h = document.createElement('div'); h.className='day'; h.style.fontWeight='700'; h.style.background='transparent'; h.style.border='none'; h.textContent = w; grid.appendChild(h);
+  // headers (Mon..Sun)
+  const weekdays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  weekdays.forEach(w=>{
+    const cell = document.createElement('div'); cell.className = 'day'; cell.style.fontWeight = '700'; cell.style.background = 'transparent'; cell.style.border = 'none'; cell.textContent = w; grid.appendChild(cell);
   });
 
+  const first = new Date(year, month, 1);
+  const startDay = (first.getDay() + 6) % 7; // monday-first
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
   for(let i=0;i<startDay;i++){ const empty = document.createElement('div'); empty.className='day'; grid.appendChild(empty); }
-  for(let dnum=1; dnum<=daysInMonth; dnum++){
-    const cell = document.createElement('div'); cell.className='day';
-    const dateStr = new Date(year,month,dnum).toISOString().slice(0,10);
-    cell.innerHTML = `<div style="font-weight:700">${dnum}</div>`;
-    const todays = state.entries.filter(e=>e.date===dateStr);
-    todays.slice(0,3).forEach(t=>{
-      const el = document.createElement('div'); el.className='badge'; el.textContent = `${t.type==='income' ? '+' : '-'} ${t.category||t.account} ${formatMoney(t.amount)}`; cell.appendChild(el);
+  for(let day=1; day<=daysInMonth; day++){
+    const cell = document.createElement('div'); cell.className = 'day';
+    const dateStr = new Date(year, month, day).toISOString().slice(0,10);
+    const header = document.createElement('div'); header.style.fontWeight='700'; header.textContent = day; cell.appendChild(header);
+    const todays = state.entries.filter(en => en.date === dateStr);
+    todays.slice(0,3).forEach(t => {
+      const b = document.createElement('div'); b.className='badge'; b.textContent = `${t.type==='income' ? '+' : '-'} ${t.category||t.account} ${formatMoney(t.amount)}`; cell.appendChild(b);
     });
-    if(todays.length>3){ const more = document.createElement('div'); more.className='small'; more.textContent = `+${todays.length-3} more`; cell.appendChild(more); }
+    if(todays.length > 3){
+      const more = document.createElement('div'); more.className='muted'; more.textContent = `+${todays.length-3} more`; more.style.marginTop='6px'; cell.appendChild(more);
+    }
+    // attach data-date for clicking
+    cell.dataset.date = dateStr;
     grid.appendChild(cell);
   }
 }
 
-// --- Actions
-$('addEntry').onclick = ()=>{
-  const date = $('entryDate').value || (new Date()).toISOString().slice(0,10);
-  const account = $('entryAccount').value || 'Unknown';
+// UI actions
+$('addEntry').onclick = () => {
+  const date = $('entryDate').value || todayISO();
+  const account = $('entryAccount').value.trim() || 'Unknown';
   const type = $('entryType').value;
-  const amount = Number($('entryAmount').value) || 0;
-  const category = $('entryCategory').value || (type==='income'?'Sales':'General');
-  const note = $('entryNote').value || '';
-  if(!amount){ alert('Enter amount'); return; }
-  state.entries.push({date,account,type,amount,category,note,created:Date.now()});
+  const amount = safeNum($('entryAmount').value);
+  const category = $('entryCategory').value.trim() || (type==='income' ? 'Sales' : 'General');
+  const note = $('entryNote').value.trim();
+  if(!amount || amount <= 0){ alert('Enter a valid amount'); return; }
+  const item = { id: uid(), date, account, type, amount, category, note };
+  state.entries.push(item);
   saveState();
   clearEntryForm();
   showAiTip();
 };
 
 function clearEntryForm(){
-  $('entryAmount').value=''; $('entryNote').value=''; $('entryCategory').value=''; $('entryAccount').value='';
+  $('entryAmount').value = '';
+  $('entryNote').value = '';
+  $('entryCategory').value = '';
+  $('entryAccount').value = '';
+  $('entryDate').value = todayISO();
 }
 
-// Delete handlers via delegation
-document.addEventListener('click', (ev)=>{
-  if(ev.target.classList.contains('delEntry')){
-    const i = Number(ev.target.dataset.i);
-    if(confirm('Delete entry?')){ state.entries.splice(i,1); saveState(); }
-  } else if(ev.target.classList.contains('delDebt')){
-    const i = Number(ev.target.dataset.i);
-    if(confirm('Remove debt?')){ state.debts.splice(i,1); saveState(); }
-  } else if(ev.target.classList.contains('delItem')){
-    const i = Number(ev.target.dataset.i);
-    if(confirm('Remove item?')){ state.inventory.splice(i,1); saveState(); }
+// delete handlers via delegation
+document.addEventListener('click', (e) => {
+  if(e.target.classList.contains('delEntry')){
+    const id = e.target.dataset.id;
+    if(confirm('Delete entry?')){ state.entries = state.entries.filter(x => x.id !== id); saveState(); }
+  } else if(e.target.classList.contains('delDebt')){
+    const id = e.target.dataset.id;
+    if(confirm('Remove debt?')){ state.debts = state.debts.filter(x => x.id !== id); saveState(); }
+  } else if(e.target.classList.contains('delItem')){
+    const id = e.target.dataset.id;
+    if(confirm('Remove item?')){ state.inventory = state.inventory.filter(x => x.id !== id); saveState(); }
   }
 });
 
-// Debts
-$('addDebt').onclick = ()=>{
+// debts & inventory
+$('addDebt').onclick = () => {
   const party = prompt('Party name (who owes / owed to):','Client A');
   if(!party) return;
-  const amt = Number(prompt('Amount','0')) || 0;
-  const type = prompt('Type: owed-to-you or you-owe? Enter "owed" or "owing"','owed') === 'owed' ? 'owed' : 'owing';
-  state.debts.push({party,amount:amt,type,created:Date.now()});
+  const amt = safeNum(prompt('Amount','0'));
+  const type = prompt('Type: "owed" (they owe you) or "owing" (you owe)','owed') === 'owed' ? 'owed' : 'owing';
+  if(!amt || amt <= 0){ alert('Invalid amount'); return; }
+  state.debts.push({ id: uid(), party, amount: amt, type });
   saveState();
 };
 
-// Inventory
-$('addItemBtn').onclick = ()=>{
+$('addItemBtn').onclick = () => {
   const name = prompt('Item name','Tomato');
   if(!name) return;
-  const qty = Number(prompt('Quantity','1')) || 0;
-  const cost = Number(prompt('Unit cost','0')) || 0;
-  state.inventory.push({name,qty,cost,created:Date.now()});
+  const qty = safeNum(prompt('Quantity','1'));
+  const cost = safeNum(prompt('Unit cost','0'));
+  state.inventory.push({ id: uid(), name, qty, cost });
   saveState();
 };
 
-// Clear all
-$('clearAll').onclick = ()=>{ if(confirm('Clear ALL Book7 data? This cannot be undone.')){ state = {entries:[],debts:[],inventory:[],settings:{monthOffset:0}}; saveState(); } };
-
-// Help
-$('helpBtn').onclick = ()=> {
-  alert('Book7 MVP help:\\n- Add entries via Quick Entry.\\n- Use Voice to dictate (try: "income 12000 sales client A").\\n- Export JSON to backup.\\n- Calendar shows entries per day.');
+// clear all
+$('clearAll').onclick = () => {
+  if(confirm('Clear ALL Book7 data? This cannot be undone.')) {
+    state = { entries: [], debts: [], inventory: [], settings: { monthOffset: 0 } };
+    saveState();
+  }
 };
 
-// Export / Import
-$('exportBtn').onclick = ()=>{
-  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+// help
+$('helpBtn').onclick = () => {
+  alert('Book7 MVP help:\n- Add entries via Quick Entry.\n- Use Voice to dictate (try: "income 12000 sales client A").\n- Export JSON to backup and Import to restore.\n- Click calendar day to prefill date.');
+};
+
+// export/import
+$('exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download = 'book7-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = url; a.download = 'book7-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 };
-$('importBtn').onclick = ()=> $('fileInput').click();
-$('fileInput').onchange = (ev)=>{
+$('importBtn').onclick = () => $('fileInput').click();
+$('fileInput').onchange = (ev) => {
   const f = ev.target.files[0]; if(!f) return;
-  const reader = new FileReader(); reader.onload = e=>{
-    try{ const data = JSON.parse(e.target.result); if(confirm('Replace local data with imported file?')){ state = data; saveState(); } } catch(err){ alert('Invalid JSON'); }
-  }; reader.readAsText(f);
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if(!confirm('Replace local data with imported file?')) return;
+      state = imported;
+      saveState();
+      alert('Import complete');
+    } catch(err){
+      alert('Invalid JSON file');
+    }
+  };
+  reader.readAsText(f);
 };
 
-// Month navigation
-$('prevMonth').onclick = ()=> { state.settings.monthOffset = (state.settings.monthOffset||0)-1; saveState(); };
-$('nextMonth').onclick = ()=> { state.settings.monthOffset = (state.settings.monthOffset||0)+1; saveState(); };
+// calendar day click prefill
+$('calendarGrid').addEventListener('click', (ev) => {
+  const dayEl = ev.target.closest('.day');
+  if(!dayEl || !dayEl.dataset.date) return;
+  const dateStr = dayEl.dataset.date;
+  $('entryDate').value = dateStr;
+  alert('Prefilled date: ' + dateStr + '. Now enter details and Add Entry.');
+});
 
-// Voice entry (simple)
+// month nav
+$('prevMonth').onclick = () => { state.settings.monthOffset = (state.settings.monthOffset || 0) - 1; saveState(); };
+$('nextMonth').onclick = () => { state.settings.monthOffset = (state.settings.monthOffset || 0) + 1; saveState(); };
+
+// voice entry (if supported)
 const recognitionAvailable = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
 let recog;
 if(recognitionAvailable){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recog = new SR();
   recog.lang = 'en-GB';
-  recog.onresult = e=>{
+  recog.onresult = (e) => {
     const text = e.results[0][0].transcript;
     $('entryNote').value = text;
     parseVoiceToEntry(text);
   };
-  recog.onerror = ()=>{ console.log('voice error'); };
+  recog.onerror = (err) => console.warn('voice err', err);
 }
-$('voiceBtn').onclick = ()=>{
+$('voiceBtn').onclick = () => {
   if(!recog){ alert('Speech not supported in this browser'); return; }
-  recog.start();
+  try { recog.start(); } catch(e) { console.warn(e); }
 };
 
-// naive voice parser
+// simple voice parser: looks for amount and keywords
 function parseVoiceToEntry(text){
-  // attempt to find amount + type + category
-  const t = text.toLowerCase();
+  const t = (text || '').toLowerCase();
   const amtMatch = t.match(/(\d+[.,]?\d{0,2})/);
-  const type = t.includes('expense') || t.includes('buy') || t.includes('paid') ? 'expense' : t.includes('income') || t.includes('sold') || t.includes('receive') ? 'income' : $('entryType').value;
-  if(amtMatch){ const amt = amtMatch[1].replace(',', '.'); $('entryAmount').value = amt; }
+  const type = t.includes('expense') || t.includes('buy') || t.includes('paid') ? 'expense' : (t.includes('income') || t.includes('sold') || t.includes('receive') ? 'income' : $('entryType').value);
+  if(amtMatch) $('entryAmount').value = amtMatch[1].replace(',', '.');
   $('entryType').value = type;
-  // category guess: look for words after 'for' or last word
+  // category after 'for' or last word
   const catMatch = t.match(/(?:for|category|as)\s+([a-zA-Z]+)/);
   if(catMatch) $('entryCategory').value = catMatch[1];
-  // set note
-  $('entryNote').value = text;
   showAiTip();
 }
 
-// AI tip (local rules)
+// AI tips (local rules)
 function showAiTip(){
-  const last = state.entries[state.entries.length-1];
-  let tip = 'No tips yet.';
-  // if last added just now (in form), offer suggestion
-  const formAmt = Number($('entryAmount').value) || 0;
-  if(formAmt > 100000) tip = 'Large amount detected — consider adding proof or invoice number.';
-  else if(formAmt > 50000) tip = 'High value entry — tag as "Capital" or "Investment" if applicable.';
+  const formAmt = safeNum($('entryAmount').value);
+  let tip = 'Tip: add category to track P&L by category.';
+  if(formAmt > 100000) tip = 'Large amount detected — consider adding proof/invoice number.';
+  else if(formAmt > 50000) tip = 'High-value entry — tag as "Capital" or "Investment" if applicable.';
   else {
-    // repeated category check
-    const cat = $('entryCategory').value;
+    const cat = $('entryCategory').value.trim();
     if(cat){
-      const recent = state.entries.filter(e=>e.category && e.category.toLowerCase()===cat.toLowerCase());
-      if(recent.length >= 3) tip = `You have ${recent.length} entries for "${cat}". Consider creating a recurring subscription/label.`;
-      else tip = `Tip: Tag receipts for "${cat}" to track P&L by category.`;
-    } else tip = 'Tip: Add category to track P&L automatically.';
+      const recent = state.entries.filter(e => e.category && e.category.toLowerCase() === cat.toLowerCase());
+      if(recent.length >= 3) tip = `You have ${recent.length} entries for "${cat}". Consider recurring label.`;
+      else tip = `Tip: tagging "${cat}" helps P&L reporting.`;
+    }
   }
   $('aiTip').textContent = tip;
 }
 
-// helpers
-function initDates(){
-  $('entryDate').value = (new Date()).toISOString().slice(0,10);
-}
+// escape html
+function escapeHtml(s){ if(s==null) return ''; return s.toString().replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
 
-// Escape just in case
-function safeNumber(x){ return Number(x)||0; }
-
-// Load + initial render
-loadState(); initDates(); renderAll();
-
-function renderAll(){ renderLedger(); renderDebts(); renderInventory(); renderCalendar(); showAiTip(); }
-
-// Simple remaining: allow clicking an entry in calendar to prefill forms (nice to have)
-document.querySelector('#calendarGrid').addEventListener('click', function(e){
-  const dayEl = e.target.closest('.day');
-  if(!dayEl) return;
-  const dayText = dayEl.querySelector('div')?.textContent;
-  if(!dayText || isNaN(Number(dayText))) return;
-  const monthTxt = $('monthLabel').textContent;
-  // try construct date
+// init
+function init(){
+  loadState();
+  if(!state.settings) state.settings = { monthOffset: 0 };
+  if(!state.entries) state.entries = [];
+  if(!state.debts) state.debts = [];
+  if(!state.inventor
