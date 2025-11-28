@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Book 7 - Working MVP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial; background:#f1f1f1; margin:0; padding:10px; }
+.screen { display:none; }
+.screen.active { display:block; }
+button { padding:10px; margin:5px 0; }
+input { padding:8px; width:100%; margin:5px 0; }
+.box { background:#fff; padding:10px; border-radius:6px; margin:10px 0; }
+</style>
+</head>
+
+<body>
+
+<div id="login" class="screen active">
+  <h2>Book 7 Login</h2>
+  <input id="user" placeholder="Business Name">
+  <button onclick="login()">Enter</button>
+</div>
+
+<div id="dashboard" class="screen">
+  <h2 id="welcome"></h2>
+
+  <div class="box">
+    <h3>Add Record</h3>
+    <input id="desc" placeholder="Description">
+    <input id="amount" type="number" placeholder="Amount">
+    <select id="type">
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+    <button onclick="addRecord()">Save</button>
+  </div>
+
+  <div class="box">
+    <h3>Balance</h3>
+    <p id="balance">0</p>
+  </div>
+
+  <div class="box">
+    <h3>Records</h3>
+    <ul id="list"></ul>
+  </div>
+
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+let records = JSON.parse(localStorage.getItem("book7data")) || [];
+
+function login(){
+  let user = document.getElementById("user").value;
+  if(!user) return alert("Enter business name");
+  document.getElementById("login").classList.remove("active");
+  document.getElementById("dashboard").classList.add("active");
+  document.getElementById("welcome").innerText = "Welcome to Book 7, " + user;
+  render();
+}
+
+function addRecord(){
+  let desc = document.getElementById("desc").value;
+  let amount = parseFloat(document.getElementById("amount").value);
+  let type = document.getElementById("type").value;
+  if(!desc || !amount) return;
+
+  records.push({desc, amount, type});
+  localStorage.setItem("book7data", JSON.stringify(records));
+  render();
+}
+
+function render(){
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+  let balance = 0;
+
+  records.forEach(r=>{
+    let li = document.createElement("li");
+    li.textContent = r.desc + " - " + r.type + ": " + r.amount;
+    list.appendChild(li);
+    balance += (r.type === "income" ? r.amount : -r.amount);
+  });
+
+  document.getElementById("balance").innerText = "Ksh " + balance;
+}
+
+function logout(){
+  location.reload();
+}
+</script>
+
+</body>
+</html>
