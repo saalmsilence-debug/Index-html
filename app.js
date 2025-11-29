@@ -6,7 +6,7 @@ $('searchBox').addEventListener('input', function () {
 
     list.innerHTML = '';
 
-    state.entries.slice().reverse().forEach((e, idx) => {
+    state.entries.slice().reverse().forEach((e) => {
 
         if (dateFilter && e.date !== dateFilter) return;
 
@@ -18,29 +18,27 @@ $('searchBox').addEventListener('input', function () {
 
         if (!match) return;
 
-        /* --- Build <li> element --- */
+        const realIndex = state.entries.indexOf(e); // <- FIXED INDEX
+
+        /* Build <li> */
         const li = document.createElement('li');
 
-        /* LEFT SIDE */
         const left = document.createElement('div');
         left.innerHTML = `
             <div style="font-weight:600">
                 ${escapeHtml(e.category || 'Untitled')}
-                <span class="pill ${e.type === 'income' ? 'income' : 'expense'}">
-                    ${e.type}
-                </span>
+                <span class="pill ${e.type === 'income' ? 'income' : 'expense'}">${e.type}</span>
             </div>
             <div class="muted">${e.date} — ${escapeHtml(e.note || '')}</div>
         `;
 
-        /* RIGHT SIDE */
         const right = document.createElement('div');
         right.style.textAlign = 'right';
         right.innerHTML = `
             <div style="font-weight:700">${money(e.amount)}</div>
             <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
-                <button data-i="${state.entries.length - 1 - idx}" class="editBtn">Edit</button>
-                <button data-i="${state.entries.length - 1 - idx}" class="delBtn">Delete</button>
+                <button data-i="${realIndex}" class="editBtn">Edit</button>
+                <button data-i="${realIndex}" class="delBtn">Delete</button>
             </div>
         `;
 
@@ -49,5 +47,5 @@ $('searchBox').addEventListener('input', function () {
         list.appendChild(li);
     });
 
-    attachButtons(); // VERY IMPORTANT → reuse your edit/delete handlers
+    attachButtons(); // keep edit/delete working
 });
