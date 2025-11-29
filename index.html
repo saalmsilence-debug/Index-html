@@ -1,336 +1,380 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Saalm Silence | Business Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Import Map for React and Firebase Modules -->
-    <script type="importmap">
-    {
-        "imports": {
-            "react": "https://esm.sh/react@18.2.0",
-            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-            "lucide-react": "https://esm.sh/lucide-react@0.263.1",
-            "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-            "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
-            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-        }
-    }
-    </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>BookPesa — Offline-first (Dexie) — Supabase Optional</title>
 
-    <!-- Babel for JSX compilation in browser -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/dexie@3/dist/dexie.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        
-        /* Smooth transitions */
-        .tab-content { animation: fadeIn 0.3s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Mobile safe areas */
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-        
-        /* Hide scrollbar for clean UI */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0F766E" />
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .no-scrollbar::-webkit-scrollbar { display:none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .tab-anim { animation: fadeIn .22s ease-out both; } @keyframes fadeIn { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
+    .install-btn { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.08); }
+  </style>
 </head>
-<body class="text-slate-800 h-screen overflow-hidden flex flex-col">
+<body class="bg-slate-50 min-h-screen text-slate-800">
+  <header class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-3 shadow-sm">
+    <div class="max-w-3xl mx-auto flex items-center gap-4">
+      <div class="rounded-lg bg-white/10 px-3 py-2 font-bold">BookPesa</div>
+      <div class="flex-1 text-sm opacity-90">Offline-first ledger • Optional cloud sync (Supabase)</div>
+      <div class="flex items-center gap-2">
+        <button id="downloadIconsBtn" class="text-xs px-2 py-1 rounded install-btn">Download Icons</button>
+        <button id="installBtn" class="text-xs px-3 py-1 rounded install-btn hidden">Install App</button>
+      </div>
+    </div>
+  </header>
 
-    <div id="root" class="h-full flex flex-col"></div>
+  <main class="max-w-3xl mx-auto p-4">
+    <!-- Quick Journal + Totals -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="md:col-span-2 bg-white rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-bold">Quick Journal</h2>
+          <div class="text-xs text-slate-400">Rapid entries</div>
+        </div>
+        <div class="flex gap-2">
+          <input id="quickAmount" type="number" placeholder="Amount (KES)" class="flex-1 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+          <input id="quickNote" type="text" placeholder="Note (optional)" class="px-3 py-2 rounded-lg border bg-slate-50 outline-none w-44" />
+          <button id="cashInBtn" class="px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold">Cash In</button>
+          <button id="cashOutBtn" class="px-3 py-2 rounded-lg bg-rose-500 text-white font-bold">Cash Out</button>
+        </div>
+      </div>
 
-    <script type="text/babel" data-type="module">
-        import React, { useState, useEffect } from 'react';
-        import { createRoot } from 'react-dom/client';
-        import { 
-            BookOpen, CreditCard, TrendingUp, Users, Calendar, 
-            LogOut, Plus, DollarSign, ArrowUpRight, ArrowDownLeft, 
-            Trash2, CheckCircle, Briefcase, Wallet, PieChart, Menu, X 
-        } from 'lucide-react';
-        
-        import { initializeApp } from 'firebase/app';
-        import { 
-            getAuth, signInAnonymously, signInWithCustomToken, 
-            onAuthStateChanged, signOut 
-        } from 'firebase/auth';
-        import { 
-            getFirestore, collection, addDoc, query, where, 
-            onSnapshot, deleteDoc, doc, updateDoc, orderBy, serverTimestamp 
-        } from 'firebase/firestore';
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <h3 class="font-bold mb-2">Totals</h3>
+        <div class="grid grid-cols-1 gap-2">
+          <div class="p-3 rounded-lg bg-slate-50">
+            <div class="text-xs text-slate-400">Revenue</div>
+            <div id="totalInc" class="text-lg font-bold text-emerald-600">Ksh0.00</div>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50">
+            <div class="text-xs text-slate-400">Expenses</div>
+            <div id="totalExp" class="text-lg font-bold text-rose-500">Ksh0.00</div>
+          </div>
+          <div class="p-3 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-500 text-white">
+            <div class="text-xs text-white/80">Net</div>
+            <div id="netTotal" class="text-lg font-bold">Ksh0.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // --- Firebase Init ---
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    <!-- Sync & Controls -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm mb-4">
+      <div class="flex flex-col md:flex-row gap-2 items-center">
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-slate-500">Filter date</label>
+          <input id="filterDate" type="date" class="px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+          <button id="clearFilter" class="text-xs px-3 py-2 rounded-lg border">Clear</button>
+        </div>
 
-        // --- 1. Auth Screen ---
-        const AuthScreen = ({ onLogin }) => {
-            const [isRegistering, setIsRegistering] = useState(false);
-            const [email, setEmail] = useState('');
-            const [password, setPassword] = useState('');
-            const [businessName, setBusinessName] = useState('');
-            const [loading, setLoading] = useState(false);
+        <div class="ml-auto flex items-center gap-2">
+          <button id="exportBtn" class="px-3 py-2 rounded-lg bg-slate-800 text-white text-sm">Export JSON</button>
+          <button id="exportCsvBtn" class="px-3 py-2 rounded-lg bg-slate-700 text-white text-sm">Export CSV</button>
+          <button id="importBtn" class="px-3 py-2 rounded-lg bg-slate-200 text-slate-800 text-sm">Import JSON</button>
+          <input id="fileInput" type="file" accept=".json" class="hidden" />
+          <button id="resetBtn" class="px-3 py-2 rounded-lg bg-red-500 text-white text-sm">Reset All</button>
+        </div>
+      </div>
 
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                setLoading(true);
-                // Simulate network delay for UX
-                setTimeout(() => {
-                    onLogin({ email, businessName: businessName || 'My Business' });
-                    setLoading(false);
-                }, 800);
-            };
+      <hr class="my-3" />
+      <div class="flex flex-col md:flex-row items-center gap-3">
+        <div>
+          <label class="text-xs text-slate-500">Cloud Sync (Supabase)</label>
+          <div class="text-xs text-slate-400">Optional. Off by default — enable to back up & sync across devices.</div>
+        </div>
 
-            return (
-                <div className="h-full w-full bg-gradient-to-br from-emerald-600 to-slate-900 flex items-center justify-center p-6">
-                    <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-                        <div className="p-8 text-center bg-emerald-50/50 border-b border-emerald-100">
-                            <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg rotate-3 hover:rotate-6 transition-transform">
-                                <Briefcase className="text-white w-8 h-8" />
-                            </div>
-                            <h1 className="text-2xl font-bold text-slate-800">Saalm Silence</h1>
-                            <p className="text-emerald-600 font-medium text-sm">Business Management Suite</p>
-                        </div>
-                        
-                        <form onSubmit={handleSubmit} className="p-8 space-y-4">
-                            {isRegistering && (
-                                <input 
-                                    required type="text" 
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition bg-slate-50"
-                                    placeholder="Business Name"
-                                    value={businessName} onChange={(e) => setBusinessName(e.target.value)}
-                                />
-                            )}
-                            <input 
-                                required type="text" 
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition bg-slate-50"
-                                placeholder="Email / ID"
-                                value={email} onChange={(e) => setEmail(e.target.value)}
-                            />
-                            <input 
-                                required type="password" 
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition bg-slate-50"
-                                placeholder="Password"
-                                value={password} onChange={(e) => setPassword(e.target.value)}
-                            />
+        <div class="ml-auto flex items-center gap-2">
+          <button id="enableSyncBtn" class="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm">Enable Cloud Sync</button>
+        </div>
+      </div>
+    </div>
 
-                            <button 
-                                type="submit" disabled={loading}
-                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-200 active:scale-95 transition-all"
-                            >
-                                {loading ? 'Accessing...' : (isRegistering ? 'Register Business' : 'Secure Login')}
-                            </button>
+    <!-- rest of the UI (Ledger, Debts, Inventory, Calendar/P&L) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- Ledger -->
+      <section class="bg-white p-4 rounded-2xl shadow-sm tab-anim">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold">General Ledger</h3>
+          <div class="text-xs text-slate-400">Add income or expense</div>
+        </div>
 
-                            <button 
-                                type="button"
-                                onClick={() => setIsRegistering(!isRegistering)}
-                                className="w-full text-center text-xs text-slate-400 hover:text-emerald-600 mt-4"
-                            >
-                                {isRegistering ? 'Back to Login' : 'Create New Business Account'}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            );
-        };
+        <form id="ledgerForm" class="space-y-2">
+          <div class="flex gap-2">
+            <select id="ledgerType" class="px-3 py-2 rounded-lg border bg-slate-50 outline-none">
+              <option value="income">Income (+)</option>
+              <option value="expense">Expense (-)</option>
+            </select>
+            <input id="ledgerAmount" type="number" step="0.01" placeholder="Amount" class="flex-1 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+          </div>
+          <div class="flex gap-2">
+            <input id="ledgerDesc" type="text" placeholder="Description" class="flex-1 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+            <input id="ledgerDate" type="date" class="px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+            <button type="submit" class="px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold">Add</button>
+          </div>
+        </form>
 
-        // --- 2. Ledger Tab ---
-        const Ledger = ({ userId }) => {
-            const [transactions, setTransactions] = useState([]);
-            const [type, setType] = useState('income');
-            const [amount, setAmount] = useState('');
-            const [desc, setDesc] = useState('');
+        <div class="mt-4 max-h-56 overflow-y-auto no-scrollbar space-y-2">
+          <div id="transactionsList" class="space-y-2"></div>
+        </div>
+      </section>
 
-            useEffect(() => {
-                if (!userId) return;
-                const q = query(collection(db, 'artifacts', appId, 'users', userId, 'transactions'), orderBy('createdAt', 'desc'));
-                const unsub = onSnapshot(q, (s) => setTransactions(s.docs.map(d => ({id: d.id, ...d.data()}))));
-                return () => unsub();
-            }, [userId]);
+      <!-- Debt Manager -->
+      <section class="bg-white p-4 rounded-2xl shadow-sm tab-anim">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold">Debt Manager</h3>
+          <div class="text-xs text-slate-400">Track owed & owing</div>
+        </div>
 
-            const handleAdd = async (e) => {
-                e.preventDefault();
-                if(!amount || !desc) return;
-                await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'transactions'), {
-                    type, amount: parseFloat(amount), description: desc, createdAt: serverTimestamp(), date: new Date().toISOString()
-                });
-                setAmount(''); setDesc('');
-            };
+        <form id="debtForm" class="space-y-2">
+          <div class="flex gap-2">
+            <input id="debtPerson" type="text" placeholder="Person / Business" class="flex-1 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+            <select id="debtType" class="px-3 py-2 rounded-lg border bg-slate-50 outline-none">
+              <option value="in">Collect (They owe you)</option>
+              <option value="out">You owe</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <input id="debtAmount" type="number" step="0.01" placeholder="Amount" class="flex-1 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+            <button class="px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold">Add Debt</button>
+          </div>
+        </form>
 
-            const deleteItem = async (id) => {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'transactions', id));
-            }
+        <div class="mt-4 max-h-56 overflow-y-auto no-scrollbar space-y-2">
+          <div id="debtsList" class="space-y-2"></div>
+        </div>
+      </section>
+    </div>
 
-            return (
-                <div className="tab-content h-full flex flex-col p-4 space-y-4">
-                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <BookOpen className="text-emerald-600 w-5 h-5" /> General Ledger
-                        </h2>
-                        <form onSubmit={handleAdd} className="flex flex-col gap-3">
-                            <div className="flex gap-2">
-                                <select value={type} onChange={e => setType(e.target.value)} className="bg-slate-50 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-emerald-500">
-                                    <option value="income">Income (+)</option>
-                                    <option value="expense">Expense (-)</option>
-                                </select>
-                                <input type="number" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} className="flex-1 bg-slate-50 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-emerald-500" />
-                            </div>
-                            <div className="flex gap-2">
-                                <input type="text" placeholder="Description" value={desc} onChange={e => setDesc(e.target.value)} className="flex-1 bg-slate-50 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-emerald-500" />
-                                <button className="bg-emerald-600 text-white px-4 rounded-lg font-medium text-sm shadow hover:bg-emerald-700">Add</button>
-                            </div>
-                        </form>
-                    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Inventory -->
+      <section class="bg-white p-4 rounded-2xl shadow-sm tab-anim">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold">Inventory</h3>
+          <div class="text-xs text-slate-400">Track stock</div>
+        </div>
 
-                    <div className="flex-1 overflow-y-auto no-scrollbar pb-20">
-                        <div className="space-y-2">
-                            {transactions.map(t => (
-                                <div key={t.id} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
-                                    <div>
-                                        <div className="font-medium text-slate-800 text-sm">{t.description}</div>
-                                        <div className="text-xs text-slate-400">{t.date ? t.date.split('T')[0] : 'Today'}</div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className={`font-bold text-sm ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-500'}`}>
-                                            {t.type === 'income' ? '+' : '-'}${t.amount}
-                                        </span>
-                                        <button onClick={() => deleteItem(t.id)} className="text-slate-300 hover:text-rose-500"><Trash2 size={16} /></button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+        <form id="inventoryForm" class="space-y-2">
+          <div class="flex gap-2">
+            <input id="itemName" type="text" placeholder="Item name" class="flex-1 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+            <input id="itemQty" type="number" min="0" placeholder="Qty" class="w-28 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+          </div>
+          <div class="flex gap-2">
+            <input id="itemPrice" type="number" step="0.01" placeholder="Unit price (optional)" class="flex-1 px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+            <button class="px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold">Add / Update</button>
+          </div>
+        </form>
 
-        // --- 3. Journal Tab (Small Transactions) ---
-        const Journal = ({ userId }) => {
-            const [amount, setAmount] = useState('');
-            const [note, setNote] = useState('');
+        <div class="mt-4 max-h-56 overflow-y-auto no-scrollbar">
+          <div id="inventoryList" class="space-y-2"></div>
+        </div>
+      </section>
 
-            const quickAdd = async (type) => {
-                if(!amount) return;
-                await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'transactions'), {
-                    type, amount: parseFloat(amount), description: note || (type === 'income' ? 'Cash Sale' : 'Petty Cash'), category: 'Journal', createdAt: serverTimestamp(), date: new Date().toISOString()
-                });
-                setAmount(''); setNote('');
-            };
+      <!-- Calendar / P&L -->
+      <section class="bg-white p-4 rounded-2xl shadow-sm tab-anim">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold">Profit & Loss & Calendar</h3>
+          <div class="text-xs text-slate-400">Filter & summary</div>
+        </div>
 
-            return (
-                <div className="tab-content h-full flex flex-col items-center justify-center p-6 space-y-6">
-                    <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border border-slate-100">
-                        <div className="mb-6 flex justify-center">
-                            <div className="bg-emerald-100 p-3 rounded-full">
-                                <CreditCard className="text-emerald-600 w-8 h-8" />
-                            </div>
-                        </div>
-                        <h2 className="text-xl font-bold text-slate-800 mb-1">Quick Journal</h2>
-                        <p className="text-slate-400 text-sm mb-6">Record small daily transactions</p>
+        <div class="mb-3">
+          <label class="text-xs text-slate-500">Show transactions on</label>
+          <input id="calendarDate" type="date" class="w-full px-3 py-2 rounded-lg border bg-slate-50 outline-none" />
+        </div>
 
-                        <div className="bg-slate-50 p-4 rounded-2xl mb-6 border border-slate-100">
-                            <div className="flex items-center justify-center text-4xl font-mono text-slate-700">
-                                <span className="text-2xl mr-1 text-slate-400">$</span>
-                                <input 
-                                    type="number" value={amount} onChange={e => setAmount(e.target.value)} 
-                                    className="bg-transparent w-32 text-center outline-none" placeholder="0"
-                                />
-                            </div>
-                            <input 
-                                type="text" value={note} onChange={e => setNote(e.target.value)}
-                                className="w-full text-center mt-2 bg-transparent text-sm text-slate-500 outline-none border-b border-transparent focus:border-emerald-300"
-                                placeholder="Add a note..."
-                            />
-                        </div>
+        <div class="space-y-3">
+          <div class="p-3 rounded-lg bg-slate-50">
+            <div class="text-xs text-slate-400">Revenue (all)</div>
+            <div id="plRevenue" class="text-lg font-bold text-emerald-600">Ksh0.00</div>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50">
+            <div class="text-xs text-slate-400">Expenses (all)</div>
+            <div id="plExpense" class="text-lg font-bold text-rose-500">Ksh0.00</div>
+          </div>
+          <div class="p-3 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-500 text-white">
+            <div class="text-xs text-white/80">Net (all)</div>
+            <div id="plNet" class="text-lg font-bold">Ksh0.00</div>
+          </div>
+        </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => quickAdd('income')} className="py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition-all text-white rounded-xl flex flex-col items-center justify-center gap-1 shadow-lg shadow-emerald-200">
-                                <ArrowUpRight size={24} />
-                                <span className="text-xs font-bold uppercase tracking-wider">Cash In</span>
-                            </button>
-                            <button onClick={() => quickAdd('expense')} className="py-4 bg-rose-500 hover:bg-rose-600 active:scale-95 transition-all text-white rounded-xl flex flex-col items-center justify-center gap-1 shadow-lg shadow-rose-200">
-                                <ArrowDownLeft size={24} />
-                                <span className="text-xs font-bold uppercase tracking-wider">Cash Out</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+        <div class="mt-4">
+          <div id="calendarList" class="max-h-48 overflow-y-auto no-scrollbar space-y-2"></div>
+        </div>
+      </section>
+    </div>
 
-        // --- 4. P&L Tab ---
-        const ProfitLoss = ({ userId }) => {
-            const [stats, setStats] = useState({ inc: 0, exp: 0, net: 0 });
-            useEffect(() => {
-                if(!userId) return;
-                const unsub = onSnapshot(query(collection(db, 'artifacts', appId, 'users', userId, 'transactions')), (s) => {
-                    let i = 0, e = 0;
-                    s.docs.forEach(d => d.data().type === 'income' ? i += d.data().amount : e += d.data().amount);
-                    setStats({ inc: i, exp: e, net: i - e });
-                });
-                return () => unsub();
-            }, [userId]);
+    <footer class="mt-6 text-center text-xs text-slate-400">
+      Offline-first (Dexie) + optional Supabase cloud sync. Export JSON/CSV to backup. Brand color: Deep Teal (#0F766E).
+    </footer>
+  </main>
 
-            return (
-                <div className="tab-content h-full p-6 space-y-6 overflow-y-auto">
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <TrendingUp className="text-emerald-600" /> Profit & Loss
-                    </h2>
-                    
-                    <div className="grid grid-cols-1 gap-4">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
-                            <div className="text-xs uppercase text-slate-400 font-bold tracking-wider mb-1">Total Revenue</div>
-                            <div className="text-3xl font-bold text-emerald-600">${stats.inc.toFixed(2)}</div>
-                        </div>
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-rose-500">
-                            <div className="text-xs uppercase text-slate-400 font-bold tracking-wider mb-1">Total Expenses</div>
-                            <div className="text-3xl font-bold text-rose-600">${stats.exp.toFixed(2)}</div>
-                        </div>
-                        <div className={`bg-gradient-to-br p-6 rounded-2xl shadow-lg text-white ${stats.net >= 0 ? 'from-emerald-600 to-teal-700' : 'from-rose-600 to-orange-700'}`}>
-                            <div className="text-xs uppercase text-white/70 font-bold tracking-wider mb-1">Net Profit</div>
-                            <div className="text-4xl font-bold">${stats.net.toFixed(2)}</div>
-                            <div className="mt-2 text-sm text-white/80">{stats.net >= 0 ? 'Profitable Status' : 'Loss Status'}</div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+  <script>
+  /*******************************************************
+   * client-side Dexie DB (same pattern as earlier)
+   *******************************************************/
+  const db = new Dexie("BookPesa_offline");
+  db.version(1).stores({
+    transactions: "++id,date,type,amount,description,createdAt",
+    debts: "++id,person,type,status,amount,createdAt",
+    inventory: "++id,name,qty,price",
+    meta: "key"
+  });
 
-        // --- 5. Debt Manager ---
-        const DebtManager = ({ userId }) => {
-            const [debts, setDebts] = useState([]);
-            const [form, setForm] = useState({ person: '', amount: '', type: 'in' });
+  (async () => {
+    if(!(await db.meta.get('createdAt'))) await db.meta.put({ key:'createdAt', value: new Date().toISOString() });
+  })();
 
-            useEffect(() => {
-                if(!userId) return;
-                const unsub = onSnapshot(query(collection(db, 'artifacts', appId, 'users', userId, 'debts'), orderBy('createdAt', 'desc')), 
-                    (s) => setDebts(s.docs.map(d => ({id:d.id, ...d.data()})))
-                );
-                return () => unsub();
-            }, [userId]);
+  const $ = s => document.querySelector(s);
+  const formatKES = v => { try { return new Intl.NumberFormat('en-KE',{ style:'currency', currency:'KES', maximumFractionDigits:2 }).format(Number(v||0)); } catch(e){ return 'Ksh'+Number(v||0).toFixed(2); } };
+  const todayISO = () => new Date().toISOString().slice(0,10);
+  const uid = () => Math.random().toString(36).slice(2,9);
 
-            const addDebt = async (e) => {
-                e.preventDefault();
-                if(!form.amount) return;
-                await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'debts'), { ...form, amount: parseFloat(form.amount), status: 'pending', createdAt: serverTimestamp() });
-                setForm({ person: '', amount: '', type: 'in' });
-            };
+  // Render logic (totals, transactions, debts, inventory, calendar)
+  async function renderTotals(){
+    const inc = (await db.transactions.where('type').equals('income').toArray()).reduce((s,t)=>s+Number(t.amount||0),0);
+    const exp = (await db.transactions.where('type').equals('expense').toArray()).reduce((s,t)=>s+Number(t.amount||0),0);
+    const net = inc - exp;
+    $('#totalInc').textContent = formatKES(inc);
+    $('#totalExp').textContent = formatKES(exp);
+    $('#netTotal').textContent = formatKES(net);
+    $('#plRevenue').textContent = formatKES(inc);
+    $('#plExpense').textContent = formatKES(exp);
+    $('#plNet').textContent = formatKES(net);
+  }
 
-            const toggle = async (id, s) => {
-                await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'debts', id), { status: s === 'paid' ? 'pending' : 'paid' });
-            };
+  async function renderTransactions(filterDate=null){
+    const container = $('#transactionsList'); container.innerHTML = '';
+    const items = filterDate ? await db.transactions.where('date').equals(filterDate).reverse().toArray()
+                             : await db.transactions.orderBy('createdAt').reverse().toArray();
+    if(!items.length){ container.innerHTML = '<div class="text-xs text-slate-400">No transactions yet</div>'; return; }
+    items.forEach(t=>{
+      const el = document.createElement('div');
+      el.className = 'flex items-center justify-between p-3 rounded-lg bg-slate-50 border';
+      el.innerHTML = `
+        <div>
+          <div class="font-medium text-sm">${(t.description|| (t.type==='income'?'Income':'Expense'))}</div>
+          <div class="text-xs text-slate-400">${t.date || (t.createdAt||'').slice(0,10)}</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="font-bold ${t.type==='income'?'text-emerald-600':'text-rose-500'}">${t.type==='income'?'+':'-'}${formatKES(Number(t.amount).toFixed(2)).replace(/^Ksh|^KES|^KES\s?/,'')}</div>
+          <button data-id="${t.id}" class="delTx text-xs text-slate-400 hover:text-rose-500">Delete</button>
+        </div>`;
+      container.appendChild(el);
+    });
 
-            return (
-                <div className="tab-content h-full p-4 flex flex-col">
-                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-4">
-                        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Wallet className="text-emerald-600 w-5 h-5"/> Debt Manager</h2>
-                        <div className="flex bg-slate-100 p-1 rounded-lg mb-3">
-                            <button onClick={() => setForm({...form, type: 'in'})} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition ${form.type === 'in' ? 'bg-white text-emerald-700 shadow' : 'text-slate-400'}`}>Debt IN (Collect)</button>
-                            <button onClick={() => setForm({...form, type: 'out'})} className={`flex-1 py-1.
+    container.querySelectorAll('.delTx').forEach(b => b.addEventListener('click', async e=>{
+      await db.transactions.delete(Number(e.target.dataset.id)); await refreshAll();
+    }));
+  }
+
+  async function renderDebts(){
+    const list = $('#debtsList'); list.innerHTML = '';
+    const items = await db.debts.orderBy('createdAt').reverse().toArray();
+    if(!items.length){ list.innerHTML = '<div class="text-xs text-slate-400">No debts recorded</div>'; return; }
+    items.forEach(d=>{
+      const el = document.createElement('div');
+      el.className = 'p-3 rounded-lg bg-slate-50 border flex items-center justify-between';
+      el.innerHTML = `
+        <div>
+          <div class="font-medium text-sm">${d.person}</div>
+          <div class="text-xs text-slate-400">${d.type==='in'?'They owe you':'You owe'}</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="font-bold ${d.type==='in'?'text-emerald-600':'text-rose-500'}">${formatKES(d.amount)}</div>
+          <button data-id="${d.id}" class="toggleDebt text-xs ${d.status==='paid'?'text-green-600':'text-slate-400'}">${d.status==='paid'?'Paid':'Mark Paid'}</button>
+          <button data-id="${d.id}" class="delDebt text-xs text-slate-400 hover:text-rose-500">Delete</button>
+        </div>`;
+      list.appendChild(el);
+    });
+
+    list.querySelectorAll('.toggleDebt').forEach(b => b.addEventListener('click', async e=>{
+      const id = Number(e.target.dataset.id);
+      const rec = await db.debts.get(id);
+      await db.debts.update(id, { status: rec.status === 'paid' ? 'pending' : 'paid' }); await refreshAll();
+    }));
+    list.querySelectorAll('.delDebt').forEach(b => b.addEventListener('click', async e=>{
+      await db.debts.delete(Number(e.target.dataset.id)); await refreshAll();
+    }));
+  }
+
+  async function renderInventory(){
+    const container = $('#inventoryList'); container.innerHTML = '';
+    const items = await db.inventory.orderBy('name').toArray();
+    if(!items.length){ container.innerHTML = '<div class="text-xs text-slate-400">No stock yet</div>'; return; }
+    items.forEach(it=>{
+      const el = document.createElement('div');
+      el.className = 'p-3 rounded-lg bg-slate-50 border flex items-center justify-between';
+      el.innerHTML = `
+        <div>
+          <div class="font-medium">${it.name}</div>
+          <div class="text-xs text-slate-400">Qty: ${it.qty} ${it.price? '• '+formatKES(it.price):''}</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <input data-id="${it.id}" data-role="qty" type="number" class="w-20 px-2 py-1 rounded border bg-white text-sm" value="${it.qty}" />
+          <button data-id="${it.id}" class="delItem text-xs text-slate-400 hover:text-rose-500">Delete</button>
+        </div>`;
+      container.appendChild(el);
+    });
+
+    container.querySelectorAll('input[data-role="qty"]').forEach(inp => inp.addEventListener('change', async e=>{
+      await db.inventory.update(Number(e.target.dataset.id), { qty: Number(e.target.value) || 0 }); await refreshAll();
+    }));
+    container.querySelectorAll('.delItem').forEach(b => b.addEventListener('click', async e=>{
+      await db.inventory.delete(Number(e.target.dataset.id)); await refreshAll();
+    }));
+  }
+
+  async function renderCalendarList(dateStr){
+    const container = $('#calendarList'); container.innerHTML = '';
+    if(!dateStr){ container.innerHTML = '<div class="text-xs text-slate-400">Select a date to view transactions</div>'; return; }
+    const items = await db.transactions.where('date').equals(dateStr).toArray();
+    if(!items.length){ container.innerHTML = '<div class="text-xs text-slate-400">No transactions on this date</div>'; return; }
+    items.forEach(t=>{
+      const el = document.createElement('div');
+      el.className = 'p-2 rounded border bg-slate-50 flex items-center justify-between';
+      el.innerHTML = `<div class="text-sm">${t.description || (t.type==='income'?'Income':'Expense')}</div>
+                      <div class="${t.type==='income'?'text-emerald-600 font-bold':'text-rose-500 font-bold'}">${t.type==='income'?'+':'-'}${formatKES(t.amount).replace(/^Ksh|^KES/,'')}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  /* Actions */
+  $('#cashInBtn').addEventListener('click', async ()=>{
+    const amt = Number($('#quickAmount').value || 0); if(!amt) return alert('Enter amount');
+    const note = $('#quickNote').value || 'Cash Sale';
+    await db.transactions.add({ date: todayISO(), type:'income', amount: amt, description: note, createdAt: new Date().toISOString() });
+    $('#quickAmount').value=''; $('#quickNote').value=''; await refreshAll();
+  });
+  $('#cashOutBtn').addEventListener('click', async ()=>{
+    const amt = Number($('#quickAmount').value || 0); if(!amt) return alert('Enter amount');
+    const note = $('#quickNote').value || 'Petty Cash';
+    await db.transactions.add({ date: todayISO(), type:'expense', amount: amt, description: note, createdAt: new Date().toISOString() });
+    $('#quickAmount').value=''; $('#quickNote').value=''; await refreshAll();
+  });
+
+  $('#ledgerForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const type = $('#ledgerType').value;
+    const amt = Number($('#ledgerAmount').value || 0); if(!amt) return alert('Enter amount');
+    const desc = $('#ledgerDesc').value || (type==='income'?'Income':'Expense');
+    const date = $('#ledgerDate').value || todayISO();
+    await db.transactions.add({ date, type, amount: amt, description: desc, createdAt: new Date().toISOString() });
+    $('#ledgerAmount').value=''; $('#ledgerDesc').value=''; $('#ledgerDate').value=''; await refreshAll();
+  });
+
+  $('#debtForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const person = $('#debtPerson').value || 'Unnamed';
+    const amount = Number($('#debtAmount').value || 0); if(!amount) return alert('Enter amount');
+    const type = $('#debtType').value;
+    await db.debts.add({ person, amount, type, status: 'pending', createdAt: new Date().toISOString() });
+    $('#debtPerson').value=''; $('#debtAmount').value=''; await refreshAll();
+  });
+
+  $('#inventoryForm').addEventList
