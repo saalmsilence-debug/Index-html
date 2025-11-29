@@ -1,482 +1,98 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Book7 — MVP</title>
-<style>
-  :root{
-    --bg:#061322; --card:rgba(10,20,30,0.6); --muted:#9aa6b2; --accent1:#06b6d4; --glass:rgba(255,255,255,0.03);
-    --accent2:linear-gradient(90deg,#06b6d4,#f5e00b);
-  }
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#e6eef6;background:linear-gradient(180deg,#061322 0%,#041226 100%);-webkit-font-smoothing:antialiased}
-  .wrap{max-width:980px;margin:12px auto;padding:12px;display:grid;gap:12px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  header h1{font-size:18px;margin:0}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-  .grid{display:grid;grid-template-columns:1fr 380px;gap:14px}
-  label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-  input,select,textarea,button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#e6eef6;padding:8px;border-radius:8px;width:100%;box-sizing:border-box}
-  .row{display:flex;gap:8px}
-  .small{width:120px}
-  button{cursor:pointer;padding:10px 12px}
-  .muted{color:var(--muted);font-size:13px}
-  .section-title{font-weight:600;margin-bottom:8px}
-  ul{list-style:none;padding:0;margin:0}
-  li{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center}
-  .pill{padding:6px 8px;border-radius:999px;font-size:12px}
-  .income{background:rgba(34,197,94,0.12);color:#9ff3b6}
-  .expense{background:rgba(239,68,68,0.07);color:#ffb3b3}
-  .tools{display:flex;gap:8px;align-items:center}
-  .wide{grid-column:1/-1}
-  .footer-muted{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
-  .flex-col{display:flex;flex-direction:column;gap:8px}
-  .controls{display:flex;gap:8px;flex-wrap:wrap}
-  .danger{background:transparent;border:1px solid rgba(255,0,0,0.12);color:#ff9b9b}
-  .green{background:transparent;border:1px solid rgba(0,255,120,0.08);color:#9ff3b6}
-  @media(max-width:920px){.grid{grid-template-columns:1fr;}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Book7 — v1.1</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-<div class="wrap">
-  <header>
-    <h1>Book7 — MVP</h1>
-    <div class="tools">
-      <button id="exportBtn">Export Backup</button>
-      <input id="importFile" type="file" accept=".json" style="display:none"/>
-      <button id="importBtn">Import Backup</button>
-      <button id="clearBtn" class="danger">Clear Data</button>
-    </div>
+<body class="app-bg">
+  <header class="topbar">
+    <div class="title">Book7 — v1.1</div>
+    <div id="userArea" class="muted"></div>
   </header>
 
-  <div class="grid">
-    <!-- LEFT - MAIN -->
-    <div class="card">
-      <div class="section-title">Add Ledger Entry</div>
-      <div class="flex-col">
-        <div class="row">
-          <select id="entryType" style="width:150px">
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-          <input id="entryAmount" type="number" placeholder="Amount" />
-          <input id="entryCategory" placeholder="Category (e.g., Sales)" />
-        </div>
-        <div class="row">
-          <input id="entryDate" type="date" class="small" />
-          <input id="entryNote" placeholder="Note" />
-          <button id="addEntryBtn">Add</button>
-        </div>
-      </div>
+  <nav class="tabs">
+    <button data-tab="ledger" class="active">Ledger</button>
+    <button data-tab="pl">Profit & Loss</button>
+    <button data-tab="inventory">Inventory</button>
+    <button data-tab="calendar">Calendar</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
 
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:12px 0">
-
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div class="muted">Profit &amp; Loss</div>
-          <div style="display:flex;gap:12px;margin-top:6px">
-            <div class="pill income" id="totalIncome">Income: 0.00</div>
-            <div class="pill expense" id="totalExpense">Expense: 0.00</div>
-            <div class="pill" id="netResult">Net: 0.00</div>
-          </div>
-        </div>
-        <div>
-          <label class="muted">Filter by date</label>
-          <input id="filterDate" type="date"/>
-        </div>
-      </div>
-
-      <div style="margin-top:12px">
-        <div class="section-title">Entries</div>
-        <ul id="entriesList"></ul>
-      </div>
-    <<div class="card">
-    <div class="section-title">Profit & Loss</div>
-    <div class="row" style="flex-wrap:wrap; gap:8px">
-
-        <div class="pill income" id="totalIncome">Income: 0.00</div>
-        <div class="pill expense" id="totalExpense">Expense: 0.00</div>
-        <div class="pill" id="netResult">Net: 0.00</div>
-
-        <!-- NEW Balance pill (correct spot) -->
-        <div class="pill balance" id="balancePill">Balance: 0.00</div>
-
-    </div>
-
-    <div style="margin-top:12px">
-        <label class="muted">Filter by date</label>
-        <input id="filterDate" type="date" />
-    </div>
-
-    <div style="margin-top:12px">
-        <div class="section-title">Entries</div>
-        <ul id="entriesList"></ul>
-    </div>
-</div>
-    <!-- RIGHT - SIDEBAR -->
-    <div class="card">
-      <div class="section-title">Calendar</div>
-      <div class="muted">Pick a date to see entries</div>
-      <input id="calendarDate" type="date" style="margin-top:8px"/>
-      <ul id="calendarList" style="margin-top:8px"></ul>
-
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:12px 0">
-
-      <div class="section-title">Debts</div>
+  <main class="container">
+    <!-- ledger -->
+    <section id="ledger" class="panel">
+      <h2>Add Ledger Entry</h2>
       <div class="row">
-        <input id="debtParty" placeholder="Party (name)" />
-        <input id="debtAmt" type="number" placeholder="Amount" class="small"/>
+        <select id="entryType"><option value="income">Income</option><option value="expense">Expense</option></select>
+        <input id="entryAmount" placeholder="Amount" inputmode="decimal" />
+        <input id="entryCategory" placeholder="Category (e.g. Sales)" />
       </div>
-      <div class="row" style="margin-top:8px">
-        <select id="debtType" class="small">
-          <option value="owed">Owed to you</option>
-          <option value="owing">You owe</option>
-        </select>
-        <button id="addDebtBtn">Add</button>
-      </div>
-      <ul id="debtsList" style="margin-top:8px"></ul>
-
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:12px 0">
-
-      <div class="section-title">Inventory</div>
       <div class="row">
-        <input id="itemName" placeholder="Item"/>
-        <input id="itemQty" type="number" placeholder="Qty" class="small"/>
+        <input id="entryNote" placeholder="Note or item name (for Inventory link)" />
+        <input id="entryDate" type="date" />
+        <button id="addEntryBtn">Add</button>
       </div>
-      <div class="row" style="margin-top:8px">
-        <input id="itemCost" type="number" placeholder="Unit cost" class="small"/>
-        <button id="addItemBtn">Add</button>
+
+      <div class="summary card" id="plSummary">
+        <div>Income: <span id="sumIncome">0.00</span></div>
+        <div>Expense: <span id="sumExpense">0.00</span></div>
+        <div>Net: <span id="sumNet">0.00</span></div>
       </div>
-      <div style="margin-top:8px" class="muted">Total inventory value: <span id="inventoryValue">0.00</span></div>
-      <ul id="inventoryList" style="margin-top:8px"></ul>
-    </div>
 
-    <!-- WIDE TOOLS -->
-    <div class="card wide">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div class="section-title">Tools</div>
-          <div class="muted">Use export to backup, import to restore. Data is saved in your browser automatically.</div>
-        </div>
-        <div class="controls">
-          <button id="saveBtn" class="green">Save Now</button>
-          <button id="downloadBtn">Download JSON</button>
-          <button id="helpBtn">How to use</button>
-        </div>
+      <h3>Entries</h3>
+      <div id="entriesList" class="list"></div>
+    </section>
+
+    <!-- profit & loss -->
+    <section id="pl" class="panel hidden">
+      <h2>Profit & Loss</h2>
+      <label>Filter from</label>
+      <div class="row">
+        <input id="plFrom" type="date" />
+        <input id="plTo" type="date" />
+        <button id="plFilter">Apply</button>
       </div>
-    </div>
+      <div class="card" id="plCard"></div>
+    </section>
 
-  </div>
+    <!-- inventory -->
+    <section id="inventory" class="panel hidden">
+      <h2>Inventory</h2>
+      <div class="row">
+        <input id="invItem" placeholder="Item name" />
+        <input id="invQty" placeholder="Qty" inputmode="numeric" />
+        <input id="invCost" placeholder="Unit cost" inputmode="decimal" />
+        <button id="addInvBtn">Add</button>
+      </div>
+      <div class="card">Total inventory value: <span id="invValue">0.00</span></div>
+      <div id="invList" class="list"></div>
+    </section>
 
-  <div class="footer-muted">Book7 MVP — data saved locally in your browser. Use Export to backup.</div>
-</div>
+    <!-- calendar -->
+    <section id="calendar" class="panel hidden">
+      <h2>Calendar</h2>
+      <input id="calDate" type="date" />
+      <div id="calEntries" class="list muted">Pick a date to see entries</div>
+    </section>
 
-<script>
-/* -------------------------
-   Minimal utils & state
-   ------------------------- */
-const $ = id => document.getElementById(id);
-const stateKey = 'book7_state_v1';
-let state = {
-  entries: [],
-  debts: [],
-  inventory: [],
-  settings: {}
-};
+    <!-- settings -->
+    <section id="settings" class="panel hidden">
+      <h2>Settings & Backup</h2>
+      <div class="row">
+        <button id="exportBtn">Export JSON</button>
+        <input id="importFile" type="file" accept="application/json" />
+      </div>
+      <div class="row">
+        <button id="logoutBtn">Logout</button>
+        <button id="togglePremium">Toggle Premium (simulate)</button>
+      </div>
+      <div class="muted">Current user: <span id="currentUserName"></span></div>
+    </section>
 
-function saveState(){
-  try{
-    localStorage.setItem(stateKey, JSON.stringify(state));
-    console.log('saved state', state);
-  }catch(e){
-    console.error('save failed',e);
-  }
-}
+  </main>
 
-function loadState(){
-  try{
-    const raw = localStorage.getItem(stateKey);
-    if(raw){
-      state = JSON.parse(raw);
-    }
-  }catch(e){
-    console.error('load failed',e);
-  }
-}
-
-/* -------------------------
-   Render functions
-   ------------------------- */
-
-function money(n){
-  return Number(n||0).toFixed(2);
-}
-
-function computeTotals(){
-  const income = state.entries.filter(e => e.type==='income').reduce((s,e)=> s + Number(e.amount),0);
-  const expense = state.entries.filter(e => e.type==='expense').reduce((s,e)=> s + Number(e.amount),0);
-  $('totalIncome').textContent = 'Income: ' + money(income);
-  $('totalExpense').textContent = 'Expense: ' + money(expense);
-  $('netResult').textContent = 'Net: ' + money(income - expense);
-}
-
-function renderEntries(filterDate){
-  const list = $('entriesList');
-  list.innerHTML = '';
-  const rows = state.entries.slice().reverse();
-  rows.forEach((e, idx) => {
-    if(filterDate && e.date !== filterDate) return;
-    const li = document.createElement('li');
-    const left = document.createElement('div');
-    left.style.flex='1';
-    left.innerHTML = `<div style="font-weight:600">${escapeHtml(e.category||'Untitled')} <span class="pill ${e.type==='income'?'income':'expense'}">${escapeHtml(e.type)}</span></div>
-                      <div class="muted">${e.date || ''} — ${escapeHtml(e.note||'')}</div>`;
-    const right = document.createElement('div');
-    right.style.textAlign='right';
-    right.innerHTML = `<div style="font-weight:700">${money(e.amount)}</div>
-                       <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
-                         <button data-i="${state.entries.length - 1 - idx}" class="editBtn">Edit</button>
-                         <button data-i="${state.entries.length - 1 - idx}" class="delBtn">Delete</button>
-                       </div>`;
-    li.appendChild(left);
-    li.appendChild(right);
-    list.appendChild(li);
-  });
-  computeTotals();
-}
-
-function renderDebts(){
-  const list = $('debtsList');
-  list.innerHTML = '';
-  state.debts.slice().forEach((d,i)=>{
-    const li = document.createElement('li');
-    li.innerHTML = `<div><strong>${escapeHtml(d.party)}</strong><div class="muted">${escapeHtml(d.type)} • ${d.date}</div></div>
-                    <div style="text-align:right"><div>${money(d.amount)}</div>
-                    <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
-                      <button data-i="${i}" class="togglePaid">${d.paid? 'Unmark' : 'Mark Paid'}</button>
-                      <button data-i="${i}" class="delDebt">Delete</button>
-                    </div></div>`;
-    if(d.paid) li.style.opacity = '0.6';
-    list.appendChild(li);
-  });
-}
-
-function renderInventory(){
-  const list = $('inventoryList');
-  list.innerHTML = '';
-  let total = 0;
-  state.inventory.slice().forEach((it,i)=>{
-    const value = (Number(it.qty) || 0) * (Number(it.cost) || 0);
-    total += value;
-    const li = document.createElement('li');
-    li.innerHTML = `<div><strong>${escapeHtml(it.name)}</strong><div class="muted">Qty: ${it.qty} • Unit: ${money(it.cost)}</div></div>
-                    <div style="text-align:right"><div>${money(value)}</div>
-                      <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
-                        <button data-i="${i}" class="editItem">Edit</button>
-                        <button data-i="${i}" class="delItem">Delete</button>
-                      </div></div>`;
-    list.appendChild(li);
-  });
-  $('inventoryValue').textContent = money(total);
-}
-
-/* -------------------------
-   Actions & Event wiring
-   ------------------------- */
-
-function addEntryFromForm(){
-  const type = $('entryType').value;
-  const amount = Number($('entryAmount').value || 0);
-  const category = $('entryCategory').value.trim();
-  const date = $('entryDate').value || (new Date()).toISOString().slice(0,10);
-  const note = $('entryNote').value.trim();
-  if(!amount || amount <= 0){ alert('Enter a valid amount'); return; }
-  const ent = { type, amount: money(amount), category, date, note, created: Date.now() };
-  state.entries.push(ent);
-  saveState();
-  renderEntries($('filterDate').value || null);
-  renderCalendarList($('calendarDate').value || null);
-  clearEntryForm();
-}
-
-function clearEntryForm(){
-  $('entryAmount').value = '';
-  $('entryCategory').value = '';
-  $('entryNote').value = '';
-  // keep date to current selection
-}
-
-function addDebt(){
-  const party = $('debtParty').value.trim();
-  const amt = Number($('debtAmt').value||0);
-  const type = $('debtType').value;
-  if(!party || !amt || amt<=0){ alert('Please give a party name and valid amount'); return; }
-  state.debts.push({ party, amount: money(amt), type, date: (new Date()).toISOString().slice(0,10), paid:false });
-  saveState();
-  renderDebts();
-  $('debtParty').value=''; $('debtAmt').value='';
-}
-
-function addItem(){
-  const name = $('itemName').value.trim();
-  const qty = Number($('itemQty').value||0);
-  const cost = Number($('itemCost').value||0);
-  if(!name || qty<=0 || cost<0){ alert('Provide item, qty and a valid cost'); return; }
-  state.inventory.push({ name, qty, cost: money(cost), added: Date.now() });
-  saveState();
-  renderInventory();
-  $('itemName').value=''; $('itemQty').value=''; $('itemCost').value='';
-}
-
-/* calendar list */
-function renderCalendarList(date){
-  const list = $('calendarList');
-  list.innerHTML = '';
-  if(!date) return;
-  const found = state.entries.filter(e => e.date === date);
-  if(found.length === 0) { list.innerHTML = '<li class="muted">No entries for this date</li>'; return; }
-  found.forEach(e=>{
-    const li = document.createElement('li');
-    li.innerHTML = `<div>${escapeHtml(e.category||'')} <span class="pill ${e.type==='income'?'income':'expense'}">${e.type}</span><div class="muted">${escapeHtml(e.note||'')}</div></div>
-                    <div style="text-align:right">${money(e.amount)}</div>`;
-    list.appendChild(li);
-  });
-}
-
-/* export/import */
-function exportBackup(){
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'book7-backup-'+(new Date()).toISOString().slice(0,10)+'.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-function importBackup(file){
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try{
-      const data = JSON.parse(e.target.result);
-      if(data && typeof data === 'object'){
-        state = data;
-        saveState();
-        renderAll();
-        alert('Import successful');
-      }else alert('File seems invalid');
-    }catch(err){ alert('Import failed: ' + err.message); }
-  };
-  reader.readAsText(file);
-}
-
-/* helpers */
-function escapeHtml(s){ if(s==null) return ''; return s.toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-/* -------------------------
-   Wiring DOM events
-   ------------------------- */
-document.addEventListener('click', function(e){
-  if(e.target && e.target.id === 'addEntryBtn'){ addEntryFromForm(); return; }
-  if(e.target && e.target.id === 'addDebtBtn'){ addDebt(); return; }
-  if(e.target && e.target.id === 'addItemBtn'){ addItem(); return; }
-  if(e.target && e.target.id === 'saveBtn'){ saveState(); alert('Saved'); return; }
-  if(e.target && e.target.id === 'downloadBtn'){ exportBackup(); return; }
-  if(e.target && e.target.id === 'helpBtn'){ alert('Add entries, debts, inventory. Use Export to download a JSON backup. Data stored locally in your browser.'); return; }
-  if(e.target && e.target.id === 'importBtn'){ $('importFile').click(); return; }
-  if(e.target && e.target.id === 'exportBtn'){ exportBackup(); return; }
-  if(e.target && e.target.id === 'clearBtn'){
-    if(confirm('Clear all data? This cannot be undone.')){ state = { entries:[], debts:[], inventory:[], settings:{} }; saveState(); renderAll(); }
-    return;
-  }
-
-  // Delegated buttons inside lists
-  if(e.target && e.target.classList.contains('delBtn')){
-    const i = Number(e.target.dataset.i);
-    if(confirm('Delete this entry?')) state.entries.splice(i,1), saveState(), renderEntries($('filterDate').value||null), renderCalendarList($('calendarDate').value||null);
-    return;
-  }
-  if(e.target && e.target.classList.contains('editBtn')){
-    const i = Number(e.target.dataset.i);
-    const ent = state.entries[i];
-    if(!ent) return;
-    // quick edit: prefill form and remove original
-    $('entryType').value = ent.type;
-    $('entryAmount').value = ent.amount;
-    $('entryCategory').value = ent.category;
-    $('entryDate').value = ent.date;
-    $('entryNote').value = ent.note;
-    state.entries.splice(i,1);
-    saveState();
-    renderEntries($('filterDate').value||null);
-    return;
-  }
-  if(e.target && e.target.classList.contains('delDebt')){
-    const i = Number(e.target.dataset.i);
-    if(confirm('Delete this debt?')) state.debts.splice(i,1), saveState(), renderDebts();
-    return;
-  }
-  if(e.target && e.target.classList.contains('togglePaid')){
-    const i = Number(e.target.dataset.i);
-    state.debts[i].paid = !state.debts[i].paid; saveState(); renderDebts(); return;
-  }
-  if(e.target && e.target.classList.contains('delItem')){
-    const i = Number(e.target.dataset.i);
-    if(confirm('Delete this inventory item?')) state.inventory.splice(i,1), saveState(), renderInventory();
-    return;
-  }
-  if(e.target && e.target.classList.contains('editItem')){
-    const i = Number(e.target.dataset.i);
-    const it = state.inventory[i];
-    if(!it) return;
-    $('itemName').value = it.name;
-    $('itemQty').value = it.qty;
-    $('itemCost').value = it.cost;
-    state.inventory.splice(i,1);
-    saveState();
-    renderInventory();
-    return;
-  }
-});
-
-// file import
-$('importFile').addEventListener('change', function(e){
-  const f = e.target.files[0];
-  if(f) importBackup(f);
-  e.target.value = '';
-});
-
-// filter by date
-$('filterDate').addEventListener('change', function(e){
-  renderEntries(e.target.value || null);
-});
-
-// calendar view date change
-$('calendarDate').addEventListener('change', function(e){
-  renderCalendarList(e.target.value || null);
-});
-
-// init load & render
-function renderAll(){
-  renderEntries($('filterDate').value || null);
-  renderDebts();
-  renderInventory();
-  renderCalendarList($('calendarDate').value || null);
-  computeTotals();
-}
-
-function init(){
-  loadState();
-  // ensure arrays exist (in case of older imports)
-  if(!state.entries) state.entries = [];
-  if(!state.debts) state.debts = [];
-  if(!state.inventory) state.inventory = [];
-  renderAll();
-  // auto-save whenever state changes frequently: simple throttled interval
-  setInterval(saveState, 5000);
-}
-
-init();
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
