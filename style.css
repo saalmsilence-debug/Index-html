@@ -1,17 +1,43 @@
 css/* ---- MOBILE OPTIMIZATION PACK ---- */
 @media(max-width: 600px) {
-  
+
   .wrap { padding: 8px; }
 
-  header { 
-    flex-direction: column; 
+  header {
+    flex-direction: column;
     gap: 8px;
     align-items: stretch;
   }
 
   header .tools {
     flex-wrap: wrap;
-    } /* end of media query */;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  input, select {
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  .small {
+    width: 100% !important;
   }
 
   .controls {
@@ -33,10 +59,5 @@ css/* ---- MOBILE OPTIMIZATION PACK ---- */
   ul li div {
     width: 100%;
   }
-
-}input, select {
-    padding: 10px;
-    font-size: 15px;
-}
 
 } /* <-- close the mobile optimization pack */
