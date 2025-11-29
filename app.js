@@ -1,54 +1,61 @@
-$('searchBox').addEventListener('input', function () {
+// Book7 v1.1 app.js — works with login.html
+(function(){
+  const current = localStorage.getItem('book7_current');
+  if(!current){ window.location='login.html'; return; }
 
-    const q = this.value.toLowerCase();
-    const dateFilter = $('filterDate').value || null;
-    const list = $('entriesList');
+  // Load users
+  function users(){ return JSON.parse(localStorage.getItem('book7_users')||'{}'); }
+  function saveUsers(u){ localStorage.setItem('book7_users', JSON.stringify(u)); }
+  const u = users();
+  if(!u[current]){ alert('User not found — please login again'); localStorage.removeItem('book7_current'); window.location='login.html'; return; }
+  const user = u[current];
 
-    list.innerHTML = '';
+  // DOM refs
+  const userArea = document.getElementById('userArea');
+  const currentUserName = document.getElementById('currentUserName');
+  userArea.textContent = current + (user.premium? ' (Premium)':'');
+  currentUserName.textContent = current;
 
-    state.entries.slice().reverse().forEach((e) => {
+  // tabs
+  document.querySelectorAll('.tabs button').forEach(b=>{
+    b.onclick = ()=>{ document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden')); document.getElementById(b.dataset.tab).classList.remove('hidden'); }
+  });
 
-        if (dateFilter && e.date !== dateFilter) return;
+  // elements
+  const entryType = document.getElementById('entryType');
+  const entryAmount = document.getElementById('entryAmount');
+  const entryCategory = document.getElementById('entryCategory');
+  const entryNote = document.getElementById('entryNote');
+  const entryDate = document.getElementById('entryDate');
+  const addEntryBtn = document.getElementById('addEntryBtn');
+  const entriesList = document.getElementById('entriesList');
+  const sumIncome = document.getElementById('sumIncome');
+  const sumExpense = document.getElementById('sumExpense');
+  const sumNet = document.getElementById('sumNet');
 
-        const match =
-            (e.category || '').toLowerCase().includes(q) ||
-            (e.note || '').toLowerCase().includes(q) ||
-            (e.type || '').toLowerCase().includes(q) ||
-            String(e.amount).includes(q);
+  // inventory
+  const invItem = document.getElementById('invItem');
+  const invQty = document.getElementById('invQty');
+  const invCost = document.getElementById('invCost');
+  const addInvBtn = document.getElementById('addInvBtn');
+  const invList = document.getElementById('invList');
+  const invValue = document.getElementById('invValue');
 
-        if (!match) return;
+  // calendar
+  const calDate = document.getElementById('calDate');
+  const calEntries = document.getElementById('calEntries');
 
-        const realIndex = state.entries.indexOf(e); // <— FIXED INDEX
+  // settings
+  const exportBtn = document.getElementById('exportBtn');
+  const importFile = document.getElementById('importFile');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const togglePremium = document.getElementById('togglePremium');
 
-        /* Build <li> */
-        const li = document.createElement('li');
+  // P&L
+  const plFrom = document.getElementById('plFrom');
+  const plTo = document.getElementById('plTo');
+  const plFilter = document.getElementById('plFilter');
+  const plCard = document.getElementById('plCard');
 
-        /* LEFT SIDE */
-        const left = document.createElement('div');
-        left.innerHTML = `
-            <div style="font-weight:600">
-                ${escapeHtml(e.category || 'Untitled')}
-                <span class="pill ${e.type === 'income' ? 'income' : 'expense'}">${e.type}</span>
-            </div>
-            <div class="muted">${e.date} — ${escapeHtml(e.note || '')}</div>
-        `;
-
-        /* RIGHT SIDE */
-        const right = document.createElement('div');
-        right.style.textAlign = 'right';
-        right.innerHTML = `
-            <div style="font-weight:700">${money(e.amount)}</div>
-            <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
-                <button data-i="${realIndex}" class="editBtn">Edit</button>
-                <button data-i="${realIndex}" class="delBtn">Delete</button>
-            </div>
-        `;
-
-        li.appendChild(left);
-        li.appendChild(right);
-        list.appendChild(li);
-
-    });
-
-    attachButtons(); // keep edit/delete working
-});
+  // helpers
+  function save(){ u[current] = user; 
