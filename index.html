@@ -1,467 +1,336 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-              <style>
-  /* GLOBAL BIGGER BUTTONS STYLE */
-  button, 
-  input[type="submit"], 
-  input[type="button"], 
-  input[type="reset"],
-  .btn,
-  [role="button"] {
-      padding: 16px 32px !important; /* Much larger click area */
-      font-size: 1.25rem !important; /* Larger text (approx 20px) */
-      font-weight: bold;
-      border-radius: 8px;            /* Softer corners */
-      min-height: 55px;              /* Minimum height for easy tapping */
-      margin: 8px 4px;               /* Space them out */
-      cursor: pointer;
-      touch-action: manipulation;    /* Improves touch response on mobile */
-  }
-
-  /* Specific fix for the top Navigation links if they are <a> tags */
-  nav a, 
-  .nav-link {
-      display: inline-block;
-      padding: 14px 24px !important;
-      font-size: 1.1rem !important;
-      text-decoration: none;
-      border: 1px solid #ccc; /* Optional: adds definition */
-      background-color: #f0f0f0; /* Optional: makes them look like buttons */
-      margin: 4px;
-      border-radius: 6px;
-  }
-
-  /* Hover effect to make them feel responsive */
-  button:hover, 
-  input[type="submit"]:hover,
-  nav a:hover {
-      filter: brightness(90%);
-      transform: translateY(-1px);
-  }
-</style>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Book7 — v2.0 (Single-file MVP)</title>
-<style>
-  :root{
-    --bg:#071226; --panel:#0c2433; --muted:#9fb3c3; --accent:#1f6f8b; --glass: rgba(255,255,255,0.03);
-    --card-radius:14px; --gap:14px; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;background:linear-gradient(180deg,#041425 0%, #081827 55%);color:#e6f2f6;padding:20px}
-  header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
-  header h1{font-size:20px;margin:0}
-  nav{display:flex;gap:8px;flex-wrap:wrap}
-  .tab{padding:8px 12px;border-radius:10px;background:var(--panel);cursor:pointer;opacity:.85}
-  .tab.active{box-shadow:0 6px 20px rgba(0,0,0,.5);transform:translateY(-2px)}
-  main{display:grid;grid-template-columns:1fr;gap:18px}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:var(--card-radius);box-shadow:0 6px 18px rgba(0,0,0,.45)}
-  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  input,select,button{padding:10px;border-radius:10px;border:0;background:var(--glass);color:#e6f2f6;min-width:120px}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .totals{display:flex;gap:12px;padding:10px;border-radius:10px;background:rgba(0,0,0,0.2);align-items:center}
-  .totals b{display:inline-block;min-width:100px}
-  #entriesList .entry-row, #inventoryList .inv-row{display:flex;gap:8px;align-items:center;padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(0,0,0,0.12);font-size:14px}
-  .entry-row span{flex:1;min-width:60px}
-  .small{font-size:13px;color:var(--muted)}
-  .muted{color:var(--muted)}
-  footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
-  .right{margin-left:auto}
-  .danger{background:rgba(200,40,40,0.12);color:#ffbdbd}
-  .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02)}
-  @media(min-width:900px){
-    main{grid-template-columns: 1fr 420px}
-    #rightColumn{position:sticky;top:20px}
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Saalm Silence | Business Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Import Map for React and Firebase Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "lucide-react": "https://esm.sh/lucide-react@0.263.1",
+            "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+            "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
+        }
+    }
+    </script>
+
+    <!-- Babel for JSX compilation in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        
+        /* Smooth transitions */
+        .tab-content { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Mobile safe areas */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body>
-<header>
-  <h1>Book7 — v2.0</h1>
-  <nav id="tabs" aria-label="Main tabs">
-    <div class="tab active" data-tab="ledger">Ledger</div>
-    <div class="tab" data-tab="pl">Profit & Loss</div>
-    <div class="tab" data-tab="inventory">Inventory</div>
-    <div class="tab" data-tab="calendar">Calendar</div>
-    <div class="tab" data-tab="settings">Settings</div>
-  </nav>
-</header>
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col">
 
-<main>
-  <!-- LEFT: main panels -->
-  <section id="leftColumn">
-    <!-- Ledger -->
-    <div id="panel-ledger" class="card panel">
-      <h2>Add Ledger Entry</h2>
-      <div class="controls">
-        <div style="min-width:140px">
-          <label>Type</label>
-          <select id="typeInput"><option>Income</option><option>Expense</option></select>
-        </div>
-        <div style="flex:1">
-          <label>Amount</label>
-          <input id="amountInput" type="number" step="0.01" placeholder="0.00" />
-        </div>
-        <div style="min-width:160px">
-          <label>Category</label>
-          <input id="categoryInput" placeholder="Sales, Rent, Supplies..." />
-        </div>
-        <div style="min-width:180px">
-          <label>Description</label>
-          <input id="descriptionInput" placeholder="Optional note" />
-        </div>
-        <div style="min-width:150px">
-          <label>Date</label>
-          <input id="dateInput" type="date" />
-        </div>
-      </div>
-      <div class="row" style="margin-bottom:12px">
-        <button id="addBtn" class="pill">Add entry</button>
-        <button id="clearFields" class="pill">Clear fields</button>
-        <div class="right small muted">Entries stored locally in your browser</div>
-      </div>
+    <div id="root" class="h-full flex flex-col"></div>
 
-      <div class="totals">
-        <div>Income: <b id="incomeTotal">0.00</b></div>
-        <div>Expense: <b id="expenseTotal">0.00</b></div>
-        <div>Net: <b id="netTotal">0.00</b></div>
-      </div>
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { 
+            BookOpen, CreditCard, TrendingUp, Users, Calendar, 
+            LogOut, Plus, DollarSign, ArrowUpRight, ArrowDownLeft, 
+            Trash2, CheckCircle, Briefcase, Wallet, PieChart, Menu, X 
+        } from 'lucide-react';
+        
+        import { initializeApp } from 'firebase/app';
+        import { 
+            getAuth, signInAnonymously, signInWithCustomToken, 
+            onAuthStateChanged, signOut 
+        } from 'firebase/auth';
+        import { 
+            getFirestore, collection, addDoc, query, where, 
+            onSnapshot, deleteDoc, doc, updateDoc, orderBy, serverTimestamp 
+        } from 'firebase/firestore';
 
-      <h3 style="margin-top:14px">Entries</h3>
-      <div id="entriesList"></div>
-    </div>
+        // --- Firebase Init ---
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-    <!-- Profit & Loss -->
-    <div id="panel-pl" class="card panel" style="margin-top:18px;display:none">
-      <h2>Profit & Loss</h2>
-      <div class="controls">
-        <div><label>From</label><input id="plFrom" type="date" /></div>
-        <div><label>To</label><input id="plTo" type="date" /></div>
-        <div style="align-self:end"><button id="applyFilter" class="pill">Apply</button></div>
-      </div>
+        // --- 1. Auth Screen ---
+        const AuthScreen = ({ onLogin }) => {
+            const [isRegistering, setIsRegistering] = useState(false);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [businessName, setBusinessName] = useState('');
+            const [loading, setLoading] = useState(false);
 
-      <div class="totals" style="margin-bottom:12px">
-        <div>Income: <b id="plIncome">0.00</b></div>
-        <div>Expense: <b id="plExpense">0.00</b></div>
-        <div>Net: <b id="plNet">0.00</b></div>
-      </div>
-      <div id="plList" class="small muted">No results yet.</div>
-    </div>
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setLoading(true);
+                // Simulate network delay for UX
+                setTimeout(() => {
+                    onLogin({ email, businessName: businessName || 'My Business' });
+                    setLoading(false);
+                }, 800);
+            };
 
-    <!-- Inventory -->
-    <div id="panel-inventory" class="card panel" style="margin-top:18px;display:none">
-      <h2>Inventory</h2>
-      <div class="controls">
-        <div><label>Item</label><input id="invName" placeholder="Item name" /></div>
-        <div><label>Qty</label><input id="invQty" type="number" step="1" /></div>
-        <div><label>Unit price</label><input id="invPrice" type="number" step="0.01" /></div>
-        <div style="align-self:end"><button id="invAdd" class="pill">Add</button></div>
-      </div>
-      <h3>Total inventory value: <span id="invTotal">0.00</span></h3>
-      <div id="inventoryList"></div>
-    </div>
+            return (
+                <div className="h-full w-full bg-gradient-to-br from-emerald-600 to-slate-900 flex items-center justify-center p-6">
+                    <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+                        <div className="p-8 text-center bg-emerald-50/50 border-b border-emerald-100">
+                            <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg rotate-3 hover:rotate-6 transition-transform">
+                                <Briefcase className="text-white w-8 h-8" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-slate-800">Saalm Silence</h1>
+                            <p className="text-emerald-600 font-medium text-sm">Business Management Suite</p>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="p-8 space-y-4">
+                            {isRegistering && (
+                                <input 
+                                    required type="text" 
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition bg-slate-50"
+                                    placeholder="Business Name"
+                                    value={businessName} onChange={(e) => setBusinessName(e.target.value)}
+                                />
+                            )}
+                            <input 
+                                required type="text" 
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition bg-slate-50"
+                                placeholder="Email / ID"
+                                value={email} onChange={(e) => setEmail(e.target.value)}
+                            />
+                            <input 
+                                required type="password" 
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition bg-slate-50"
+                                placeholder="Password"
+                                value={password} onChange={(e) => setPassword(e.target.value)}
+                            />
 
-    <!-- Calendar -->
-    <div id="panel-calendar" class="card panel" style="margin-top:18px;display:none">
-      <h2>Calendar</h2>
-      <div class="controls">
-        <div><label>Pick a date</label><input id="calDate" type="date" /></div>
-        <div style="align-self:end"><button id="calShow" class="pill">Show entries</button></div>
-      </div>
-      <div id="calendarList" class="small muted">Select a date and click Show entries.</div>
-    </div>
+                            <button 
+                                type="submit" disabled={loading}
+                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-200 active:scale-95 transition-all"
+                            >
+                                {loading ? 'Accessing...' : (isRegistering ? 'Register Business' : 'Secure Login')}
+                            </button>
 
-    <!-- Settings -->
-    <div id="panel-settings" class="card panel" style="margin-top:18px;display:none">
-      <h2>Settings & Backup</h2>
-      <div class="controls">
-        <div><button id="exportJson" class="pill">Export JSON</button></div>
-        <div><label>Import (paste JSON)</label><input id="importJson" placeholder='{"entries":...}' /></div>
-        <div style="align-self:end"><button id="importBtn" class="pill">Import</button></div>
-      </div>
-      <div style="margin-top:12px" class="small muted">
-        <button id="clearAll" class="pill danger">Clear ALL data</button>
-        <div style="margin-top:8px">Current user: <span id="currentUser" class="muted">local</span></div>
-      </div>
-    </div>
-  </section>
+                            <button 
+                                type="button"
+                                onClick={() => setIsRegistering(!isRegistering)}
+                                className="w-full text-center text-xs text-slate-400 hover:text-emerald-600 mt-4"
+                            >
+                                {isRegistering ? 'Back to Login' : 'Create New Business Account'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
 
-  <!-- RIGHT: reference panels -->
-  <aside id="rightColumn">
-    <div class="card">
-      <h3>Quick tips</h3>
-      <ul class="small muted">
-        <li>Use the Add button to save ledger entries (Income/Expense).</li>
-        <li>Everything is saved in your browser's localStorage.</li>
-        <li>Export JSON to backup or move to another device.</li>
-      </ul>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <h3>Shortcuts</h3>
-      <div class="small muted">
-        <div><b>Ctrl+S</b> - export JSON</div>
-        <div><b>Ctrl+L</b> - clear fields</div>
-      </div>
-    </div>
-  </aside>
-</main>
+        // --- 2. Ledger Tab ---
+        const Ledger = ({ userId }) => {
+            const [transactions, setTransactions] = useState([]);
+            const [type, setType] = useState('income');
+            const [amount, setAmount] = useState('');
+            const [desc, setDesc] = useState('');
 
-<footer>Book7 — single-file MVP • Works on GitHub Pages • Local-only storage</footer>
+            useEffect(() => {
+                if (!userId) return;
+                const q = query(collection(db, 'artifacts', appId, 'users', userId, 'transactions'), orderBy('createdAt', 'desc'));
+                const unsub = onSnapshot(q, (s) => setTransactions(s.docs.map(d => ({id: d.id, ...d.data()}))));
+                return () => unsub();
+            }, [userId]);
 
-<script>
-/* ======= STORAGE KEYS & LOAD ======= */
-const STORAGE_KEY = "book7_v2_data_v1";
-let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"entries":[], "inventory":[]}');
+            const handleAdd = async (e) => {
+                e.preventDefault();
+                if(!amount || !desc) return;
+                await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'transactions'), {
+                    type, amount: parseFloat(amount), description: desc, createdAt: serverTimestamp(), date: new Date().toISOString()
+                });
+                setAmount(''); setDesc('');
+            };
 
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
+            const deleteItem = async (id) => {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'transactions', id));
+            }
 
-/* ======= UTIL ======= */
-function fmt(n){ return Number(n || 0).toFixed(2); }
-function todayISO(){ const d = new Date(); return d.toISOString().slice(0,10); }
+            return (
+                <div className="tab-content h-full flex flex-col p-4 space-y-4">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <BookOpen className="text-emerald-600 w-5 h-5" /> General Ledger
+                        </h2>
+                        <form onSubmit={handleAdd} className="flex flex-col gap-3">
+                            <div className="flex gap-2">
+                                <select value={type} onChange={e => setType(e.target.value)} className="bg-slate-50 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-emerald-500">
+                                    <option value="income">Income (+)</option>
+                                    <option value="expense">Expense (-)</option>
+                                </select>
+                                <input type="number" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} className="flex-1 bg-slate-50 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-emerald-500" />
+                            </div>
+                            <div className="flex gap-2">
+                                <input type="text" placeholder="Description" value={desc} onChange={e => setDesc(e.target.value)} className="flex-1 bg-slate-50 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-emerald-500" />
+                                <button className="bg-emerald-600 text-white px-4 rounded-lg font-medium text-sm shadow hover:bg-emerald-700">Add</button>
+                            </div>
+                        </form>
+                    </div>
 
-/* ======= RENDERING & ACTIONS: LEDGER ======= */
-const entriesList = document.getElementById("entriesList");
-const incomeTotalEl = document.getElementById("incomeTotal");
-const expenseTotalEl = document.getElementById("expenseTotal");
-const netTotalEl = document.getElementById("netTotal");
+                    <div className="flex-1 overflow-y-auto no-scrollbar pb-20">
+                        <div className="space-y-2">
+                            {transactions.map(t => (
+                                <div key={t.id} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
+                                    <div>
+                                        <div className="font-medium text-slate-800 text-sm">{t.description}</div>
+                                        <div className="text-xs text-slate-400">{t.date ? t.date.split('T')[0] : 'Today'}</div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`font-bold text-sm ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-500'}`}>
+                                            {t.type === 'income' ? '+' : '-'}${t.amount}
+                                        </span>
+                                        <button onClick={() => deleteItem(t.id)} className="text-slate-300 hover:text-rose-500"><Trash2 size={16} /></button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-function renderTotals(){
-  let income = 0, expense = 0;
-  state.entries.forEach(e => {
-    if(e.type === "Income") income += Number(e.amount);
-    else expense += Number(e.amount);
-  });
-  incomeTotalEl.innerText = fmt(income);
-  expenseTotalEl.innerText = fmt(expense);
-  netTotalEl.innerText = fmt(income - expense);
-}
+        // --- 3. Journal Tab (Small Transactions) ---
+        const Journal = ({ userId }) => {
+            const [amount, setAmount] = useState('');
+            const [note, setNote] = useState('');
 
-function renderEntries(){
-  entriesList.innerHTML = "";
-  if(state.entries.length === 0){
-    entriesList.innerHTML = '<div class="small muted">No entries yet.</div>';
-    renderTotals();
-    return;
-  }
-  state.entries.slice().reverse().forEach((e, idx) => {
-    // show newest first; compute original index
-    const originalIndex = state.entries.length - 1 - idx;
-    const row = document.createElement("div");
-    row.className = "entry-row";
-    row.innerHTML = `
-      <span class="small">${e.date}</span>
-      <span>${e.type}</span>
-      <span class="small">${e.category || "-"}</span>
-      <span class="small">${e.description || ""}</span>
-      <span style="text-align:right">${fmt(e.amount)}</span>
-      <button onclick="deleteEntry(${originalIndex})" class="pill">Delete</button>
-    `;
-    entriesList.appendChild(row);
-  });
-  renderTotals();
-}
+            const quickAdd = async (type) => {
+                if(!amount) return;
+                await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'transactions'), {
+                    type, amount: parseFloat(amount), description: note || (type === 'income' ? 'Cash Sale' : 'Petty Cash'), category: 'Journal', createdAt: serverTimestamp(), date: new Date().toISOString()
+                });
+                setAmount(''); setNote('');
+            };
 
-function addEntryFromForm(){
-  const type = document.getElementById("typeInput").value;
-  const amount = parseFloat(document.getElementById("amountInput").value || 0);
-  const category = document.getElementById("categoryInput").value.trim();
-  const description = document.getElementById("descriptionInput").value.trim();
-  const date = document.getElementById("dateInput").value || todayISO();
+            return (
+                <div className="tab-content h-full flex flex-col items-center justify-center p-6 space-y-6">
+                    <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border border-slate-100">
+                        <div className="mb-6 flex justify-center">
+                            <div className="bg-emerald-100 p-3 rounded-full">
+                                <CreditCard className="text-emerald-600 w-8 h-8" />
+                            </div>
+                        </div>
+                        <h2 className="text-xl font-bold text-slate-800 mb-1">Quick Journal</h2>
+                        <p className="text-slate-400 text-sm mb-6">Record small daily transactions</p>
 
-  if(!amount || amount <= 0) { alert("Please enter a valid amount (greater than 0)."); return; }
-  const entry = { type, amount: Number(amount), category, description, date };
-  state.entries.push(entry);
-  saveState();
-  renderEntries();
-  // optionally clear some fields
-  document.getElementById("amountInput").value = "";
-  document.getElementById("descriptionInput").value = "";
-}
+                        <div className="bg-slate-50 p-4 rounded-2xl mb-6 border border-slate-100">
+                            <div className="flex items-center justify-center text-4xl font-mono text-slate-700">
+                                <span className="text-2xl mr-1 text-slate-400">$</span>
+                                <input 
+                                    type="number" value={amount} onChange={e => setAmount(e.target.value)} 
+                                    className="bg-transparent w-32 text-center outline-none" placeholder="0"
+                                />
+                            </div>
+                            <input 
+                                type="text" value={note} onChange={e => setNote(e.target.value)}
+                                className="w-full text-center mt-2 bg-transparent text-sm text-slate-500 outline-none border-b border-transparent focus:border-emerald-300"
+                                placeholder="Add a note..."
+                            />
+                        </div>
 
-function deleteEntry(index){
-  if(!confirm("Delete this entry?")) return;
-  state.entries.splice(index,1);
-  saveState();
-  renderEntries();
-}
+                        <div className="grid grid-cols-2 gap-4">
+                            <button onClick={() => quickAdd('income')} className="py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition-all text-white rounded-xl flex flex-col items-center justify-center gap-1 shadow-lg shadow-emerald-200">
+                                <ArrowUpRight size={24} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Cash In</span>
+                            </button>
+                            <button onClick={() => quickAdd('expense')} className="py-4 bg-rose-500 hover:bg-rose-600 active:scale-95 transition-all text-white rounded-xl flex flex-col items-center justify-center gap-1 shadow-lg shadow-rose-200">
+                                <ArrowDownLeft size={24} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Cash Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-/* ======= P&L ======= */
-function applyPLFilter(){
-  const from = document.getElementById("plFrom").value;
-  const to = document.getElementById("plTo").value;
-  const plList = document.getElementById("plList");
-  let inSum=0, exSum=0;
-  let results = state.entries.filter(e => {
-    if(from && e.date < from) return false;
-    if(to && e.date > to) return false;
-    return true;
-  });
-  if(results.length === 0){
-    plList.innerHTML = '<div class="small muted">No entries for that range.</div>';
-  } else {
-    plList.innerHTML = "";
-    results.forEach(r => {
-      const div = document.createElement("div");
-      div.className = "entry-row";
-      div.innerHTML = `<span>${r.date}</span><span>${r.type}</span><span>${r.category||"-"}</span><span style="text-align:right">${fmt(r.amount)}</span>`;
-      plList.appendChild(div);
-      if(r.type === "Income") inSum += Number(r.amount); else exSum += Number(r.amount);
-    });
-  }
-  document.getElementById("plIncome").innerText = fmt(inSum);
-  document.getElementById("plExpense").innerText = fmt(exSum);
-  document.getElementById("plNet").innerText = fmt(inSum - exSum);
-}
+        // --- 4. P&L Tab ---
+        const ProfitLoss = ({ userId }) => {
+            const [stats, setStats] = useState({ inc: 0, exp: 0, net: 0 });
+            useEffect(() => {
+                if(!userId) return;
+                const unsub = onSnapshot(query(collection(db, 'artifacts', appId, 'users', userId, 'transactions')), (s) => {
+                    let i = 0, e = 0;
+                    s.docs.forEach(d => d.data().type === 'income' ? i += d.data().amount : e += d.data().amount);
+                    setStats({ inc: i, exp: e, net: i - e });
+                });
+                return () => unsub();
+            }, [userId]);
 
-/* ======= INVENTORY ======= */
-const inventoryList = document.getElementById("inventoryList");
-const invTotal = document.getElementById("invTotal");
+            return (
+                <div className="tab-content h-full p-6 space-y-6 overflow-y-auto">
+                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <TrendingUp className="text-emerald-600" /> Profit & Loss
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+                            <div className="text-xs uppercase text-slate-400 font-bold tracking-wider mb-1">Total Revenue</div>
+                            <div className="text-3xl font-bold text-emerald-600">${stats.inc.toFixed(2)}</div>
+                        </div>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-rose-500">
+                            <div className="text-xs uppercase text-slate-400 font-bold tracking-wider mb-1">Total Expenses</div>
+                            <div className="text-3xl font-bold text-rose-600">${stats.exp.toFixed(2)}</div>
+                        </div>
+                        <div className={`bg-gradient-to-br p-6 rounded-2xl shadow-lg text-white ${stats.net >= 0 ? 'from-emerald-600 to-teal-700' : 'from-rose-600 to-orange-700'}`}>
+                            <div className="text-xs uppercase text-white/70 font-bold tracking-wider mb-1">Net Profit</div>
+                            <div className="text-4xl font-bold">${stats.net.toFixed(2)}</div>
+                            <div className="mt-2 text-sm text-white/80">{stats.net >= 0 ? 'Profitable Status' : 'Loss Status'}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-function renderInventory(){
-  inventoryList.innerHTML = "";
-  if(state.inventory.length === 0){
-    inventoryList.innerHTML = '<div class="small muted">No inventory items yet.</div>';
-    invTotal.innerText = "0.00";
-    return;
-  }
-  let total = 0;
-  state.inventory.forEach((it, i) => {
-    const val = Number(it.qty) * Number(it.price);
-    total += val;
-    const row = document.createElement("div");
-    row.className = "inv-row";
-    row.innerHTML = `<span>${it.name}</span><span>Qty: ${it.qty}</span><span>Unit: ${fmt(it.price)}</span><span style="text-align:right">${fmt(val)}</span><button onclick="deleteInv(${i})" class="pill">Delete</button>`;
-    inventoryList.appendChild(row);
-  });
-  invTotal.innerText = fmt(total);
-}
+        // --- 5. Debt Manager ---
+        const DebtManager = ({ userId }) => {
+            const [debts, setDebts] = useState([]);
+            const [form, setForm] = useState({ person: '', amount: '', type: 'in' });
 
-function addInventory(){
-  const name = document.getElementById("invName").value.trim();
-  const qty = parseInt(document.getElementById("invQty").value || 0);
-  const price = parseFloat(document.getElementById("invPrice").value || 0);
-  if(!name || !qty || qty<=0) { alert("Please enter item name and positive qty."); return; }
-  state.inventory.push({name, qty, price: Number(price)});
-  saveState();
-  renderInventory();
-  document.getElementById("invName").value = "";
-  document.getElementById("invQty").value = "";
-  document.getElementById("invPrice").value = "";
-}
+            useEffect(() => {
+                if(!userId) return;
+                const unsub = onSnapshot(query(collection(db, 'artifacts', appId, 'users', userId, 'debts'), orderBy('createdAt', 'desc')), 
+                    (s) => setDebts(s.docs.map(d => ({id:d.id, ...d.data()})))
+                );
+                return () => unsub();
+            }, [userId]);
 
-function deleteInv(i){
-  if(!confirm("Delete this inventory item?")) return;
-  state.inventory.splice(i,1);
-  saveState();
-  renderInventory();
-}
+            const addDebt = async (e) => {
+                e.preventDefault();
+                if(!form.amount) return;
+                await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'debts'), { ...form, amount: parseFloat(form.amount), status: 'pending', createdAt: serverTimestamp() });
+                setForm({ person: '', amount: '', type: 'in' });
+            };
 
-/* ======= CALENDAR ======= */
-function showCalendarEntries(){
-  const date = document.getElementById("calDate").value;
-  const out = document.getElementById("calendarList");
-  if(!date) { out.innerHTML = '<div class="small muted">Pick a date first.</div>'; return; }
-  const items = state.entries.filter(e=> e.date === date);
-  if(items.length === 0) { out.innerHTML = `<div class="small muted">No entries on ${date}.</div>`; return; }
-  out.innerHTML = "";
-  items.forEach(it=>{
-    const div = document.createElement("div");
-    div.className = "entry-row";
-    div.innerHTML = `<span>${it.date}</span><span>${it.type}</span><span>${it.category||"-"}</span><span style="text-align:right">${fmt(it.amount)}</span>`;
-    out.appendChild(div);
-  });
-}
+            const toggle = async (id, s) => {
+                await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'debts', id), { status: s === 'paid' ? 'pending' : 'paid' });
+            };
 
-/* ======= SETTINGS: EXPORT / IMPORT / CLEAR ======= */
-function exportJson(){
-  const data = JSON.stringify(state, null, 2);
-  // prompt download
-  const blob = new Blob([data], {type: "application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "book7-backup.json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function importJson(){
-  const val = document.getElementById("importJson").value.trim();
-  if(!val) return alert("Paste valid JSON into the import box.");
-  try {
-    const parsed = JSON.parse(val);
-    if(parsed.entries && Array.isArray(parsed.entries)) state.entries = parsed.entries;
-    if(parsed.inventory && Array.isArray(parsed.inventory)) state.inventory = parsed.inventory;
-    saveState();
-    renderAll();
-    document.getElementById("importJson").value = "";
-    alert("Import complete.");
-  } catch(err){
-    alert("Invalid JSON: " + err.message);
-  }
-}
-
-function clearAll(){
-  if(!confirm("This will REMOVE ALL local data. Continue?")) return;
-  state = {entries:[], inventory:[]};
-  saveState();
-  renderAll();
-}
-
-/* ======= RENDER ALL ======= */
-function renderAll(){
-  renderEntries();
-  renderInventory();
-  document.getElementById("currentUser").innerText = "local";
-}
-
-/* ======= UI: TAB SWITCHING ======= */
-document.querySelectorAll(".tab").forEach(t => {
-  t.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-    t.classList.add("active");
-    const tab = t.dataset.tab;
-    document.querySelectorAll(".panel").forEach(p=>p.style.display = "none");
-    const el = document.getElementById("panel-" + tab);
-    if(el) el.style.display = "block";
-  });
-});
-
-/* ======= HOOKS ======= */
-document.getElementById("addBtn").addEventListener("click", addEntryFromForm);
-document.getElementById("clearFields").addEventListener("click", ()=>{
-  document.getElementById("amountInput").value="";
-  document.getElementById("categoryInput").value="";
-  document.getElementById("descriptionInput").value="";
-  document.getElementById("dateInput").value="";
-});
-document.getElementById("applyFilter").addEventListener("click", applyPLFilter);
-document.getElementById("invAdd").addEventListener("click", addInventory);
-document.getElementById("calShow").addEventListener("click", showCalendarEntries);
-document.getElementById("exportJson").addEventListener("click", exportJson);
-document.getElementById("importBtn").addEventListener("click", importJson);
-document.getElementById("clearAll").addEventListener("click", clearAll);
-
-/* keyboard shortcuts */
-document.addEventListener("keydown", (e)=>{
-  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); exportJson(); }
-  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='l'){ e.preventDefault(); document.getElementById("amountInput").focus(); }
-});
-
-/* initialise some defaults */
-if(!state.entries.some(()=>true) && !state.inventory.some(()=>true)) {
-  // add a demo entry only first time (comment out if not wanted)
-  // state.entries.push({type:"Income", amount:9000, category:"Sales", description:"Demo entry", date:todayISO()});
-  // saveState();
-}
-
-renderAll();
-</script>
-</body>
-</html>
+            return (
+                <div className="tab-content h-full p-4 flex flex-col">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-4">
+                        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Wallet className="text-emerald-600 w-5 h-5"/> Debt Manager</h2>
+                        <div className="flex bg-slate-100 p-1 rounded-lg mb-3">
+                            <button onClick={() => setForm({...form, type: 'in'})} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition ${form.type === 'in' ? 'bg-white text-emerald-700 shadow' : 'text-slate-400'}`}>Debt IN (Collect)</button>
+                            <button onClick={() => setForm({...form, type: 'out'})} className={`flex-1 py-1.
