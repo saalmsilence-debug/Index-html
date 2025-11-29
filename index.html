@@ -1,5 +1,44 @@
 <!doctype html>
 <html lang="en">
+              <style>
+  /* GLOBAL BIGGER BUTTONS STYLE */
+  button, 
+  input[type="submit"], 
+  input[type="button"], 
+  input[type="reset"],
+  .btn,
+  [role="button"] {
+      padding: 16px 32px !important; /* Much larger click area */
+      font-size: 1.25rem !important; /* Larger text (approx 20px) */
+      font-weight: bold;
+      border-radius: 8px;            /* Softer corners */
+      min-height: 55px;              /* Minimum height for easy tapping */
+      margin: 8px 4px;               /* Space them out */
+      cursor: pointer;
+      touch-action: manipulation;    /* Improves touch response on mobile */
+  }
+
+  /* Specific fix for the top Navigation links if they are <a> tags */
+  nav a, 
+  .nav-link {
+      display: inline-block;
+      padding: 14px 24px !important;
+      font-size: 1.1rem !important;
+      text-decoration: none;
+      border: 1px solid #ccc; /* Optional: adds definition */
+      background-color: #f0f0f0; /* Optional: makes them look like buttons */
+      margin: 4px;
+      border-radius: 6px;
+  }
+
+  /* Hover effect to make them feel responsive */
+  button:hover, 
+  input[type="submit"]:hover,
+  nav a:hover {
+      filter: brightness(90%);
+      transform: translateY(-1px);
+  }
+</style>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
