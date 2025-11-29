@@ -1,98 +1,428 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Book7 — v1.1</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Book7 — v2.0 (Single-file MVP)</title>
+<style>
+  :root{
+    --bg:#071226; --panel:#0c2433; --muted:#9fb3c3; --accent:#1f6f8b; --glass: rgba(255,255,255,0.03);
+    --card-radius:14px; --gap:14px; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:linear-gradient(180deg,#041425 0%, #081827 55%);color:#e6f2f6;padding:20px}
+  header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  header h1{font-size:20px;margin:0}
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{padding:8px 12px;border-radius:10px;background:var(--panel);cursor:pointer;opacity:.85}
+  .tab.active{box-shadow:0 6px 20px rgba(0,0,0,.5);transform:translateY(-2px)}
+  main{display:grid;grid-template-columns:1fr;gap:18px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:var(--card-radius);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input,select,button{padding:10px;border-radius:10px;border:0;background:var(--glass);color:#e6f2f6;min-width:120px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .totals{display:flex;gap:12px;padding:10px;border-radius:10px;background:rgba(0,0,0,0.2);align-items:center}
+  .totals b{display:inline-block;min-width:100px}
+  #entriesList .entry-row, #inventoryList .inv-row{display:flex;gap:8px;align-items:center;padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(0,0,0,0.12);font-size:14px}
+  .entry-row span{flex:1;min-width:60px}
+  .small{font-size:13px;color:var(--muted)}
+  .muted{color:var(--muted)}
+  footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+  .right{margin-left:auto}
+  .danger{background:rgba(200,40,40,0.12);color:#ffbdbd}
+  .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02)}
+  @media(min-width:900px){
+    main{grid-template-columns: 1fr 420px}
+    #rightColumn{position:sticky;top:20px}
+  }
+</style>
 </head>
-<body class="app-bg">
-  <header class="topbar">
-    <div class="title">Book7 — v1.1</div>
-    <div id="userArea" class="muted"></div>
-  </header>
-
-  <nav class="tabs">
-    <button data-tab="ledger" class="active">Ledger</button>
-    <button data-tab="pl">Profit & Loss</button>
-    <button data-tab="inventory">Inventory</button>
-    <button data-tab="calendar">Calendar</button>
-    <button data-tab="settings">Settings</button>
+<body>
+<header>
+  <h1>Book7 — v2.0</h1>
+  <nav id="tabs" aria-label="Main tabs">
+    <div class="tab active" data-tab="ledger">Ledger</div>
+    <div class="tab" data-tab="pl">Profit & Loss</div>
+    <div class="tab" data-tab="inventory">Inventory</div>
+    <div class="tab" data-tab="calendar">Calendar</div>
+    <div class="tab" data-tab="settings">Settings</div>
   </nav>
+</header>
 
-  <main class="container">
-    <!-- ledger -->
-    <section id="ledger" class="panel">
+<main>
+  <!-- LEFT: main panels -->
+  <section id="leftColumn">
+    <!-- Ledger -->
+    <div id="panel-ledger" class="card panel">
       <h2>Add Ledger Entry</h2>
-      <div class="row">
-        <select id="entryType"><option value="income">Income</option><option value="expense">Expense</option></select>
-        <input id="entryAmount" placeholder="Amount" inputmode="decimal" />
-        <input id="entryCategory" placeholder="Category (e.g. Sales)" />
+      <div class="controls">
+        <div style="min-width:140px">
+          <label>Type</label>
+          <select id="typeInput"><option>Income</option><option>Expense</option></select>
+        </div>
+        <div style="flex:1">
+          <label>Amount</label>
+          <input id="amountInput" type="number" step="0.01" placeholder="0.00" />
+        </div>
+        <div style="min-width:160px">
+          <label>Category</label>
+          <input id="categoryInput" placeholder="Sales, Rent, Supplies..." />
+        </div>
+        <div style="min-width:180px">
+          <label>Description</label>
+          <input id="descriptionInput" placeholder="Optional note" />
+        </div>
+        <div style="min-width:150px">
+          <label>Date</label>
+          <input id="dateInput" type="date" />
+        </div>
       </div>
-      <div class="row">
-        <input id="entryNote" placeholder="Note or item name (for Inventory link)" />
-        <input id="entryDate" type="date" />
-        <button id="addEntryBtn">Add</button>
+      <div class="row" style="margin-bottom:12px">
+        <button id="addBtn" class="pill">Add entry</button>
+        <button id="clearFields" class="pill">Clear fields</button>
+        <div class="right small muted">Entries stored locally in your browser</div>
       </div>
 
-      <div class="summary card" id="plSummary">
-        <div>Income: <span id="sumIncome">0.00</span></div>
-        <div>Expense: <span id="sumExpense">0.00</span></div>
-        <div>Net: <span id="sumNet">0.00</span></div>
+      <div class="totals">
+        <div>Income: <b id="incomeTotal">0.00</b></div>
+        <div>Expense: <b id="expenseTotal">0.00</b></div>
+        <div>Net: <b id="netTotal">0.00</b></div>
       </div>
 
-      <h3>Entries</h3>
-      <div id="entriesList" class="list"></div>
-    </section>
+      <h3 style="margin-top:14px">Entries</h3>
+      <div id="entriesList"></div>
+    </div>
 
-    <!-- profit & loss -->
-    <section id="pl" class="panel hidden">
+    <!-- Profit & Loss -->
+    <div id="panel-pl" class="card panel" style="margin-top:18px;display:none">
       <h2>Profit & Loss</h2>
-      <label>Filter from</label>
-      <div class="row">
-        <input id="plFrom" type="date" />
-        <input id="plTo" type="date" />
-        <button id="plFilter">Apply</button>
+      <div class="controls">
+        <div><label>From</label><input id="plFrom" type="date" /></div>
+        <div><label>To</label><input id="plTo" type="date" /></div>
+        <div style="align-self:end"><button id="applyFilter" class="pill">Apply</button></div>
       </div>
-      <div class="card" id="plCard"></div>
-    </section>
 
-    <!-- inventory -->
-    <section id="inventory" class="panel hidden">
+      <div class="totals" style="margin-bottom:12px">
+        <div>Income: <b id="plIncome">0.00</b></div>
+        <div>Expense: <b id="plExpense">0.00</b></div>
+        <div>Net: <b id="plNet">0.00</b></div>
+      </div>
+      <div id="plList" class="small muted">No results yet.</div>
+    </div>
+
+    <!-- Inventory -->
+    <div id="panel-inventory" class="card panel" style="margin-top:18px;display:none">
       <h2>Inventory</h2>
-      <div class="row">
-        <input id="invItem" placeholder="Item name" />
-        <input id="invQty" placeholder="Qty" inputmode="numeric" />
-        <input id="invCost" placeholder="Unit cost" inputmode="decimal" />
-        <button id="addInvBtn">Add</button>
+      <div class="controls">
+        <div><label>Item</label><input id="invName" placeholder="Item name" /></div>
+        <div><label>Qty</label><input id="invQty" type="number" step="1" /></div>
+        <div><label>Unit price</label><input id="invPrice" type="number" step="0.01" /></div>
+        <div style="align-self:end"><button id="invAdd" class="pill">Add</button></div>
       </div>
-      <div class="card">Total inventory value: <span id="invValue">0.00</span></div>
-      <div id="invList" class="list"></div>
-    </section>
+      <h3>Total inventory value: <span id="invTotal">0.00</span></h3>
+      <div id="inventoryList"></div>
+    </div>
 
-    <!-- calendar -->
-    <section id="calendar" class="panel hidden">
+    <!-- Calendar -->
+    <div id="panel-calendar" class="card panel" style="margin-top:18px;display:none">
       <h2>Calendar</h2>
-      <input id="calDate" type="date" />
-      <div id="calEntries" class="list muted">Pick a date to see entries</div>
-    </section>
+      <div class="controls">
+        <div><label>Pick a date</label><input id="calDate" type="date" /></div>
+        <div style="align-self:end"><button id="calShow" class="pill">Show entries</button></div>
+      </div>
+      <div id="calendarList" class="small muted">Select a date and click Show entries.</div>
+    </div>
 
-    <!-- settings -->
-    <section id="settings" class="panel hidden">
+    <!-- Settings -->
+    <div id="panel-settings" class="card panel" style="margin-top:18px;display:none">
       <h2>Settings & Backup</h2>
-      <div class="row">
-        <button id="exportBtn">Export JSON</button>
-        <input id="importFile" type="file" accept="application/json" />
+      <div class="controls">
+        <div><button id="exportJson" class="pill">Export JSON</button></div>
+        <div><label>Import (paste JSON)</label><input id="importJson" placeholder='{"entries":...}' /></div>
+        <div style="align-self:end"><button id="importBtn" class="pill">Import</button></div>
       </div>
-      <div class="row">
-        <button id="logoutBtn">Logout</button>
-        <button id="togglePremium">Toggle Premium (simulate)</button>
+      <div style="margin-top:12px" class="small muted">
+        <button id="clearAll" class="pill danger">Clear ALL data</button>
+        <div style="margin-top:8px">Current user: <span id="currentUser" class="muted">local</span></div>
       </div>
-      <div class="muted">Current user: <span id="currentUserName"></span></div>
-    </section>
+    </div>
+  </section>
 
-  </main>
+  <!-- RIGHT: reference panels -->
+  <aside id="rightColumn">
+    <div class="card">
+      <h3>Quick tips</h3>
+      <ul class="small muted">
+        <li>Use the Add button to save ledger entries (Income/Expense).</li>
+        <li>Everything is saved in your browser's localStorage.</li>
+        <li>Export JSON to backup or move to another device.</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3>Shortcuts</h3>
+      <div class="small muted">
+        <div><b>Ctrl+S</b> - export JSON</div>
+        <div><b>Ctrl+L</b> - clear fields</div>
+      </div>
+    </div>
+  </aside>
+</main>
 
-  <script src="app.js"></script>
+<footer>Book7 — single-file MVP • Works on GitHub Pages • Local-only storage</footer>
+
+<script>
+/* ======= STORAGE KEYS & LOAD ======= */
+const STORAGE_KEY = "book7_v2_data_v1";
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"entries":[], "inventory":[]}');
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+/* ======= UTIL ======= */
+function fmt(n){ return Number(n || 0).toFixed(2); }
+function todayISO(){ const d = new Date(); return d.toISOString().slice(0,10); }
+
+/* ======= RENDERING & ACTIONS: LEDGER ======= */
+const entriesList = document.getElementById("entriesList");
+const incomeTotalEl = document.getElementById("incomeTotal");
+const expenseTotalEl = document.getElementById("expenseTotal");
+const netTotalEl = document.getElementById("netTotal");
+
+function renderTotals(){
+  let income = 0, expense = 0;
+  state.entries.forEach(e => {
+    if(e.type === "Income") income += Number(e.amount);
+    else expense += Number(e.amount);
+  });
+  incomeTotalEl.innerText = fmt(income);
+  expenseTotalEl.innerText = fmt(expense);
+  netTotalEl.innerText = fmt(income - expense);
+}
+
+function renderEntries(){
+  entriesList.innerHTML = "";
+  if(state.entries.length === 0){
+    entriesList.innerHTML = '<div class="small muted">No entries yet.</div>';
+    renderTotals();
+    return;
+  }
+  state.entries.slice().reverse().forEach((e, idx) => {
+    // show newest first; compute original index
+    const originalIndex = state.entries.length - 1 - idx;
+    const row = document.createElement("div");
+    row.className = "entry-row";
+    row.innerHTML = `
+      <span class="small">${e.date}</span>
+      <span>${e.type}</span>
+      <span class="small">${e.category || "-"}</span>
+      <span class="small">${e.description || ""}</span>
+      <span style="text-align:right">${fmt(e.amount)}</span>
+      <button onclick="deleteEntry(${originalIndex})" class="pill">Delete</button>
+    `;
+    entriesList.appendChild(row);
+  });
+  renderTotals();
+}
+
+function addEntryFromForm(){
+  const type = document.getElementById("typeInput").value;
+  const amount = parseFloat(document.getElementById("amountInput").value || 0);
+  const category = document.getElementById("categoryInput").value.trim();
+  const description = document.getElementById("descriptionInput").value.trim();
+  const date = document.getElementById("dateInput").value || todayISO();
+
+  if(!amount || amount <= 0) { alert("Please enter a valid amount (greater than 0)."); return; }
+  const entry = { type, amount: Number(amount), category, description, date };
+  state.entries.push(entry);
+  saveState();
+  renderEntries();
+  // optionally clear some fields
+  document.getElementById("amountInput").value = "";
+  document.getElementById("descriptionInput").value = "";
+}
+
+function deleteEntry(index){
+  if(!confirm("Delete this entry?")) return;
+  state.entries.splice(index,1);
+  saveState();
+  renderEntries();
+}
+
+/* ======= P&L ======= */
+function applyPLFilter(){
+  const from = document.getElementById("plFrom").value;
+  const to = document.getElementById("plTo").value;
+  const plList = document.getElementById("plList");
+  let inSum=0, exSum=0;
+  let results = state.entries.filter(e => {
+    if(from && e.date < from) return false;
+    if(to && e.date > to) return false;
+    return true;
+  });
+  if(results.length === 0){
+    plList.innerHTML = '<div class="small muted">No entries for that range.</div>';
+  } else {
+    plList.innerHTML = "";
+    results.forEach(r => {
+      const div = document.createElement("div");
+      div.className = "entry-row";
+      div.innerHTML = `<span>${r.date}</span><span>${r.type}</span><span>${r.category||"-"}</span><span style="text-align:right">${fmt(r.amount)}</span>`;
+      plList.appendChild(div);
+      if(r.type === "Income") inSum += Number(r.amount); else exSum += Number(r.amount);
+    });
+  }
+  document.getElementById("plIncome").innerText = fmt(inSum);
+  document.getElementById("plExpense").innerText = fmt(exSum);
+  document.getElementById("plNet").innerText = fmt(inSum - exSum);
+}
+
+/* ======= INVENTORY ======= */
+const inventoryList = document.getElementById("inventoryList");
+const invTotal = document.getElementById("invTotal");
+
+function renderInventory(){
+  inventoryList.innerHTML = "";
+  if(state.inventory.length === 0){
+    inventoryList.innerHTML = '<div class="small muted">No inventory items yet.</div>';
+    invTotal.innerText = "0.00";
+    return;
+  }
+  let total = 0;
+  state.inventory.forEach((it, i) => {
+    const val = Number(it.qty) * Number(it.price);
+    total += val;
+    const row = document.createElement("div");
+    row.className = "inv-row";
+    row.innerHTML = `<span>${it.name}</span><span>Qty: ${it.qty}</span><span>Unit: ${fmt(it.price)}</span><span style="text-align:right">${fmt(val)}</span><button onclick="deleteInv(${i})" class="pill">Delete</button>`;
+    inventoryList.appendChild(row);
+  });
+  invTotal.innerText = fmt(total);
+}
+
+function addInventory(){
+  const name = document.getElementById("invName").value.trim();
+  const qty = parseInt(document.getElementById("invQty").value || 0);
+  const price = parseFloat(document.getElementById("invPrice").value || 0);
+  if(!name || !qty || qty<=0) { alert("Please enter item name and positive qty."); return; }
+  state.inventory.push({name, qty, price: Number(price)});
+  saveState();
+  renderInventory();
+  document.getElementById("invName").value = "";
+  document.getElementById("invQty").value = "";
+  document.getElementById("invPrice").value = "";
+}
+
+function deleteInv(i){
+  if(!confirm("Delete this inventory item?")) return;
+  state.inventory.splice(i,1);
+  saveState();
+  renderInventory();
+}
+
+/* ======= CALENDAR ======= */
+function showCalendarEntries(){
+  const date = document.getElementById("calDate").value;
+  const out = document.getElementById("calendarList");
+  if(!date) { out.innerHTML = '<div class="small muted">Pick a date first.</div>'; return; }
+  const items = state.entries.filter(e=> e.date === date);
+  if(items.length === 0) { out.innerHTML = `<div class="small muted">No entries on ${date}.</div>`; return; }
+  out.innerHTML = "";
+  items.forEach(it=>{
+    const div = document.createElement("div");
+    div.className = "entry-row";
+    div.innerHTML = `<span>${it.date}</span><span>${it.type}</span><span>${it.category||"-"}</span><span style="text-align:right">${fmt(it.amount)}</span>`;
+    out.appendChild(div);
+  });
+}
+
+/* ======= SETTINGS: EXPORT / IMPORT / CLEAR ======= */
+function exportJson(){
+  const data = JSON.stringify(state, null, 2);
+  // prompt download
+  const blob = new Blob([data], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "book7-backup.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importJson(){
+  const val = document.getElementById("importJson").value.trim();
+  if(!val) return alert("Paste valid JSON into the import box.");
+  try {
+    const parsed = JSON.parse(val);
+    if(parsed.entries && Array.isArray(parsed.entries)) state.entries = parsed.entries;
+    if(parsed.inventory && Array.isArray(parsed.inventory)) state.inventory = parsed.inventory;
+    saveState();
+    renderAll();
+    document.getElementById("importJson").value = "";
+    alert("Import complete.");
+  } catch(err){
+    alert("Invalid JSON: " + err.message);
+  }
+}
+
+function clearAll(){
+  if(!confirm("This will REMOVE ALL local data. Continue?")) return;
+  state = {entries:[], inventory:[]};
+  saveState();
+  renderAll();
+}
+
+/* ======= RENDER ALL ======= */
+function renderAll(){
+  renderEntries();
+  renderInventory();
+  document.getElementById("currentUser").innerText = "local";
+}
+
+/* ======= UI: TAB SWITCHING ======= */
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    const tab = t.dataset.tab;
+    document.querySelectorAll(".panel").forEach(p=>p.style.display = "none");
+    const el = document.getElementById("panel-" + tab);
+    if(el) el.style.display = "block";
+  });
+});
+
+/* ======= HOOKS ======= */
+document.getElementById("addBtn").addEventListener("click", addEntryFromForm);
+document.getElementById("clearFields").addEventListener("click", ()=>{
+  document.getElementById("amountInput").value="";
+  document.getElementById("categoryInput").value="";
+  document.getElementById("descriptionInput").value="";
+  document.getElementById("dateInput").value="";
+});
+document.getElementById("applyFilter").addEventListener("click", applyPLFilter);
+document.getElementById("invAdd").addEventListener("click", addInventory);
+document.getElementById("calShow").addEventListener("click", showCalendarEntries);
+document.getElementById("exportJson").addEventListener("click", exportJson);
+document.getElementById("importBtn").addEventListener("click", importJson);
+document.getElementById("clearAll").addEventListener("click", clearAll);
+
+/* keyboard shortcuts */
+document.addEventListener("keydown", (e)=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); exportJson(); }
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='l'){ e.preventDefault(); document.getElementById("amountInput").focus(); }
+});
+
+/* initialise some defaults */
+if(!state.entries.some(()=>true) && !state.inventory.some(()=>true)) {
+  // add a demo entry only first time (comment out if not wanted)
+  // state.entries.push({type:"Income", amount:9000, category:"Sales", description:"Demo entry", date:todayISO()});
+  // saveState();
+}
+
+renderAll();
+</script>
 </body>
 </html>
