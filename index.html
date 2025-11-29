@@ -6,463 +6,456 @@
 <title>Book7 — MVP</title>
 <style>
   :root{
-    --bg:#071028; --card:#071629; --accent:#06b6d4; --muted:#9aa6b2; --accent2:#f59e0b;
-    --glass: rgba(255,255,255,0.03);
+    --bg:#061322; --card:rgba(10,20,30,0.6); --muted:#9aa6b2; --accent1:#06b6d4; --glass:rgba(255,255,255,0.03);
+    --accent2:linear-gradient(90deg,#06b6d4,#f5e00b);
   }
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,#061322 0%, #041226 100%);}
-  .wrap{max-width:1100px;margin:12px auto;padding:12px;display:grid;grid-template-columns:1fr 380px;gap:14px;}
-  header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;}
-  h1{font-size:20px;margin:0;}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
-  .left{display:flex;flex-direction:column; gap:12px;}
-  .right{display:flex;flex-direction:column; gap:12px;}
-  label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;}
-  input,select,textarea,button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#e6eef6;padding:8px;border-radius:8px;min-height:40px;}
-  input:focus,select:focus,textarea:focus{outline:2px solid rgba(6,182,212,0.12);}
-  .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#031123;border:none;padding:9px 12px;border-radius:8px;cursor:pointer;}
-  .muted{color:var(--muted);font-size:13px;}
-  table{width:100%;border-collapse:collapse;font-size:13px;}
-  th,td{padding:6px 8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);color:var(--muted);}
-  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-  .day{min-height:64px;padding:8px;border-radius:8px;background:var(--glass);font-size:13px;position:relative;}
-  .badge{display:inline-block;padding:3px 6px;border-radius:999px;background:rgba(6,182,212,0.12);color:var(--accent);font-size:12px;margin-top:6px;}
-  .flex{display:flex;gap:8px;align-items:center;}
-  footer{grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding-top:6px;}
-  @media(max-width:960px){ .wrap{grid-template-columns:1fr;} .right{order:2} }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#e6eef6;background:linear-gradient(180deg,#061322 0%,#041226 100%);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:12px auto;padding:12px;display:grid;gap:12px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  header h1{font-size:18px;margin:0}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:14px}
+  label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+  input,select,textarea,button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#e6eef6;padding:8px;border-radius:8px;width:100%;box-sizing:border-box}
+  .row{display:flex;gap:8px}
+  .small{width:120px}
+  button{cursor:pointer;padding:10px 12px}
+  .muted{color:var(--muted);font-size:13px}
+  .section-title{font-weight:600;margin-bottom:8px}
+  ul{list-style:none;padding:0;margin:0}
+  li{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center}
+  .pill{padding:6px 8px;border-radius:999px;font-size:12px}
+  .income{background:rgba(34,197,94,0.12);color:#9ff3b6}
+  .expense{background:rgba(239,68,68,0.07);color:#ffb3b3}
+  .tools{display:flex;gap:8px;align-items:center}
+  .wide{grid-column:1/-1}
+  .footer-muted{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+  .flex-col{display:flex;flex-direction:column;gap:8px}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .danger{background:transparent;border:1px solid rgba(255,0,0,0.12);color:#ff9b9b}
+  .green{background:transparent;border:1px solid rgba(0,255,120,0.08);color:#9ff3b6}
+  @media(max-width:920px){.grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <h1>Book7 — MVP</h1>
-      <div class="muted">Ledger • P&L • Calendar • Debts • Inventory — Local storage</div>
-    </div>
-    <div class="flex">
-      <button id="exportBtn" class="btn">Export JSON</button>
-      <input id="fileInput" type="file" accept="application/json" style="display:none" />
-      <button id="importBtn" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Import</button>
+    <h1>Book7 — MVP</h1>
+    <div class="tools">
+      <button id="exportBtn">Export Backup</button>
+      <input id="importFile" type="file" accept=".json" style="display:none"/>
+      <button id="importBtn">Import Backup</button>
+      <button id="clearBtn" class="danger">Clear Data</button>
     </div>
   </header>
 
-  <main class="left">
-    <!-- Quick Entry -->
-    <section class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong>Quick Entry</strong>
-        <div class="muted">Balance: <span id="balance">0.00</span></div>
-      </div>
-
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-        <div style="flex:1;">
-          <label>Date</label>
-          <input id="entryDate" type="date" />
-        </div>
-        <div style="flex:1;">
-          <label>Account / Party</label>
-          <input id="entryAccount" placeholder="Cash, Mpesa, Client A" />
-        </div>
-      </div>
-
-      <div style="margin-top:8px;display:flex;gap:8px;align-items:end;">
-        <div style="width:140px;">
-          <label>Type</label>
-          <select id="entryType">
-            <option value="income">Income (credit)</option>
-            <option value="expense">Expense (debit)</option>
-            <option value="transfer">Transfer</option>
+  <div class="grid">
+    <!-- LEFT - MAIN -->
+    <div class="card">
+      <div class="section-title">Add Ledger Entry</div>
+      <div class="flex-col">
+        <div class="row">
+          <select id="entryType" style="width:150px">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
           </select>
+          <input id="entryAmount" type="number" placeholder="Amount" />
+          <input id="entryCategory" placeholder="Category (e.g., Sales)" />
         </div>
-        <div style="width:140px;">
-          <label>Amount</label>
-          <input id="entryAmount" type="number" min="0" step="0.01" />
-        </div>
-        <div style="flex:1;">
-          <label>Category</label>
-          <input id="entryCategory" placeholder="Sales, Salary, Supplies" />
-        </div>
-        <div style="width:170px;display:flex;flex-direction:column;gap:6px;">
-          <button id="voiceBtn" class="btn">🎤 Voice</button>
-          <button id="addEntry" class="btn">Add Entry</button>
+        <div class="row">
+          <input id="entryDate" type="date" class="small" />
+          <input id="entryNote" placeholder="Note" />
+          <button id="addEntryBtn">Add</button>
         </div>
       </div>
 
-      <div style="margin-top:8px;">
-        <label>Note</label>
-        <input id="entryNote" placeholder="Short note or invoice #" />
-      </div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:12px 0">
 
-      <div style="margin-top:8px;" id="aiTip" class="muted">AI tips appear here</div>
-    </section>
-
-    <!-- Ledger -->
-    <section class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong>Ledger</strong>
-        <div class="muted">Entries: <span id="entriesCount">0</span></div>
-      </div>
-      <div style="margin-top:8px;max-height:260px;overflow:auto">
-        <table id="ledgerTable">
-          <thead><tr><th>Date</th><th>Account</th><th>Type</th><th>Category</th><th>Amount</th><th>Note</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- P&L -->
-    <section class="card">
-      <strong>Profit & Loss</strong>
-      <div style="display:flex;justify-content:space-between;margin-top:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div class="muted">Total Income</div>
-          <div id="totalIncome">0.00</div>
+          <div class="muted">Profit &amp; Loss</div>
+          <div style="display:flex;gap:12px;margin-top:6px">
+            <div class="pill income" id="totalIncome">Income: 0.00</div>
+            <div class="pill expense" id="totalExpense">Expense: 0.00</div>
+            <div class="pill" id="netResult">Net: 0.00</div>
+          </div>
         </div>
         <div>
-          <div class="muted">Total Expense</div>
-          <div id="totalExpense">0.00</div>
+          <label class="muted">Filter by date</label>
+          <input id="filterDate" type="date"/>
         </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="section-title">Entries</div>
+        <ul id="entriesList"></ul>
+      </div>
+    </div>
+
+    <!-- RIGHT - SIDEBAR -->
+    <div class="card">
+      <div class="section-title">Calendar</div>
+      <div class="muted">Pick a date to see entries</div>
+      <input id="calendarDate" type="date" style="margin-top:8px"/>
+      <ul id="calendarList" style="margin-top:8px"></ul>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:12px 0">
+
+      <div class="section-title">Debts</div>
+      <div class="row">
+        <input id="debtParty" placeholder="Party (name)" />
+        <input id="debtAmt" type="number" placeholder="Amount" class="small"/>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select id="debtType" class="small">
+          <option value="owed">Owed to you</option>
+          <option value="owing">You owe</option>
+        </select>
+        <button id="addDebtBtn">Add</button>
+      </div>
+      <ul id="debtsList" style="margin-top:8px"></ul>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:12px 0">
+
+      <div class="section-title">Inventory</div>
+      <div class="row">
+        <input id="itemName" placeholder="Item"/>
+        <input id="itemQty" type="number" placeholder="Qty" class="small"/>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="itemCost" type="number" placeholder="Unit cost" class="small"/>
+        <button id="addItemBtn">Add</button>
+      </div>
+      <div style="margin-top:8px" class="muted">Total inventory value: <span id="inventoryValue">0.00</span></div>
+      <ul id="inventoryList" style="margin-top:8px"></ul>
+    </div>
+
+    <!-- WIDE TOOLS -->
+    <div class="card wide">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <div class="muted">Net</div>
-          <div id="netProfit">0.00</div>
+          <div class="section-title">Tools</div>
+          <div class="muted">Use export to backup, import to restore. Data is saved in your browser automatically.</div>
+        </div>
+        <div class="controls">
+          <button id="saveBtn" class="green">Save Now</button>
+          <button id="downloadBtn">Download JSON</button>
+          <button id="helpBtn">How to use</button>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
 
-  <aside class="right">
-    <!-- Calendar -->
-    <section class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong>Calendar</strong>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button id="prevMonth" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">◀</button>
-          <div id="monthLabel" class="muted">Month</div>
-          <button id="nextMonth" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">▶</button>
-        </div>
-      </div>
-      <div style="margin-top:8px;" id="calendarGrid" class="calendar"></div>
-    </section>
+  </div>
 
-    <!-- Debts -->
-    <section class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong>Debts</strong>
-        <button id="addDebt" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Add</button>
-      </div>
-      <div style="margin-top:8px;max-height:150px;overflow:auto">
-        <table id="debtsTable"><thead><tr><th>Party</th><th>Amt</th><th>Type</th><th></th></tr></thead><tbody></tbody></table>
-      </div>
-    </section>
-
-    <!-- Inventory -->
-    <section class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong>Inventory</strong>
-        <button id="addItemBtn" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Add</button>
-      </div>
-      <div style="margin-top:8px;max-height:150px;overflow:auto">
-        <table id="inventoryTable"><thead><tr><th>Item</th><th>Qty</th><th>Cost</th><th>Value</th><th></th></tr></thead><tbody></tbody></table>
-      </div>
-    </section>
-
-    <section class="card">
-      <strong>Tools</strong>
-      <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
-        <button id="clearAll" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Clear Data</button>
-        <button id="helpBtn" class="btn">How to use</button>
-      </div>
-    </section>
-  </aside>
-
-  <footer class="card muted">
-    Book7 MVP — data saved locally in your browser. Use Export to backup. Works offline after first load.
-  </footer>
+  <div class="footer-muted">Book7 MVP — data saved locally in your browser. Use Export to backup.</div>
 </div>
 
 <script>
-/* Book7 — Single-file MVP JS */
+/* -------------------------
+   Minimal utils & state
+   ------------------------- */
 const $ = id => document.getElementById(id);
-const qs = sel => document.querySelector(sel);
-
-// storage key
-const STORAGE_KEY = 'book7_data_v1';
-
-// state
+const stateKey = 'book7_state_v1';
 let state = {
-  entries: [], // {date, account, type, category, amount, note, id}
-  debts: [],   // {party, amount, type, id}
-  inventory: [], // {name, qty, cost, id}
-  settings: { monthOffset: 0 }
+  entries: [],
+  debts: [],
+  inventory: [],
+  settings: {}
 };
 
-// helpers
-const formatMoney = n => Number(n || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const todayISO = () => new Date().toISOString().slice(0,10);
-const safeNum = v => Number(v || 0);
+function saveState(){
+  try{
+    localStorage.setItem(stateKey, JSON.stringify(state));
+    console.log('saved state', state);
+  }catch(e){
+    console.error('save failed',e);
+  }
+}
 
-// load/save
 function loadState(){
   try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) state = JSON.parse(raw);
-  } catch(e){ console.error('load error', e); }
-}
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  renderAll();
+    const raw = localStorage.getItem(stateKey);
+    if(raw){
+      state = JSON.parse(raw);
+    }
+  }catch(e){
+    console.error('load failed',e);
+  }
 }
 
-// render functions
-function renderLedger(){
-  const tbody = qs('#ledgerTable tbody');
-  tbody.innerHTML = '';
-  // sort descending by date then created id
-  const entries = [...state.entries].sort((a,b)=> new Date(b.date) - new Date(a.date) || b.id.localeCompare(a.id));
-  entries.forEach(e=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${e.date}</td><td>${escapeHtml(e.account)}</td><td>${e.type}</td><td>${escapeHtml(e.category)}</td><td style="text-align:right">${formatMoney(e.amount)}</td><td>${escapeHtml(e.note)}</td><td><button data-id="${e.id}" class="delEntry" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
-    tbody.appendChild(tr);
+/* -------------------------
+   Render functions
+   ------------------------- */
+
+function money(n){
+  return Number(n||0).toFixed(2);
+}
+
+function computeTotals(){
+  const income = state.entries.filter(e => e.type==='income').reduce((s,e)=> s + Number(e.amount),0);
+  const expense = state.entries.filter(e => e.type==='expense').reduce((s,e)=> s + Number(e.amount),0);
+  $('totalIncome').textContent = 'Income: ' + money(income);
+  $('totalExpense').textContent = 'Expense: ' + money(expense);
+  $('netResult').textContent = 'Net: ' + money(income - expense);
+}
+
+function renderEntries(filterDate){
+  const list = $('entriesList');
+  list.innerHTML = '';
+  const rows = state.entries.slice().reverse();
+  rows.forEach((e, idx) => {
+    if(filterDate && e.date !== filterDate) return;
+    const li = document.createElement('li');
+    const left = document.createElement('div');
+    left.style.flex='1';
+    left.innerHTML = `<div style="font-weight:600">${escapeHtml(e.category||'Untitled')} <span class="pill ${e.type==='income'?'income':'expense'}">${escapeHtml(e.type)}</span></div>
+                      <div class="muted">${e.date || ''} — ${escapeHtml(e.note||'')}</div>`;
+    const right = document.createElement('div');
+    right.style.textAlign='right';
+    right.innerHTML = `<div style="font-weight:700">${money(e.amount)}</div>
+                       <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
+                         <button data-i="${state.entries.length - 1 - idx}" class="editBtn">Edit</button>
+                         <button data-i="${state.entries.length - 1 - idx}" class="delBtn">Delete</button>
+                       </div>`;
+    li.appendChild(left);
+    li.appendChild(right);
+    list.appendChild(li);
   });
-  $('entriesCount').textContent = entries.length;
-  computePL();
-  computeBalance();
-  renderCalendar();
+  computeTotals();
 }
 
 function renderDebts(){
-  const tbody = qs('#debtsTable tbody'); tbody.innerHTML = '';
-  state.debts.forEach(d=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escapeHtml(d.party)}</td><td style="text-align:right">${formatMoney(d.amount)}</td><td>${d.type}</td><td><button data-id="${d.id}" class="delDebt" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
-    tbody.appendChild(tr);
+  const list = $('debtsList');
+  list.innerHTML = '';
+  state.debts.slice().forEach((d,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<div><strong>${escapeHtml(d.party)}</strong><div class="muted">${escapeHtml(d.type)} • ${d.date}</div></div>
+                    <div style="text-align:right"><div>${money(d.amount)}</div>
+                    <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
+                      <button data-i="${i}" class="togglePaid">${d.paid? 'Unmark' : 'Mark Paid'}</button>
+                      <button data-i="${i}" class="delDebt">Delete</button>
+                    </div></div>`;
+    if(d.paid) li.style.opacity = '0.6';
+    list.appendChild(li);
   });
 }
 
 function renderInventory(){
-  const tbody = qs('#inventoryTable tbody'); tbody.innerHTML = '';
-  state.inventory.forEach(it=>{
-    const value = safeNum(it.qty) * safeNum(it.cost);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escapeHtml(it.name)}</td><td style="text-align:right">${it.qty}</td><td style="text-align:right">${formatMoney(it.cost)}</td><td style="text-align:right">${formatMoney(value)}</td><td><button data-id="${it.id}" class="delItem" style="background:none;border:none;color:var(--muted);cursor:pointer">✖</button></td>`;
-    tbody.appendChild(tr);
+  const list = $('inventoryList');
+  list.innerHTML = '';
+  let total = 0;
+  state.inventory.slice().forEach((it,i)=>{
+    const value = (Number(it.qty) || 0) * (Number(it.cost) || 0);
+    total += value;
+    const li = document.createElement('li');
+    li.innerHTML = `<div><strong>${escapeHtml(it.name)}</strong><div class="muted">Qty: ${it.qty} • Unit: ${money(it.cost)}</div></div>
+                    <div style="text-align:right"><div>${money(value)}</div>
+                      <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
+                        <button data-i="${i}" class="editItem">Edit</button>
+                        <button data-i="${i}" class="delItem">Delete</button>
+                      </div></div>`;
+    list.appendChild(li);
   });
+  $('inventoryValue').textContent = money(total);
 }
 
-function computePL(){
-  const income = state.entries.filter(e=>e.type==='income').reduce((s,e)=>s+safeNum(e.amount),0);
-  const expense = state.entries.filter(e=>e.type==='expense').reduce((s,e)=>s+safeNum(e.amount),0);
-  $('totalIncome').textContent = formatMoney(income);
-  $('totalExpense').textContent = formatMoney(expense);
-  $('netProfit').textContent = formatMoney(income - expense);
-}
+/* -------------------------
+   Actions & Event wiring
+   ------------------------- */
 
-function computeBalance(){
-  const bal = state.entries.reduce((s,e)=> e.type==='income' ? s + safeNum(e.amount) : e.type==='expense' ? s - safeNum(e.amount) : s, 0);
-  $('balance').textContent = formatMoney(bal);
-}
-
-// calendar
-function renderCalendar(){
-  const grid = $('calendarGrid'); grid.innerHTML = '';
-  const d = new Date();
-  const offset = state.settings.monthOffset || 0;
-  d.setMonth(d.getMonth() + offset);
-  const year = d.getFullYear(), month = d.getMonth();
-  $('monthLabel').textContent = d.toLocaleString(undefined, {month:'long', year:'numeric'});
-
-  // headers (Mon..Sun)
-  const weekdays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  weekdays.forEach(w=>{
-    const cell = document.createElement('div'); cell.className = 'day'; cell.style.fontWeight = '700'; cell.style.background = 'transparent'; cell.style.border = 'none'; cell.textContent = w; grid.appendChild(cell);
-  });
-
-  const first = new Date(year, month, 1);
-  const startDay = (first.getDay() + 6) % 7; // monday-first
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  for(let i=0;i<startDay;i++){ const empty = document.createElement('div'); empty.className='day'; grid.appendChild(empty); }
-  for(let day=1; day<=daysInMonth; day++){
-    const cell = document.createElement('div'); cell.className = 'day';
-    const dateStr = new Date(year, month, day).toISOString().slice(0,10);
-    const header = document.createElement('div'); header.style.fontWeight='700'; header.textContent = day; cell.appendChild(header);
-    const todays = state.entries.filter(en => en.date === dateStr);
-    todays.slice(0,3).forEach(t => {
-      const b = document.createElement('div'); b.className='badge'; b.textContent = `${t.type==='income' ? '+' : '-'} ${t.category||t.account} ${formatMoney(t.amount)}`; cell.appendChild(b);
-    });
-    if(todays.length > 3){
-      const more = document.createElement('div'); more.className='muted'; more.textContent = `+${todays.length-3} more`; more.style.marginTop='6px'; cell.appendChild(more);
-    }
-    // attach data-date for clicking
-    cell.dataset.date = dateStr;
-    grid.appendChild(cell);
-  }
-}
-
-// UI actions
-$('addEntry').onclick = () => {
-  const date = $('entryDate').value || todayISO();
-  const account = $('entryAccount').value.trim() || 'Unknown';
+function addEntryFromForm(){
   const type = $('entryType').value;
-  const amount = safeNum($('entryAmount').value);
-  const category = $('entryCategory').value.trim() || (type==='income' ? 'Sales' : 'General');
+  const amount = Number($('entryAmount').value || 0);
+  const category = $('entryCategory').value.trim();
+  const date = $('entryDate').value || (new Date()).toISOString().slice(0,10);
   const note = $('entryNote').value.trim();
   if(!amount || amount <= 0){ alert('Enter a valid amount'); return; }
-  const item = { id: uid(), date, account, type, amount, category, note };
-  state.entries.push(item);
+  const ent = { type, amount: money(amount), category, date, note, created: Date.now() };
+  state.entries.push(ent);
   saveState();
+  renderEntries($('filterDate').value || null);
+  renderCalendarList($('calendarDate').value || null);
   clearEntryForm();
-  showAiTip();
-};
+}
 
 function clearEntryForm(){
   $('entryAmount').value = '';
-  $('entryNote').value = '';
   $('entryCategory').value = '';
-  $('entryAccount').value = '';
-  $('entryDate').value = todayISO();
+  $('entryNote').value = '';
+  // keep date to current selection
 }
 
-// delete handlers via delegation
-document.addEventListener('click', (e) => {
-  if(e.target.classList.contains('delEntry')){
-    const id = e.target.dataset.id;
-    if(confirm('Delete entry?')){ state.entries = state.entries.filter(x => x.id !== id); saveState(); }
-  } else if(e.target.classList.contains('delDebt')){
-    const id = e.target.dataset.id;
-    if(confirm('Remove debt?')){ state.debts = state.debts.filter(x => x.id !== id); saveState(); }
-  } else if(e.target.classList.contains('delItem')){
-    const id = e.target.dataset.id;
-    if(confirm('Remove item?')){ state.inventory = state.inventory.filter(x => x.id !== id); saveState(); }
-  }
-});
-
-// debts & inventory
-$('addDebt').onclick = () => {
-  const party = prompt('Party name (who owes / owed to):','Client A');
-  if(!party) return;
-  const amt = safeNum(prompt('Amount','0'));
-  const type = prompt('Type: "owed" (they owe you) or "owing" (you owe)','owed') === 'owed' ? 'owed' : 'owing';
-  if(!amt || amt <= 0){ alert('Invalid amount'); return; }
-  state.debts.push({ id: uid(), party, amount: amt, type });
+function addDebt(){
+  const party = $('debtParty').value.trim();
+  const amt = Number($('debtAmt').value||0);
+  const type = $('debtType').value;
+  if(!party || !amt || amt<=0){ alert('Please give a party name and valid amount'); return; }
+  state.debts.push({ party, amount: money(amt), type, date: (new Date()).toISOString().slice(0,10), paid:false });
   saveState();
-};
+  renderDebts();
+  $('debtParty').value=''; $('debtAmt').value='';
+}
 
-$('addItemBtn').onclick = () => {
-  const name = prompt('Item name','Tomato');
-  if(!name) return;
-  const qty = safeNum(prompt('Quantity','1'));
-  const cost = safeNum(prompt('Unit cost','0'));
-  state.inventory.push({ id: uid(), name, qty, cost });
+function addItem(){
+  const name = $('itemName').value.trim();
+  const qty = Number($('itemQty').value||0);
+  const cost = Number($('itemCost').value||0);
+  if(!name || qty<=0 || cost<0){ alert('Provide item, qty and a valid cost'); return; }
+  state.inventory.push({ name, qty, cost: money(cost), added: Date.now() });
   saveState();
-};
+  renderInventory();
+  $('itemName').value=''; $('itemQty').value=''; $('itemCost').value='';
+}
 
-// clear all
-$('clearAll').onclick = () => {
-  if(confirm('Clear ALL Book7 data? This cannot be undone.')) {
-    state = { entries: [], debts: [], inventory: [], settings: { monthOffset: 0 } };
-    saveState();
-  }
-};
+/* calendar list */
+function renderCalendarList(date){
+  const list = $('calendarList');
+  list.innerHTML = '';
+  if(!date) return;
+  const found = state.entries.filter(e => e.date === date);
+  if(found.length === 0) { list.innerHTML = '<li class="muted">No entries for this date</li>'; return; }
+  found.forEach(e=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<div>${escapeHtml(e.category||'')} <span class="pill ${e.type==='income'?'income':'expense'}">${e.type}</span><div class="muted">${escapeHtml(e.note||'')}</div></div>
+                    <div style="text-align:right">${money(e.amount)}</div>`;
+    list.appendChild(li);
+  });
+}
 
-// help
-$('helpBtn').onclick = () => {
-  alert('Book7 MVP help:\n- Add entries via Quick Entry.\n- Use Voice to dictate (try: "income 12000 sales client A").\n- Export JSON to backup and Import to restore.\n- Click calendar day to prefill date.');
-};
-
-// export/import
-$('exportBtn').onclick = () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+/* export/import */
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'book7-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-};
-$('importBtn').onclick = () => $('fileInput').click();
-$('fileInput').onchange = (ev) => {
-  const f = ev.target.files[0]; if(!f) return;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'book7-backup-'+(new Date()).toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importBackup(file){
+  if(!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if(!confirm('Replace local data with imported file?')) return;
-      state = imported;
-      saveState();
-      alert('Import complete');
-    } catch(err){
-      alert('Invalid JSON file');
-    }
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(data && typeof data === 'object'){
+        state = data;
+        saveState();
+        renderAll();
+        alert('Import successful');
+      }else alert('File seems invalid');
+    }catch(err){ alert('Import failed: ' + err.message); }
   };
-  reader.readAsText(f);
-};
+  reader.readAsText(file);
+}
 
-// calendar day click prefill
-$('calendarGrid').addEventListener('click', (ev) => {
-  const dayEl = ev.target.closest('.day');
-  if(!dayEl || !dayEl.dataset.date) return;
-  const dateStr = dayEl.dataset.date;
-  $('entryDate').value = dateStr;
-  alert('Prefilled date: ' + dateStr + '. Now enter details and Add Entry.');
+/* helpers */
+function escapeHtml(s){ if(s==null) return ''; return s.toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* -------------------------
+   Wiring DOM events
+   ------------------------- */
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id === 'addEntryBtn'){ addEntryFromForm(); return; }
+  if(e.target && e.target.id === 'addDebtBtn'){ addDebt(); return; }
+  if(e.target && e.target.id === 'addItemBtn'){ addItem(); return; }
+  if(e.target && e.target.id === 'saveBtn'){ saveState(); alert('Saved'); return; }
+  if(e.target && e.target.id === 'downloadBtn'){ exportBackup(); return; }
+  if(e.target && e.target.id === 'helpBtn'){ alert('Add entries, debts, inventory. Use Export to download a JSON backup. Data stored locally in your browser.'); return; }
+  if(e.target && e.target.id === 'importBtn'){ $('importFile').click(); return; }
+  if(e.target && e.target.id === 'exportBtn'){ exportBackup(); return; }
+  if(e.target && e.target.id === 'clearBtn'){
+    if(confirm('Clear all data? This cannot be undone.')){ state = { entries:[], debts:[], inventory:[], settings:{} }; saveState(); renderAll(); }
+    return;
+  }
+
+  // Delegated buttons inside lists
+  if(e.target && e.target.classList.contains('delBtn')){
+    const i = Number(e.target.dataset.i);
+    if(confirm('Delete this entry?')) state.entries.splice(i,1), saveState(), renderEntries($('filterDate').value||null), renderCalendarList($('calendarDate').value||null);
+    return;
+  }
+  if(e.target && e.target.classList.contains('editBtn')){
+    const i = Number(e.target.dataset.i);
+    const ent = state.entries[i];
+    if(!ent) return;
+    // quick edit: prefill form and remove original
+    $('entryType').value = ent.type;
+    $('entryAmount').value = ent.amount;
+    $('entryCategory').value = ent.category;
+    $('entryDate').value = ent.date;
+    $('entryNote').value = ent.note;
+    state.entries.splice(i,1);
+    saveState();
+    renderEntries($('filterDate').value||null);
+    return;
+  }
+  if(e.target && e.target.classList.contains('delDebt')){
+    const i = Number(e.target.dataset.i);
+    if(confirm('Delete this debt?')) state.debts.splice(i,1), saveState(), renderDebts();
+    return;
+  }
+  if(e.target && e.target.classList.contains('togglePaid')){
+    const i = Number(e.target.dataset.i);
+    state.debts[i].paid = !state.debts[i].paid; saveState(); renderDebts(); return;
+  }
+  if(e.target && e.target.classList.contains('delItem')){
+    const i = Number(e.target.dataset.i);
+    if(confirm('Delete this inventory item?')) state.inventory.splice(i,1), saveState(), renderInventory();
+    return;
+  }
+  if(e.target && e.target.classList.contains('editItem')){
+    const i = Number(e.target.dataset.i);
+    const it = state.inventory[i];
+    if(!it) return;
+    $('itemName').value = it.name;
+    $('itemQty').value = it.qty;
+    $('itemCost').value = it.cost;
+    state.inventory.splice(i,1);
+    saveState();
+    renderInventory();
+    return;
+  }
 });
 
-// month nav
-$('prevMonth').onclick = () => { state.settings.monthOffset = (state.settings.monthOffset || 0) - 1; saveState(); };
-$('nextMonth').onclick = () => { state.settings.monthOffset = (state.settings.monthOffset || 0) + 1; saveState(); };
+// file import
+$('importFile').addEventListener('change', function(e){
+  const f = e.target.files[0];
+  if(f) importBackup(f);
+  e.target.value = '';
+});
 
-// voice entry (if supported)
-const recognitionAvailable = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
-let recog;
-if(recognitionAvailable){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recog = new SR();
-  recog.lang = 'en-GB';
-  recog.onresult = (e) => {
-    const text = e.results[0][0].transcript;
-    $('entryNote').value = text;
-    parseVoiceToEntry(text);
-  };
-  recog.onerror = (err) => console.warn('voice err', err);
-}
-$('voiceBtn').onclick = () => {
-  if(!recog){ alert('Speech not supported in this browser'); return; }
-  try { recog.start(); } catch(e) { console.warn(e); }
-};
+// filter by date
+$('filterDate').addEventListener('change', function(e){
+  renderEntries(e.target.value || null);
+});
 
-// simple voice parser: looks for amount and keywords
-function parseVoiceToEntry(text){
-  const t = (text || '').toLowerCase();
-  const amtMatch = t.match(/(\d+[.,]?\d{0,2})/);
-  const type = t.includes('expense') || t.includes('buy') || t.includes('paid') ? 'expense' : (t.includes('income') || t.includes('sold') || t.includes('receive') ? 'income' : $('entryType').value);
-  if(amtMatch) $('entryAmount').value = amtMatch[1].replace(',', '.');
-  $('entryType').value = type;
-  // category after 'for' or last word
-  const catMatch = t.match(/(?:for|category|as)\s+([a-zA-Z]+)/);
-  if(catMatch) $('entryCategory').value = catMatch[1];
-  showAiTip();
+// calendar view date change
+$('calendarDate').addEventListener('change', function(e){
+  renderCalendarList(e.target.value || null);
+});
+
+// init load & render
+function renderAll(){
+  renderEntries($('filterDate').value || null);
+  renderDebts();
+  renderInventory();
+  renderCalendarList($('calendarDate').value || null);
+  computeTotals();
 }
 
-// AI tips (local rules)
-function showAiTip(){
-  const formAmt = safeNum($('entryAmount').value);
-  let tip = 'Tip: add category to track P&L by category.';
-  if(formAmt > 100000) tip = 'Large amount detected — consider adding proof/invoice number.';
-  else if(formAmt > 50000) tip = 'High-value entry — tag as "Capital" or "Investment" if applicable.';
-  else {
-    const cat = $('entryCategory').value.trim();
-    if(cat){
-      const recent = state.entries.filter(e => e.category && e.category.toLowerCase() === cat.toLowerCase());
-      if(recent.length >= 3) tip = `You have ${recent.length} entries for "${cat}". Consider recurring label.`;
-      else tip = `Tip: tagging "${cat}" helps P&L reporting.`;
-    }
-  }
-  $('aiTip').textContent = tip;
-}
-
-// escape html
-function escapeHtml(s){ if(s==null) return ''; return s.toString().replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
-
-// init
 function init(){
   loadState();
-  if(!state.settings) state.settings = { monthOffset: 0 };
+  // ensure arrays exist (in case of older imports)
   if(!state.entries) state.entries = [];
   if(!state.debts) state.debts = [];
-  if(!state.inventor
+  if(!state.inventory) state.inventory = [];
+  renderAll();
+  // auto-save whenever state changes frequently: simple throttled interval
+  setInterval(saveState, 5000);
+}
+
+init();
+</script>
+</body>
+</html>
