@@ -11,33 +11,7 @@ css/* ---- MOBILE OPTIMIZATION PACK ---- */
 
   header .tools {
     flex-wrap: wrap;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .grid {
-    grid-template-columns: 1fr !important;
-    gap: 10px;
-  }
-
-  .row {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  button {
-    width: 100%;
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  input, select {
-    padding: 10px;
-    font-size: 15px;
-  }
-
-  .small {
-    width: 100% !important;
+    } /* end of media query */;
   }
 
   .controls {
