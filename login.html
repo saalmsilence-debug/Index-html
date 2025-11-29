@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Book7 — Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-bg">
+  <main class="container center-card">
+    <h1>Book7</h1>
+    <div class="card">
+      <div id="auth-area">
+        <label>Username</label>
+        <input id="username" placeholder="e.g. simon" />
+        <label>4-digit PIN</label>
+        <input id="pin" placeholder="1234" inputmode="numeric" maxlength="6" />
+        <div class="row">
+          <button id="registerBtn">Register</button>
+          <button id="loginBtn">Login</button>
+        </div>
+        <small id="auth-msg" class="muted"></small>
+      </div>
+    </div>
+    <footer class="muted">PIN login stores data locally on this device.</footer>
+  </main>
+
+  <script>
+    // Simple client-side PIN register/login
+    const usernameEl = document.getElementById('username');
+    const pinEl = document.getElementById('pin');
+    const registerBtn = document.getElementById('registerBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const msg = document.getElementById('auth-msg');
+
+    function users() {
+      return JSON.parse(localStorage.getItem('book7_users')||'{}');
+    }
+    function saveUsers(u){ localStorage.setItem('book7_users', JSON.stringify(u)); }
+
+    registerBtn.onclick = ()=>{
+      const name = (usernameEl.value||'').trim();
+      const pin = (pinEl.value||'').trim();
+      if(!name||!pin||pin.length<4){ msg.textContent='Enter username and 4+ digit PIN'; return; }
+      const u = users();
+      if(u[name]){ msg.textContent='User exists — use login or choose another name'; return; }
+      u[name] = { pin, premium:false, data:{ ledger:[], inventory:[], meta:{}} };
+      saveUsers(u);
+      msg.textContent='Registered. Logging in...';
+      setTimeout(()=> loginAs(name),500);
+    }
+
+    loginBtn.onclick = ()=>{
+      const name = (usernameEl.value||'').trim();
+      const pin = (pinEl.value||'').trim();
+      if(!name||!pin){ msg.textContent='Enter both fields'; return; }
+      const u = users();
+      if(!u[name] || u[name].pin !== pin){ msg.textContent='Invalid username or PIN'; return; }
+      msg.textContent='Welcome back — loading...';
+      setTimeout(()=> loginAs(name),300);
+    }
+
+    function loginAs(name){
+      localStorage.setItem('book7_current', name);
+      window.location = 'index.html';
+    }
+  </script>
+</body>
+</html>
