@@ -1,61 +1,90 @@
-// Book7 v1.1 app.js — works with login.html
-(function(){
-  const current = localStorage.getItem('book7_current');
-  if(!current){ window.location='login.html'; return; }
+// server.js
+// Node 18+ recommended
+import express from 'express';
+import fetch from 'node-fetch';
+import crypto from 'crypto';
 
-  // Load users
-  function users(){ return JSON.parse(localStorage.getItem('book7_users')||'{}'); }
-  function saveUsers(u){ localStorage.setItem('book7_users', JSON.stringify(u)); }
-  const u = users();
-  if(!u[current]){ alert('User not found — please login again'); localStorage.removeItem('book7_current'); window.location='login.html'; return; }
-  const user = u[current];
+const app = express();
+app.use(express.json());
 
-  // DOM refs
-  const userArea = document.getElementById('userArea');
-  const currentUserName = document.getElementById('currentUserName');
-  userArea.textContent = current + (user.premium? ' (Premium)':'');
-  currentUserName.textContent = current;
+// --- CONFIG (set these in your hosting environment) ---
+const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY; // FLWSECK_TEST-... or FLWSECK-...
+const FLW_PUBLIC_KEY = process.env.FLW_PUBLIC_KEY; // optional for UI, not used by server
+const PORT = process.env.PORT || 3000;
+if (!FLW_SECRET_KEY) {
+  console.error("Set FLW_SECRET_KEY env var");
+  process.exit(1);
+}
 
-  // tabs
-  document.querySelectorAll('.tabs button').forEach(b=>{
-    b.onclick = ()=>{ document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden')); document.getElementById(b.dataset.tab).classList.remove('hidden'); }
-  });
+// Simple in-memory store for demo (replace with DB in production)
+const txStates = {}; // tx_ref -> { status, flutter_resp }
 
-  // elements
-  const entryType = document.getElementById('entryType');
-  const entryAmount = document.getElementById('entryAmount');
-  const entryCategory = document.getElementById('entryCategory');
-  const entryNote = document.getElementById('entryNote');
-  const entryDate = document.getElementById('entryDate');
-  const addEntryBtn = document.getElementById('addEntryBtn');
-  const entriesList = document.getElementById('entriesList');
-  const sumIncome = document.getElementById('sumIncome');
-  const sumExpense = document.getElementById('sumExpense');
-  const sumNet = document.getElementById('sumNet');
+function makeTxRef() {
+  return 'BOOK7-' + Date.now() + '-' + Math.floor(Math.random()*9000+1000);
+}
 
-  // inventory
-  const invItem = document.getElementById('invItem');
-  const invQty = document.getElementById('invQty');
-  const invCost = document.getElementById('invCost');
-  const addInvBtn = document.getElementById('addInvBtn');
-  const invList = document.getElementById('invList');
-  const invValue = document.getElementById('invValue');
+// Endpoint called by front-end to create an Mpesa charge
+app.post('/create_charge', async (req, res) => {
+  try {
+    const { phone_number, amount=500, email='customer@book7.example' } = req.body;
+    if (!phone_number || !/^2547\d{8}$/.test(phone_number)) {
+      return res.status(400).json({ message: 'phone_number must be in 2547XXXXXXXX format' });
+    }
 
-  // calendar
-  const calDate = document.getElementById('calDate');
-  const calEntries = document.getElementById('calEntries');
+    const tx_ref = makeTxRef();
+    const payload = {
+      tx_ref,
+      amount: amount.toString(),
+      currency: "KES",
+      redirect_url: "", // not required for MPESA STK
+      payment_options: "mpesa",
+      customer: { email, phonenumber: phone_number, name: "Book7 Customer" },
+      meta: { consumer_id: "book7_customer", consumer_mac: "kiosk" }
+    };
 
-  // settings
-  const exportBtn = document.getElementById('exportBtn');
-  const importFile = document.getElementById('importFile');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const togglePremium = document.getElementById('togglePremium');
+    const r = await fetch('https://api.flutterwave.com/v3/charges?type=mpesa', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + FLW_SECRET_KEY
+      },
+      body: JSON.stringify(payload)
+    });
 
-  // P&L
-  const plFrom = document.getElementById('plFrom');
-  const plTo = document.getElementById('plTo');
-  const plFilter = document.getElementById('plFilter');
-  const plCard = document.getElementById('plCard');
+    const json = await r.json();
+    // Save minimal state so we can poll/check later
+    txStates[tx_ref] = { status: json.status || 'pending', flutter_resp: json, created_at: Date.now() };
 
-  // helpers
-  function save(){ u[current] = user; 
+    return res.status(r.ok ? 200 : 500).json({ ok: r.ok, data: json, tx_ref });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Simple check endpoint the front-end will poll
+app.get('/check_tx', async (req, res) => {
+  const tx_ref = req.query.tx_ref;
+  if (!tx_ref) return res.status(400).json({ message: 'tx_ref required' });
+  const state = txStates[tx_ref];
+  if (!state) return res.json({ status: 'not_found' });
+  return res.json({ status: state.status, data: state.flutter_resp });
+});
+
+// Webhook endpoint that Flutterwave will POST to on status change
+app.post('/webhook', async (req, res) => {
+  // IMPORTANT: Verify request authenticity in production
+  // Flutterwave can sign webhook requests; check docs for recommended verification.
+  const body = req.body;
+  console.log('Webhook received:', JSON.stringify(body).slice(0,600));
+
+  // Example: update txStates when status is successful
+  if (body.data && body.data.tx_ref) {
+    const tx_ref = body.data.tx_ref;
+    txStates[tx_ref] = { status: body.data.status || 'unknown', flutter_resp: body, updated_at: Date.now() };
+  }
+  // return 200 quickly
+  res.json({ received: true });
+});
+
+app.listen(PORT, ()=> console.log('Server running on port',PORT));
