@@ -1,112 +1,21 @@
-/* ===== BASE MOBILE-FIRST STYLES FOR BOOK7 MVP ===== */
-
-:root{
-  --bg:#061322; 
-  --card:rgba(10,20,30,0.6); 
-  --muted:#9aa6b2; 
-  --accent1:#06b6d4; 
-  --glass:rgba(255,255,255,0.03);
-  --accent2:linear-gradient(90deg,#06b6d4,#f5e00b);
-}
-
-html,body{
-  height:100%;
-  margin:0;
-  font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
-  color:#e6eef6;
-  background:linear-gradient(180deg,#061322 0%,#041226 100%);
-  -webkit-font-smoothing:antialiased;
-}
-
-.wrap{max-width:980px;margin:12px auto;padding:12px;}
-
-/* GRID LAYOUT */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 380px;
-  gap:14px;
-}
-
-/* GENERAL UI */
-.row{display:flex;gap:8px;}
-.card{
-  background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
-  padding:12px;border-radius:12px;
-  box-shadow:0 6px 18px rgba(2,6,23,0.6);
-}
-
-button,input,select,textarea{
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.06);
-  padding:8px;
-  color:#e6eef6;
-  border-radius:8px;
-}
-
-ul{list-style:none;margin:0;padding:0;}
-ul li{display:flex;justify-content:space-between;align-items:center;padding:8px;margin-bottom:8px;border-radius:8px;background:rgba(255,255,255,0.02);}
-
-/* ===== MOBILE OPTIMIZATION PACK ===== */
-@media(max-width:600px){
-
-  .wrap{padding:8px;}
-
-  header{
-    flex-direction:column;
-    gap:8px;
-    align-items:stretch;
-  }
-
-  header .tools{
-    flex-wrap:wrap;
-    width:100%;
-    justify-content:center;
-  }
-
-  .grid{
-    grid-template-columns:1fr !important;
-    gap:10px;
-  }
-
-  .row{
-    flex-direction:column;
-    gap:10px;
-  }
-
-  button{
-    width:100%;
-    padding:12px;
-    font-size:14px;
-  }
-
-  input,select{
-    width:100%;
-    padding:10px;
-    font-size:15px;
-  }
-
-  .small{
-    width:100% !important;
-  }
-
-  .controls{
-    flex-direction:column;
-    width:100%;
-    gap:10px;
-  }
-
-  .card{
-    padding:10px;
-  }
-
-  ul li{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:6px;
-  }
-
-  ul li div{
-    width:100%;
-  }
-
-} /* END OF MOBILE PACK */
+:root{ --bg:#071026; --card:#0e2030; --muted:#9aa6b2; --accent:#2bb673; --danger:#e05b5b;}
+*{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif}
+body.app-bg{background:linear-gradient(180deg,#031423 0%,#071026 100%);color:#e6eef6;margin:0}
+.container{max-width:820px;margin:16px auto;padding:12px}
+.topbar{display:flex;justify-content:space-between;padding:12px 16px;align-items:center}
+.title{font-weight:700}
+.muted{color:var(--muted);font-size:13px}
+.card{background:var(--card);padding:10px;border-radius:12px;margin-top:10px}
+.center-card{max-width:420px;margin:36px auto;text-align:center}
+input,select,button{padding:10px;border-radius:8px;border:none;outline:none}
+input,select{background:#0b2a3b;color:#eaf4ff;margin:6px 4px}
+button{background:#163b58;color:#fff;cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tabs{display:flex;gap:6px;padding:8px;background:transparent;justify-content:center}
+.tabs button{padding:8px 12px;border-radius:8px;background:transparent;color:var(--muted)}
+.tabs button.active{background:linear-gradient(90deg,#142f42,#0a2a3a);color:#fff}
+.panel{margin-top:8px}
+.hidden{display:none}
+.list{margin-top:8px}
+.entry{background:#082233;padding:8px;border-radius:8px;margin-bottom:6px}
+.summary{display:flex;gap:12px;justify-
