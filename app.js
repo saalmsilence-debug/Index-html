@@ -1,4 +1,5 @@
 $('searchBox').addEventListener('input', function () {
+
     const q = this.value.toLowerCase();
     const dateFilter = $('filterDate').value || null;
     const list = $('entriesList');
@@ -6,6 +7,7 @@ $('searchBox').addEventListener('input', function () {
     list.innerHTML = '';
 
     state.entries.slice().reverse().forEach((e, idx) => {
+
         if (dateFilter && e.date !== dateFilter) return;
 
         const match =
@@ -16,19 +18,22 @@ $('searchBox').addEventListener('input', function () {
 
         if (!match) return;
 
-        /* --- recreate your <li> entry UI --- */
-
+        /* --- Build <li> element --- */
         const li = document.createElement('li');
 
+        /* LEFT SIDE */
         const left = document.createElement('div');
         left.innerHTML = `
             <div style="font-weight:600">
                 ${escapeHtml(e.category || 'Untitled')}
-                <span class="pill ${e.type === 'income' ? 'income' : 'expense'}">${e.type}</span>
+                <span class="pill ${e.type === 'income' ? 'income' : 'expense'}">
+                    ${e.type}
+                </span>
             </div>
             <div class="muted">${e.date} — ${escapeHtml(e.note || '')}</div>
         `;
 
+        /* RIGHT SIDE */
         const right = document.createElement('div');
         right.style.textAlign = 'right';
         right.innerHTML = `
@@ -43,4 +48,6 @@ $('searchBox').addEventListener('input', function () {
         li.appendChild(right);
         list.appendChild(li);
     });
+
+    attachButtons(); // VERY IMPORTANT → reuse your edit/delete handlers
 });
