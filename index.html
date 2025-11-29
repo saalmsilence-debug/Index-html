@@ -90,9 +90,29 @@
         <div class="section-title">Entries</div>
         <ul id="entriesList"></ul>
       </div>
-    </div><!-- inside Profit & Loss area, near totalIncome / totalExpense / netResult -->
-<div class="pill balance" id="balancePill">Balance: 0.00</div>
+    <<div class="card">
+    <div class="section-title">Profit & Loss</div>
+    <div class="row" style="flex-wrap:wrap; gap:8px">
 
+        <div class="pill income" id="totalIncome">Income: 0.00</div>
+        <div class="pill expense" id="totalExpense">Expense: 0.00</div>
+        <div class="pill" id="netResult">Net: 0.00</div>
+
+        <!-- NEW Balance pill (correct spot) -->
+        <div class="pill balance" id="balancePill">Balance: 0.00</div>
+
+    </div>
+
+    <div style="margin-top:12px">
+        <label class="muted">Filter by date</label>
+        <input id="filterDate" type="date" />
+    </div>
+
+    <div style="margin-top:12px">
+        <div class="section-title">Entries</div>
+        <ul id="entriesList"></ul>
+    </div>
+</div>
     <!-- RIGHT - SIDEBAR -->
     <div class="card">
       <div class="section-title">Calendar</div>
