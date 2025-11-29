@@ -60,4 +60,9 @@ css/* ---- MOBILE OPTIMIZATION PACK ---- */
     width: 100%;
   }
 
+}input, select {
+    padding: 10px;
+    font-size: 15px;
 }
+
+} /* <-- close the mobile optimization pack */
