@@ -1,38 +1,20 @@
-// -------------------------------------------
-//  GLOBAL APP LOGIC – NEXUS LEDGER MVP
-// -------------------------------------------
+$('searchBox').addEventListener('input', function(){
+  const q = this.value.toLowerCase();
+  const dateFilter = $('filterDate').value || null;
+  const list = $('entriesList');
 
-// Temporary exchange rate (replace later with API)
-const EXCHANGE_RATE_KSH_TO_USD = 0.0076;
+  list.innerHTML = '';
 
-/**
- * Update Ksh + USD dual-currency display
- */
-function updateNetBalanceDisplay(currentKshBalance) {
-    const usdEquivalent = currentKshBalance * EXCHANGE_RATE_KSH_TO_USD;
+  state.entries.slice().reverse().forEach((e,idx)=>{
+    if(dateFilter && e.date !== dateFilter) return;
+    const match = 
+      e.category.toLowerCase().includes(q) ||
+      e.note.toLowerCase().includes(q) ||
+      e.type.toLowerCase().includes(q) ||
+      String(e.amount).includes(q);
 
-    // Format
-    const kshFormatted = currentKshBalance.toLocaleString('en-KE', {
-        style: 'currency',
-        currency: 'KES'
-    });
+    if(!match) return;
 
-    const usdFormatted = usdEquivalent.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2
-    });
-
-    document.getElementById('net-balance-ksh').textContent = kshFormatted;
-    document.getElementById('net-balance-usd-ref').textContent = `~${usdFormatted}`;
-    
-    // Simple Financial Health Score
-    const fhsScore = Math.min(100, Math.max(0, 50 + (currentKshBalance / 10000) * 10));
-    document.getElementById('fhs-score').textContent = Math.round(fhsScore);
-}
-
-// -------------------------------------------
-//  INITIALIZE SYSTEM
-// -------------------------------------------
-let initialBalance = 50000; // Example starting balance
-updateNetBalanceDisplay(initialBalance);
+    // (reuse your existing LI creation code)
+  });
+});
