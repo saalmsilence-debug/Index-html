@@ -18,11 +18,12 @@ $('searchBox').addEventListener('input', function () {
 
         if (!match) return;
 
-        const realIndex = state.entries.indexOf(e); // <- FIXED INDEX
+        const realIndex = state.entries.indexOf(e); // <— FIXED INDEX
 
         /* Build <li> */
         const li = document.createElement('li');
 
+        /* LEFT SIDE */
         const left = document.createElement('div');
         left.innerHTML = `
             <div style="font-weight:600">
@@ -32,6 +33,7 @@ $('searchBox').addEventListener('input', function () {
             <div class="muted">${e.date} — ${escapeHtml(e.note || '')}</div>
         `;
 
+        /* RIGHT SIDE */
         const right = document.createElement('div');
         right.style.textAlign = 'right';
         right.innerHTML = `
@@ -45,6 +47,7 @@ $('searchBox').addEventListener('input', function () {
         li.appendChild(left);
         li.appendChild(right);
         list.appendChild(li);
+
     });
 
     attachButtons(); // keep edit/delete working
